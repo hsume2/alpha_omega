@@ -124,7 +124,7 @@ end
 # THUS, if you want to try to run something via sudo, and what to use the
 # root user, you'd just to try_sudo('something'). If you wanted to try_sudo as
 # someone else, you'd just do try_sudo('something', :as => "bob"). If you
-# always wanted sudo to run as a particular user, you could do 
+# always wanted sudo to run as a particular user, you could do
 # set(:admin_runner, "bob").
 def try_sudo(*args)
   options = args.last.is_a?(Hash) ? args.pop : {}
@@ -305,16 +305,16 @@ namespace :deploy do
   desc <<-DESC
     Restarts your application. This works by calling the script/process/reaper \
     script under the current path.
-    
-    If you are deploying a Rails 2.3.x application, you will need to install 
+
+    If you are deploying a Rails 2.3.x application, you will need to install
     these http://github.com/rails/irs_process_scripts (more info about why
     on that page.)
-    
+
     By default, this will be invoked via sudo as the `app' user. If \
     you wish to run it as a different user, set the :runner variable to \
     that user. If you are in an environment where you can't use sudo, set \
     the :use_sudo variable to false:
-    
+
       set :use_sudo, false
   DESC
   task :restart, :roles => :app, :except => { :no_release => true } do
@@ -378,13 +378,13 @@ namespace :deploy do
     via the migrate_env variable. Finally, you can specify the full path to the \
     rake executable by setting the rake variable. The defaults are:
 
-      set :rake,           "rake"
+      set :rake,           "bundle exec rake"
       set :rails_env,      "production"
       set :migrate_env,    ""
       set :migrate_target, :latest
   DESC
   task :migrate, :roles => :db, :only => { :primary => true } do
-    rake = fetch(:rake, "rake")
+    rake = fetch(:rake, "bundle exec rake")
     rails_env = fetch(:rails_env, "production")
     migrate_env = fetch(:migrate_env, "")
     migrate_target = fetch(:migrate_target, :latest)
