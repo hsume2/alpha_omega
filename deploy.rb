@@ -49,14 +49,11 @@ _cset :current_workarea,    capture("readlink #{current_path} || echo nothing").
 _cset(:release_name)      { current_workarea == "alpha" ? "omega" : "alpha" } # TODO harcoded binary workareas
 
 _cset :version_dir,       "releases"
-_cset :shared_dir,        "shared"
-_cset :shared_children,   %w(system log pids)
 _cset :current_dir,       "current"
 
 _cset :workareas,         %w(alpha omega)
 
 _cset(:releases_path)     { File.join(deploy_to, version_dir) }
-_cset(:shared_path)       { File.join(deploy_to, shared_dir) }
 _cset(:current_path)      { File.join(deploy_to, current_dir) }
 _cset(:release_path)      { File.join(releases_path, release_name) }
 
@@ -190,8 +187,7 @@ namespace :deploy do
     will not destroy any deployed revisions or data.
   DESC
   task :setup, :except => { :no_release => true } do
-    dirs = [deploy_to, releases_path, shared_path]
-    dirs += shared_children.map { |d| File.join(shared_path, d) }
+    dirs = [deploy_to, releases_path]
     run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
   end
 
@@ -235,9 +231,7 @@ namespace :deploy do
     task with your own environment's requirements.
 
     This task will make the release group-writable (if the :group_writable \
-    variable is set to true, which is the default). It will then set up \
-    symlinks to the shared directory for the log, system, and tmp/pids \
-    directories, and will lastly touch all assets in public/images, \
+    variable is set to true, which is the default). It will then touch all assets in public/images, \
     public/stylesheets, and public/javascripts so that the times are \
     consistent (so that asset timestamping works).  This touch process \
     is only carried out if the :normalize_asset_timestamps variable is \
@@ -250,12 +244,9 @@ namespace :deploy do
     # mkdir -p is making sure that the directories are there for some SCM's that don't
     # save empty folders
     run <<-CMD
-      rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids &&
-      mkdir -p #{latest_release}/public &&
-      mkdir -p #{latest_release}/tmp &&
-      ln -s #{shared_path}/log #{latest_release}/log &&
-      ln -s #{shared_path}/system #{latest_release}/public/system &&
-      ln -s #{shared_path}/pids #{latest_release}/tmp/pids
+      mkdir -p #{latest_release}/log &&
+      mkdir -p #{latest_release}/public/system &&
+      mkdir -p #{latest_release}/tmp/pids
     CMD
 
     if fetch(:normalize_asset_timestamps, true)

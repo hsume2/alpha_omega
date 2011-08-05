@@ -19,14 +19,14 @@ module Capistrano
         def check!
           super.check do |d|
             d.remote.command("rsync") unless copy_exclude.empty?
-            d.remote.writable(shared_path)
+            d.remote.writable(shared_path) # TODO replace shared_path
           end
         end
 
         private
 
           def repository_cache
-            File.join(shared_path, configuration[:repository_cache] || "cached-copy")
+            File.join(shared_path, configuration[:repository_cache] || "cached-copy") # TODO replace shared_path
           end
 
           def update_repository_cache
@@ -39,14 +39,14 @@ module Capistrano
 
           def copy_repository_cache
             logger.trace "copying the cached version to #{configuration[:release_path]}"
-            if copy_exclude.empty? 
+            if copy_exclude.empty?
               run "cp -RPp #{repository_cache} #{configuration[:release_path]} && #{mark}"
             else
               exclusions = copy_exclude.map { |e| "--exclude=\"#{e}\"" }.join(' ')
               run "rsync -lrpt #{exclusions} #{repository_cache}/* #{configuration[:release_path]} && #{mark}"
             end
           end
-          
+
           def copy_exclude
             @copy_exclude ||= Array(configuration.fetch(:copy_exclude, []))
           end
