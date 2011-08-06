@@ -1,4 +1,4 @@
-require 'capistrano/recipes/deploy/scm/base'
+require 'zndesk/deploy/scm/base'
 
 module Capistrano
   module Deploy
@@ -144,7 +144,7 @@ module Capistrano
 
           # checkout into a local branch rather than a detached HEAD
           execute << "cd #{destination} && #{git} checkout #{verbose} -b deploy #{revision}"
-          
+
           if variable(:git_enable_submodules)
             execute << "#{git} submodule #{verbose} init"
             execute << "#{git} submodule #{verbose} sync"
@@ -153,7 +153,7 @@ module Capistrano
 
           execute.join(" && ")
         end
-        
+
         # An expensive export. Performs a checkout as above, then
         # removes the repo.
         def export(revision, destination)

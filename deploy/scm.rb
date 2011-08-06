@@ -2,7 +2,7 @@ module Capistrano
   module Deploy
     module SCM
       def self.new(scm, config={})
-        scm_file = "capistrano/recipes/deploy/scm/#{scm}"
+        scm_file = "zendesk/deploy/scm/#{scm}"
         require(scm_file)
 
         scm_const = scm.to_s.capitalize.gsub(/_(.)/) { $1.upcase }

@@ -1,4 +1,4 @@
-require 'capistrano/recipes/deploy/strategy/remote'
+require 'zendesk/deploy/strategy/remote'
 
 module Capistrano
   module Deploy

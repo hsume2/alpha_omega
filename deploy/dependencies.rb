@@ -1,5 +1,5 @@
-require 'capistrano/recipes/deploy/local_dependency'
-require 'capistrano/recipes/deploy/remote_dependency'
+require 'zendesk/deploy/local_dependency'
+require 'zendesk/deploy/remote_dependency'
 
 module Capistrano
   module Deploy
@@ -18,7 +18,7 @@ module Capistrano
         yield self
         self
       end
-  
+
       def remote
         dep = RemoteDependency.new(configuration)
         @dependencies << dep

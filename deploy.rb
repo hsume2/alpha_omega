@@ -1,7 +1,7 @@
 require 'benchmark'
 require 'yaml'
-require 'capistrano/recipes/deploy/scm'
-require 'capistrano/recipes/deploy/strategy'
+require 'zendesk/deploy/scm'
+require 'zendesk/deploy/strategy'
 
 def _cset(name, *args, &block)
   unless exists?(name)

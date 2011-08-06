@@ -1,4 +1,4 @@
-require 'capistrano/recipes/deploy/strategy/base'
+require 'zendesk/deploy/strategy/base'
 
 module Capistrano
   module Deploy
