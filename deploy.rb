@@ -326,7 +326,6 @@ namespace :deploy do
       (if ever) need to be called directly.
     DESC
     task :cleanup, :except => { :no_release => true } do
-      run "if [ `readlink #{current_path}` != #{current_release} ]; then rm -rf #{current_release}; fi"
     end
 
     desc <<-DESC
