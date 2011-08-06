@@ -166,8 +166,7 @@ namespace :deploy do
   desc <<-DESC
     Deploys your project. This calls both `update' and `restart'. Note that \
     this will generally only work for applications that have already been deployed \
-    once. For a "cold" deploy, you'll want to take a look at the `deploy:cold' \
-    task, which handles the cold start specifically.
+    once.
   DESC
   task :default do
     update
@@ -440,19 +439,6 @@ namespace :deploy do
       end
       abort
     end
-  end
-
-  desc <<-DESC
-    Deploys and starts a `cold' application. This is useful if you have not \
-    deployed your application before, or if your application is (for some \
-    other reason) not currently running. It will deploy the code, run any \
-    pending migrations, and then instead of invoking `deploy:restart', it will \
-    invoke `deploy:start' to fire up the application servers.
-  DESC
-  task :cold do
-    update
-    migrate
-    start
   end
 
   desc <<-DESC
