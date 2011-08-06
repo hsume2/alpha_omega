@@ -175,23 +175,6 @@ namespace :deploy do
   end
 
   desc <<-DESC
-    Prepares one or more servers for deployment. Before you can use any \
-    of the Capistrano deployment tasks with your project, you will need to \
-    make sure all of your servers have been prepared with `cap deploy:setup'. When \
-    you add a new server to your cluster, you can easily run the setup task \
-    on just that server by specifying the HOSTS environment variable:
-
-      $ cap HOSTS=new.server.com deploy:setup
-
-    It is safe to run this task on servers that have already been set up; it \
-    will not destroy any deployed revisions or data.
-  DESC
-  task :setup, :except => { :no_release => true } do
-    dirs = [deploy_to, releases_path]
-    run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
-  end
-
-  desc <<-DESC
     Copies your project and updates the symlink. It does this in a \
     transaction, so that if either `update_code' or `symlink' fail, all \
     changes made to the remote servers will be rolled back, leaving your \
@@ -219,7 +202,8 @@ namespace :deploy do
     defaults to :checkout).
   DESC
   task :update_code, :except => { :no_release => true } do
-    on_rollback { run "rm -rf #{release_path}; true" }
+    dirs = [deploy_to, releases_path]
+    run "#{try_sudo} mkdir -p #{dirs.join(' ')} && #{try_sudo} chmod g+w #{dirs.join(' ')}"
     strategy.deploy!
     finalize_update
   end
