@@ -39,12 +39,6 @@ _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_e
 
 _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
 
-# TODO what is equivalent to current_workarea for timestamped directories?
-# TODO what variables are not needed for persistent directories?
-# If overriding release name, please also select an appropriate setting for :releases below.
-_cset :current_workarea,    capture("readlink #{current_path} || echo nothing").strip.split("/")[-1]
-_cset(:release_name)      { current_workarea == workarea[0] ? workarea[1] : workarea[0] } # TODO support more than two workareas
-
 _cset :version_dir,       "releases"
 _cset :current_dir,       "current"
 
@@ -61,6 +55,12 @@ _cset(:previous_release)  { releases.length > 1 ? File.join(releases_path, relea
 _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
 _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).chomp }
 _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
+
+# TODO what is equivalent to current_workarea for timestamped directories?
+# TODO what variables are not needed for persistent directories?
+# If overriding release name, please also select an appropriate setting for :releases below.
+_cset :current_workarea,    capture("readlink #{current_path} || echo nothing").strip.split("/")[-1]
+_cset(:release_name)      { current_workarea == workarea[0] ? workarea[1] : workarea[0] } # TODO support more than two workareas
 
 _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
