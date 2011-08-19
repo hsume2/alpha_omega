@@ -1,4 +1,4 @@
-require 'zndesk/deploy/scm/base'
+require 'zendesk/deploy/scm/base'
 
 module Capistrano
   module Deploy
