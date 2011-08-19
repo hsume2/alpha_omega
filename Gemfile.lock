@@ -10,7 +10,12 @@ GEM
     capistrano-log_with_awesome (0.0.2)
       capistrano (>= 2.5.14)
     capistrano_colors (0.5.4)
+    diff-lcs (1.1.2)
+    grit (2.4.1)
+      diff-lcs (~> 1.1)
+      mime-types (~> 1.15)
     highline (1.6.2)
+    mime-types (1.16)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-sftp (2.0.5)
@@ -26,3 +31,4 @@ DEPENDENCIES
   capistrano (= 2.5.21)
   capistrano-log_with_awesome
   capistrano_colors
+  grit
