@@ -61,7 +61,7 @@ _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except 
 # TODO what variables are not needed for persistent directories?
 # If overriding release name, please also select an appropriate setting for :releases below.
 _cset(:current_workarea)  { capture("readlink #{current_path} || echo nothing").strip.split("/")[-1] }
-_cset(:release_name)      { current_workarea == workarea[0] ? workarea[1] : workarea[0] } # TODO support more than two workareas
+_cset(:release_name)      { current_workarea == workareas[0] ? workareas[1] : workareas[0] } # TODO support more than two workareas
 
 _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
