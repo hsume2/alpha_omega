@@ -140,7 +140,8 @@ module Capistrano
           end
 
           execute = []
-          execute << "[[ -d #{destination}/.git ]] || #{git} clone #{verbose} #{args.join(' ')} #{variable(:repository)} #{destination}"
+          # TODO test && a || b will execute b if a fails
+          execute << "[[ -d #{destination}/.git ]] && { cd #{destination} && #{git} fetch -q && git fetch --tags && git reset --hard #{revision}; } || #{git} clone #{verbose} #{args.join(' ')} #{variable(:repository)} #{destination}"
 
           # checkout into a local branch rather than a detached HEAD
           execute << "cd #{destination} && #{git} checkout #{verbose} #{revision}"
