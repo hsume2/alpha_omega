@@ -2,6 +2,7 @@ require 'benchmark'
 require 'yaml'
 require 'zendesk/deploy/scm'
 require 'zendesk/deploy/strategy'
+require 'capistrano_colors'
 require 'capistrano/log_with_awesome'
 
 def _cset(name, *args, &block)
