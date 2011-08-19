@@ -24,6 +24,7 @@ _cset(:repository)  { abort "Please specify the repository that houses your appl
 
 _cset :scm, :git
 _cset :deploy_via, :checkout
+_cset :default_shell, "/bin/bash"
 
 _cset(:deploy_to) { "/u/apps/#{application}" }
 _cset(:revision)  { source.head }
