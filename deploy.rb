@@ -2,6 +2,7 @@ require 'benchmark'
 require 'yaml'
 require 'zendesk/deploy/scm'
 require 'zendesk/deploy/strategy'
+require 'capistrano/log_with_awesome'
 
 def _cset(name, *args, &block)
   unless exists?(name)
@@ -198,7 +199,7 @@ namespace :deploy do
     defaults to :checkout).
   DESC
   task :update_code, :except => { :no_release => true } do
-    dirs = [deploy_to, releases_path]
+    dirs = [deploy_to, releases_path, "#{deploy_to}/log" ]
     dir_args = dirs.join(' ')
     run "#{try_sudo} mkdir -p #{dir_args} && #{try_sudo} chmod g+w #{dir_args} && #{try_sudo} chown #{user}:#{group} #{dir_args}"
     strategy.deploy!
@@ -423,3 +424,8 @@ namespace :deploy do
   end
 
 end
+
+on :exit do
+  put full_log, "#{deploy_to}/log/last_deploy.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+end
+
