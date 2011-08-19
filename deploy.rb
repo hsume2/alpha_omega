@@ -332,27 +332,6 @@ namespace :deploy do
   end
 
   desc <<-DESC
-    Clean up old releases. By default, the last 5 releases are kept on each \
-    server (though you can change this with the keep_releases variable). All \
-    other deployed revisions are removed from the servers. By default, this \
-    will use sudo to clean up the old releases, but if sudo is not available \
-    for your environment, set the :use_sudo variable to false instead.
-  DESC
-  task :cleanup, :except => { :no_release => true } do
-    count = fetch(:keep_releases, 5).to_i
-    if count >= releases.length
-      logger.important "no old releases to clean up"
-    else
-      logger.info "keeping #{count} of #{releases.length} deployed releases"
-
-      directories = (releases - releases.last(count)).map { |release|
-        File.join(releases_path, release) }.join(" ")
-
-      try_sudo "rm -rf #{directories}"
-    end
-  end
-
-  desc <<-DESC
     Test deployment dependencies. Checks things like directory permissions, \
     necessary utilities, and so forth, reporting on the things that appear to \
     be incorrect or missing. This is good for making sure a deploy has a \
