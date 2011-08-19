@@ -43,28 +43,25 @@ _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
 
 _cset :version_dir,       "releases"
 _cset :current_dir,       "current"
-
-_cset :workareas,         %w(alpha omega)
+_cset :releases,          %w(alpha omega)
 
 _cset(:releases_path)     { File.join(deploy_to, version_dir) }
 _cset(:current_path)      { File.join(deploy_to, current_dir) }
 _cset(:release_path)      { File.join(releases_path, release_name) }
 
-_cset(:releases)          { capture("ls -x #{releases_path}", :except => { :no_release => true }).split.sort }
 _cset(:current_release)   { release_path }
-_cset(:previous_release)  { releases.length > 1 ? File.join(releases_path, releases[-2]) : nil }
+_cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
+_cset(:previous_release)  { w = current_workarea
+                            releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
+                          }
+_cset(:release_name)      { w = current_workarea
+                            releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+                          }
 
 _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
 _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).chomp }
 _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
 
-# TODO what is equivalent to current_workarea for timestamped directories?
-# TODO what variables are not needed for persistent directories?
-# If overriding release name, please also select an appropriate setting for :releases below.
-_cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
-_cset(:release_name)      { w = current_workarea
-                            workareas[((workareas.index(w)?workareas.index(w):-1)+1)%workareas.length]
-                          }
 _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
 # formerly:
