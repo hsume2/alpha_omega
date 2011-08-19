@@ -43,7 +43,7 @@ _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
 # TODO what variables are not needed for persistent directories?
 # If overriding release name, please also select an appropriate setting for :releases below.
 _cset :current_workarea,    capture("readlink #{current_path} || echo nothing").strip.split("/")[-1]
-_cset(:release_name)      { current_workarea == "alpha" ? "omega" : "alpha" } # TODO harcoded binary workareas
+_cset(:release_name)      { current_workarea == workarea[0] ? workarea[1] : workarea[0] } # TODO support more than two workareas
 
 _cset :version_dir,       "releases"
 _cset :current_dir,       "current"
