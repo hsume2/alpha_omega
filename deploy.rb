@@ -154,9 +154,8 @@ def try_runner(*args)
 end
 
 # =========================================================================
-# These are the tasks that are available to help with deploying web apps,
-# and specifically, Rails applications. You can have cap give you a summary
-# of them with `cap -T'.
+# These are the tasks that are available to help with deploying web apps.
+# You can have cap give you a summary of them with `cap -T'.
 # =========================================================================
 
 namespace :deploy do
@@ -205,35 +204,9 @@ namespace :deploy do
   end
 
   desc <<-DESC
-    [internal] Touches up the released code. This is called by update_code \
-    after the basic deploy finishes. It assumes a Rails project was deployed, \
-    so if you are deploying something else, you may want to override this \
-    task with your own environment's requirements.
-
-    This task will make the release group-writable (if the :group_writable \
-    variable is set to true, which is the default). It will then touch all assets in public/images, \
-    public/stylesheets, and public/javascripts so that the times are \
-    consistent (so that asset timestamping works).  This touch process \
-    is only carried out if the :normalize_asset_timestamps variable is \
-    set to true, which is the default The asset directories can be overridden \
-    using the :public_children variable.
+    Override in deploy recipes.  Formerly railsy directories and assets.
   DESC
   task :finalize_update, :except => { :no_release => true } do
-    run "chmod -R g+w #{latest_release}" if fetch(:group_writable, true)
-
-    # mkdir -p is making sure that the directories are there for some SCM's that don't
-    # save empty folders
-    run <<-CMD
-      mkdir -p #{latest_release}/log &&
-      mkdir -p #{latest_release}/public/system &&
-      mkdir -p #{latest_release}/tmp/pids
-    CMD
-
-    if fetch(:normalize_asset_timestamps, true)
-      stamp = Time.now.utc.strftime("%Y%m%d%H%M.%S")
-      asset_paths = fetch(:public_children, %w(images stylesheets javascripts)).map { |p| "#{latest_release}/public/#{p}" }.join(" ")
-      run "find #{asset_paths} -exec touch -t #{stamp} {} ';'; true", :env => { "TZ" => "UTC" }
-    end
   end
 
   desc <<-DESC
@@ -334,33 +307,9 @@ namespace :deploy do
   end
 
   desc <<-DESC
-    Run the migrate rake task. By default, it runs this in most recently \
-    deployed version of the app. However, you can specify a different release \
-    via the migrate_target variable, which must be one of :latest (for the \
-    default behavior), or :current (for the release indicated by the \
-    `current' symlink). Strings will work for those values instead of symbols, \
-    too. You can also specify additional environment variables to pass to rake \
-    via the migrate_env variable. Finally, you can specify the full path to the \
-    rake executable by setting the rake variable. The defaults are:
-
-      set :rake,           "bundle exec rake"
-      set :rails_env,      "production"
-      set :migrate_env,    ""
-      set :migrate_target, :latest
+    Override in deploy recipes.  Formerly a railsy rake db:migrate.
   DESC
   task :migrate, :roles => :db, :only => { :primary => true } do
-    rake = fetch(:rake, "bundle exec rake")
-    rails_env = fetch(:rails_env, "production")
-    migrate_env = fetch(:migrate_env, "")
-    migrate_target = fetch(:migrate_target, :latest)
-
-    directory = case migrate_target.to_sym
-      when :current then current_path
-      when :latest  then latest_release
-      else raise ArgumentError, "unknown migration target #{migrate_target.inspect}"
-      end
-
-    run "cd #{directory}; #{rake} RAILS_ENV=#{rails_env} #{migrate_env} db:migrate"
   end
 
   desc <<-DESC
