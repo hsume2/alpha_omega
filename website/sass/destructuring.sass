@@ -1,0 +1,53 @@
+$sans: "Graublau Web",monospace
+$serif: "Gentium",monospace
+$mono: "DejaVu Sans Mono",monospace
+$darkbg: #262626
+$darkfg: #dadada
+$darkerfg: #444444
+$lightfg: #121212
+$orange: #ff5f00
+$gray: #dadada
+
+body.bp
+  line-height: 1.5em
+  font-size: 1em
+  color: $lightfg
+  font-family: $serif
+
+  .title, .tilde
+    color: $orange
+
+  h1, h2, h3
+    font-family: $sans
+
+  a
+    text-decoration: none
+    color: $orange
+
+    a:link, a:visited, a:hover, a:active
+      color: $orange
+
+  .picture img
+    -moz-border-radius: 5px 5px 5px 5px
+    -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2)
+    background: none repeat scroll 0 0 $darkbg
+    padding: 5px
+
+  tr.alt1
+    background: #ededed
+
+  .syntaxhighlighter a, .syntaxhighlighter div, .syntaxhighlighter code,
+  .syntaxhighlighter table, .syntaxhighlighter table td, .syntaxhighlighter table tr, 
+  .syntaxhighlighter table tbody, .syntaxhighlighter table thead,
+  .syntaxhighlighter table caption, .syntaxhighlighter textarea
+    font-family: $mono !important
+    font-size: 12px !important
+
+  #footer
+    font-family: $sans
+    background-color: $darkbg
+    color: $darkfg
+
+    .commits
+      color: $darkerfg
+

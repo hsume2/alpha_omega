@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+if [[ ! -d "output" ]]; then
+  git clone $(git config --local --get remote.origin.url) output
+  pushd output > /dev/null
+  git checkout gh-pages
+  popd > /dev/null
+fi
+
+bundle exec compass compile
+bundle exec nanoc3 compile
+
+rsync -ia assets output/
