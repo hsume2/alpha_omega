@@ -202,7 +202,8 @@ namespace :deploy do
   task :update_code, :except => { :no_release => true } do
     dirs = [ releases_path, "#{deploy_to}/log" ]
     dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-    run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to} && cd #{deploy_to} && #{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{dir_args}"
+    run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
+    run "cd #{deploy_to} && #{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{dir_args}"
     strategy.deploy!
     finalize_update
   end
