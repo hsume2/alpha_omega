@@ -122,12 +122,6 @@ module Capistrano
           # checkout into a local branch rather than a detached HEAD
           execute << "cd #{destination} && #{git} checkout #{verbose} #{revision}"
 
-          if variable(:git_enable_submodules)
-            execute << "#{git} submodule #{verbose} init"
-            execute << "#{git} submodule #{verbose} sync"
-            execute << "#{git} submodule #{verbose} update --recursive"
-          end
-
           execute
         end
 
