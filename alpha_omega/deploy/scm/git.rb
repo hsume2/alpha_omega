@@ -19,10 +19,7 @@ module Capistrano
       #
       #   * Very simple, only requiring 2 lines in your deploy.rb.
       #   * Can deploy different branches, tags, or any SHA1 easily.
-      #   * Supports prompting for password / passphrase upon checkout.
-      #     (I am amazed at how some plugins don't do this)
-      #   * Supports :scm_command, :scm_password, :scm_passphrase Capistrano
-      #     directives.
+      #   * Supports :scm_command Capistrano directive.
       #
       # CONFIGURATION
       # -------------
@@ -71,15 +68,6 @@ module Capistrano
       # For compatibility with deploy scripts that may have used the 1.x
       # version of this plugin before upgrading, <tt>:git</tt> is still
       # recognized as an alias for :scm_command.
-      #
-      # Set <tt>:scm_password</tt> to the password needed to clone your repo
-      # if you don't have password-less (public key) entry:
-      #
-      #   set :scm_password, "my_secret'
-      #
-      # Otherwise, you will be prompted for a password.
-      #
-      # <tt>:scm_passphrase</tt> is also supported.
       #
       # AUTHORS
       # -------
@@ -159,34 +147,6 @@ module Capistrano
         def command
           # For backwards compatibility with 1.x version of this module
           variable(:git) || super
-        end
-
-        # Determines what the response should be for a particular bit of text
-        # from the SCM. Password prompts, connection requests, passphrases,
-        # etc. are handled here.
-        def handle_data(state, stream, text)
-          host = state[:channel][:host]
-          logger.info "[#{host} :: #{stream}] #{text}"
-          case text
-          when /\bpassword.*:/i
-            # git is prompting for a password
-            unless pass = variable(:scm_password)
-              pass = Capistrano::CLI.password_prompt
-            end
-            "#{pass}\n"
-          when %r{\(yes/no\)}
-            # git is asking whether or not to connect
-            "yes\n"
-          when /passphrase/i
-            # git is asking for the passphrase for the user's key
-            unless pass = variable(:scm_passphrase)
-              pass = Capistrano::CLI.password_prompt
-            end
-            "#{pass}\n"
-          when /accept \(t\)emporarily/
-            # git is asking whether to accept the certificate
-            "t\n"
-          end
         end
 
         private

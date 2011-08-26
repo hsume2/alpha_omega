@@ -25,16 +25,6 @@ module Capistrano
 
         protected
 
-          # Runs the given command, filtering output back through the
-          # #handle_data filter of the SCM implementation.
-          def scm_run(command)
-            run(command) do |ch,stream,text|
-              ch[:state] ||= { :channel => ch }
-              output = source.handle_data(ch[:state], stream, text)
-              ch.send_data(output) if output
-            end
-          end
-
           # An abstract method which must be overridden in subclasses, to
           # return the actual SCM command(s) which must be executed on each
           # target host in order to perform the deployment.

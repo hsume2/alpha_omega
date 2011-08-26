@@ -120,18 +120,6 @@ module Capistrano
           revision
         end
 
-        # Should analyze the given text and determine whether or not a
-        # response is expected, and if so, return the appropriate response.
-        # If no response is expected, return nil. The +state+ parameter is a
-        # hash that may be used to preserve state between calls. This method
-        # is used to define how Capistrano should respond to common prompts
-        # and messages from the SCM, like password prompts and such. By
-        # default, the output is simply displayed.
-        def handle_data(state, stream, text)
-          logger.info "[#{stream}] #{text}"
-          nil
-        end
-
         # Returns the name of the command-line utility for this SCM. It first
         # looks at the :scm_command variable, and if it does not exist, it
         # then falls back to whatever was defined by +default_command+.
