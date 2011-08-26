@@ -8,12 +8,17 @@ namespace and heavily altered to their present state.
 Getting Started
 ===============
 
-figlet must be installed.
+figlet must be installed. Your local machine must let you ssh and run sudo
+without a password during the deploy.
 
-Your local machine must let you ssh and run sudo without a password during the deploy.
-
-    bundle --local --path vendor/bundle
-    bundle exec foreman start
+    bin/deploy
+    bin/deploy
+    bin/deploy
+    bin/deploy
+    bin/rollback
+    bin/stage
+    bin/deploy
+    bin/patch
 
 LICENSE
 -------
