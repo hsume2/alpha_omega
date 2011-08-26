@@ -41,23 +41,6 @@ module Capistrano
       # Otherwise, HEAD is assumed.  I strongly suggest you set this.  HEAD is
       # not always the best assumption.
       #
-      # You may also set <tt>:remote</tt>, which will be used as a name for remote
-      # tracking of repositories. This option is intended for use with the
-      # <tt>:remote_cache</tt> strategy in a distributed git environment.
-      #
-      # For example in the projects <tt>config/deploy.rb</tt>:
-      #
-      #   set :repository, "#{scm_user}@somehost:~/projects/project.git"
-      #   set :remote, "#{scm_user}"
-      #
-      # Then each person with deploy priveledges can add the following to their
-      # local <tt>~/.caprc</tt> file:
-      #
-      #   set :scm_user, 'someuser'
-      #
-      # Now any time a person deploys the project, their repository will be
-      # setup as a remote git repository within the cached repository.
-      #
       # The <tt>:scm_command</tt> configuration variable, if specified, will
       # be used as the full path to the git executable on the *remote* machine:
       #
@@ -84,18 +67,10 @@ module Capistrano
           variable(:branch) || 'HEAD'
         end
 
-        def origin
-          variable(:remote) || 'origin'
-        end
-
         # Performs a clone on the remote machine, then checkout on the branch
         # you want to deploy.
         def checkout(revision, destination)
-          git    = command
-          remote = origin
-
-          args = []
-          args << "-o #{remote}" unless remote == 'origin'
+          git = command
 
           execute = []
           # TODO test && a || b will execute b if a fails
