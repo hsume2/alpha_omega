@@ -81,27 +81,6 @@ module Capistrano
       #
       # <tt>:scm_passphrase</tt> is also supported.
       #
-      # The remote cache strategy is also supported.
-      #
-      #   set :repository_cache, "git_master"
-      #   set :deploy_via, :remote_cache
-      #
-      # For faster clone, you can also use shallow cloning.  This will set the
-      # '--depth' flag using the depth specified.  This *cannot* be used
-      # together with the :remote_cache strategy
-      #
-      #   set :git_shallow_clone, 1
-      #
-      # For those that don't like to leave your entire repository on
-      # your production server you can:
-      #
-      #   set :deploy_via, :export
-      #
-      # To deploy from a local repository:
-      #
-      #   set :repository, "file://."
-      #   set :deploy_via, :copy
-      #
       # AUTHORS
       # -------
       #
@@ -135,9 +114,6 @@ module Capistrano
 
           args = []
           args << "-o #{remote}" unless remote == 'origin'
-          if depth = variable(:git_shallow_clone)
-            args << "--depth #{depth}"
-          end
 
           execute = []
           # TODO test && a || b will execute b if a fails
