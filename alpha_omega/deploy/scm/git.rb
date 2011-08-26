@@ -128,7 +128,7 @@ module Capistrano
             execute << "#{git} submodule #{verbose} update --recursive"
           end
 
-          execute.join(" && ")
+          execute
         end
 
         # Returns a string of diffs between two revisions

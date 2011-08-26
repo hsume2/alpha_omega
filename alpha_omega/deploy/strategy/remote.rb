@@ -11,7 +11,10 @@ module Capistrano
         # Executes the SCM command for this strategy and writes the REVISION
         # mark file to each host.
         def deploy!
-          scm_run "#{command} && #{mark}"
+          commands.each do |command|
+            run command
+          end
+          run mark
         end
 
         def check!
@@ -35,14 +38,14 @@ module Capistrano
           # An abstract method which must be overridden in subclasses, to
           # return the actual SCM command(s) which must be executed on each
           # target host in order to perform the deployment.
-          def command
+          def commands
             raise NotImplementedError, "`command' is not implemented by #{self.class.name}"
           end
 
           # Returns the command which will write the identifier of the
           # revision being deployed to the REVISION file on each host.
           def mark
-            "(echo #{revision} > #{configuration[:release_path]}/REVISION)"
+            "echo #{revision} > #{configuration[:release_path]}/REVISION"
           end
       end
 

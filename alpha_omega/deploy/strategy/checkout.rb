@@ -10,8 +10,8 @@ module Capistrano
         protected
 
           # Returns the SCM's checkout command for the revision to deploy.
-          def command
-            @command ||= source.checkout(revision, configuration[:release_path])
+          def commands
+            @commands ||= source.checkout(revision, configuration[:release_path])
           end
       end
 
