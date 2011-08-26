@@ -131,43 +131,6 @@ module Capistrano
           execute.join(" && ")
         end
 
-        # Merges the changes to 'head' since the last fetch, for remote_cache
-        # deployment strategy
-        def sync(revision, destination)
-          git     = command
-          remote  = origin
-
-          execute = []
-          execute << "cd #{destination}"
-
-          # Use git-config to setup a remote tracking branches. Could use
-          # git-remote but it complains when a remote of the same name already
-          # exists, git-config will just silenty overwrite the setting every
-          # time. This could cause wierd-ness in the remote cache if the url
-          # changes between calls, but as long as the repositories are all
-          # based from each other it should still work fine.
-          if remote != 'origin'
-            execute << "#{git} config remote.#{remote}.url #{variable(:repository)}"
-            execute << "#{git} config remote.#{remote}.fetch +refs/heads/*:refs/remotes/#{remote}/*"
-          end
-
-          # since we're in a local branch already, just reset to specified revision rather than merge
-          execute << "#{git} fetch #{verbose} #{remote} && #{git} reset #{verbose} --hard #{revision}"
-
-          if variable(:git_enable_submodules)
-            execute << "#{git} submodule #{verbose} init"
-            execute << "for mod in `#{git} submodule status | awk '{ print $2 }'`; do #{git} config -f .git/config submodule.${mod}.url `#{git} config -f .gitmodules --get submodule.${mod}.url` && echo Synced $mod; done"
-            execute << "#{git} submodule #{verbose} sync"
-            execute << "#{git} submodule #{verbose} update"
-          end
-
-          # Make sure there's nothing else lying around in the repository (for
-          # example, a submodule that has subsequently been removed).
-          execute << "#{git} clean #{verbose} -d -x -f"
-
-          execute.join(" && ")
-        end
-
         # Returns a string of diffs between two revisions
         def diff(from, to=nil)
           from << "..#{to}" if to

@@ -88,12 +88,6 @@ module Capistrano
           raise NotImplementedError, "`checkout' is not implemented by #{self.class.name}"
         end
 
-        # Resynchronize the working copy in +destination+ to the specified
-        # +revision+.
-        def sync(revision, destination)
-          raise NotImplementedError, "`sync' is not implemented by #{self.class.name}"
-        end
-
         # Compute the difference between the two revisions, +from+ and +to+.
         def diff(from, to=nil)
           raise NotImplementedError, "`diff' is not implemented by #{self.class.name}"
