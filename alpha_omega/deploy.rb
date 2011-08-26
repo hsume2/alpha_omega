@@ -232,6 +232,8 @@ namespace :deploy do
     end
 
     run "ln -snf #{latest_release} #{current_path}"
+
+    system "figlet -w 200 #{release_name} activated"
   end
 
   desc <<-DESC
