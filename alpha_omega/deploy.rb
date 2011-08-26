@@ -264,6 +264,7 @@ namespace :deploy do
     DESC
     task :revision, :except => { :no_release => true } do
       if previous_release
+        system "figlet -w 200 on #{previous_release}"
         run "ln -snf #{previous_release} #{current_path}"
       else
         abort "could not rollback the code because there is no prior release"
