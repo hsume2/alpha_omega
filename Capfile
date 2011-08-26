@@ -13,7 +13,7 @@ set :repository, "git://localhost/.git"
 set :user, Etc.getlogin
 set :group, Etc.getgrgid(Etc.getpwnam(Etc.getlogin).gid).name
 set :deploy_to, Dir.pwd
-set :releases, %w(alpha omega lamda hash)
+set :releases, %w(alpha beta gamma omega)
 
 role :app, "localhost", :once => true, :shell => "/bin/bash"
 
