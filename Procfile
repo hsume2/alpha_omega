@@ -1,2 +1,2 @@
 git: git daemon --reuseaddr --base-path=. --export-all --verbose
-cap: bundle exec cap deploy
+cap: sleep 1; bundle exec cap deploy
