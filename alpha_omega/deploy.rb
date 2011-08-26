@@ -200,9 +200,9 @@ namespace :deploy do
     defaults to :checkout).
   DESC
   task :update_code, :except => { :no_release => true } do
-    dirs = [deploy_to, releases_path, "#{deploy_to}/log" ]
-    dir_args = dirs.join(' ')
-    run "#{try_sudo} mkdir -p #{dir_args} && #{try_sudo} chmod g+w #{dir_args} && #{try_sudo} chown #{user}:#{group} #{dir_args}"
+    dirs = [ releases_path, "#{deploy_to}/log" ]
+    dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
+    run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to} && cd #{deploy_to} && #{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{dir_args}"
     strategy.deploy!
     finalize_update
   end
