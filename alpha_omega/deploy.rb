@@ -56,7 +56,9 @@ _cset(:previous_release)  { w = current_workarea
                             releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
                           }
 _cset(:release_name)      { w = current_workarea
-                            releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+                            stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+                            system "figlet -w 200 on #{stage}"
+                            stage
                           }
 
 _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }

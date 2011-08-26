@@ -1,6 +1,8 @@
 Getting Started
 ===============
 
+figlet must be installed.
+
 Your local machine must let you ssh and run sudo without a password during the deploy.
 
     bundle --local --path vendor/bundle
