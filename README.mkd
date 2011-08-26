@@ -4,7 +4,7 @@ Getting Started
 Your local machine must let you ssh and run sudo without a password during the deploy.
 
     bundle --local --path vendor/bundle
-    bundle exec cap deploy
+    bundle exec foreman start
 
 LICENSE
 -------
