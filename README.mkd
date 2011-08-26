@@ -1,3 +1,10 @@
+History
+=======
+
+These capistrano deploy recipes came from capistrano 2.5.21.  Instead of
+forking capistrano itself, the recipes were copied to the alpha\_omega
+namespace and heavily altered to their present state.
+
 Getting Started
 ===============
 
