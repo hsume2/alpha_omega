@@ -1,3 +1,4 @@
 #!/bin/bash
 
+bundle check || bundle --local --path vendor/bundle
 exec bundle exec foreman start -c git=1,rollback=1,cap=0,stage=0,patch=0
