@@ -1,7 +1,7 @@
 require 'benchmark'
 require 'yaml'
-require 'zendesk/deploy/scm'
-require 'zendesk/deploy/strategy'
+require 'alpha_omega/deploy/scm'
+require 'alpha_omega/deploy/strategy'
 require 'capistrano_colors'
 require 'capistrano/log_with_awesome'
 

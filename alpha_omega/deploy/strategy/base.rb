@@ -1,5 +1,5 @@
 require 'benchmark'
-require 'zendesk/deploy/dependencies'
+require 'alpha_omega/deploy/dependencies'
 
 module Capistrano
   module Deploy

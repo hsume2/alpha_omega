@@ -2,7 +2,7 @@
 
 require 'etc'
 
-load 'zendesk/deploy'
+load 'alpha_omega/deploy'
 
 ssh_options[:forward_agent] = true
 

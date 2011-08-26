@@ -1,4 +1,4 @@
-require 'zendesk/deploy/strategy/remote'
+require 'alpha_omega/deploy/strategy/remote'
 
 module Capistrano
   module Deploy

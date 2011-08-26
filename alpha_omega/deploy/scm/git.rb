@@ -1,4 +1,4 @@
-require 'zendesk/deploy/scm/base'
+require 'alpha_omega/deploy/scm/base'
 
 module Capistrano
   module Deploy

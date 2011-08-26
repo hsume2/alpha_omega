@@ -1,5 +1,5 @@
-require 'zendesk/deploy/local_dependency'
-require 'zendesk/deploy/remote_dependency'
+require 'alpha_omega/deploy/local_dependency'
+require 'alpha_omega/deploy/remote_dependency'
 
 module Capistrano
   module Deploy

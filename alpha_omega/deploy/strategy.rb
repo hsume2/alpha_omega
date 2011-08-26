@@ -2,7 +2,7 @@ module Capistrano
   module Deploy
     module Strategy
       def self.new(strategy, config={})
-        strategy_file = "zendesk/deploy/strategy/#{strategy}"
+        strategy_file = "alpha_omega/deploy/strategy/#{strategy}"
         require(strategy_file)
 
         strategy_const = strategy.to_s.capitalize.gsub(/_(.)/) { $1.upcase }

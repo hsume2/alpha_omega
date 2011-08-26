@@ -1,4 +1,4 @@
-require 'zendesk/deploy/strategy/base'
+require 'alpha_omega/deploy/strategy/base'
 
 module Capistrano
   module Deploy
