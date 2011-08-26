@@ -5,9 +5,7 @@ module Capistrano
     module SCM
 
       # An SCM module for using Git as your source control tool with Capistrano
-      # 2.0.  If you are using Capistrano 1.x, use this plugin instead:
-      #
-      #   http://scie.nti.st/2007/3/16/capistrano-with-git-shared-repository
+      # 2.0.
       #
       # Assumes you are using a shared Git repository.
       #
@@ -64,10 +62,6 @@ module Capistrano
       # be used as the full path to the git executable on the *remote* machine:
       #
       #   set :scm_command, "/opt/local/bin/git"
-      #
-      # For compatibility with deploy scripts that may have used the 1.x
-      # version of this plugin before upgrading, <tt>:git</tt> is still
-      # recognized as an alias for :scm_command.
       #
       # AUTHORS
       # -------
@@ -142,11 +136,6 @@ module Capistrano
           end
           raise "Unable to resolve revision for '#{revision}' on repository '#{repository}'." unless newrev =~ /^[0-9a-f]{40}$/
           return newrev
-        end
-
-        def command
-          # For backwards compatibility with 1.x version of this module
-          variable(:git) || super
         end
 
         private
