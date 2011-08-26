@@ -6,8 +6,7 @@ module Capistrano
 
       # An abstract superclass, which forms the base for all deployment
       # strategies which work by grabbing the code from the repository directly
-      # from remote host. This includes deploying by checkout (the default),
-      # and deploying by export.
+      # from remote host.
       class Remote < Base
         # Executes the SCM command for this strategy and writes the REVISION
         # mark file to each host.

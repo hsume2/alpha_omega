@@ -131,12 +131,6 @@ module Capistrano
           execute.join(" && ")
         end
 
-        # An expensive export. Performs a checkout as above, then
-        # removes the repo.
-        def export(revision, destination)
-          checkout(revision, destination) << " && rm -Rf #{destination}/.git"
-        end
-
         # Merges the changes to 'head' since the last fetch, for remote_cache
         # deployment strategy
         def sync(revision, destination)
