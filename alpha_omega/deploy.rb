@@ -200,13 +200,6 @@ namespace :deploy do
     run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
     run "cd #{deploy_to} && #{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{dir_args}"
     strategy.deploy!
-    finalize_update
-  end
-
-  desc <<-DESC
-    Override in deploy recipes.  Formerly railsy directories and assets.
-  DESC
-  task :finalize_update, :except => { :no_release => true } do
   end
 
   desc <<-DESC
