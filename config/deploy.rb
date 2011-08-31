@@ -1,9 +1,3 @@
-#!/usr/bin/env ruby
-
-require 'etc'
-require 'alpha_omega/deploy'
-require 'config/deploy'
-
 ssh_options[:forward_agent] = true
 
 set :application, File.basename(Dir.pwd)
@@ -15,4 +9,3 @@ set :deploy_to, Dir.pwd
 set :releases, %w(alpha beta gamma omega)
 
 role :app, "localhost", :once => true, :shell => "/bin/bash"
-
