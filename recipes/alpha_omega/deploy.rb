@@ -193,6 +193,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
+    task :bootstrap_code, :except => { :no_release => true } do
+      dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
+      dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
+      run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
+      run "cd #{deploy_to} && install -d -m 0775 #{dir_args}"
+    end
+
     desc <<-DESC
       Copies your project to the remote servers. This is the first stage \
       of any deployment; moving your updated code and assets to the deployment \
@@ -201,10 +208,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task (if you want to perform the `restart' task separately).
     DESC
     task :update_code, :except => { :no_release => true } do
-      dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
-      dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-      run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
-      run "cd #{deploy_to} && install -d -m 0775 #{dir_args}"
+      boostrap_code
       strategy.deploy!
     end
 
