@@ -189,7 +189,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :update do
       transaction do
         update_code
-        symlink
+        symlink unless releases.length == 1
       end
     end
 
@@ -325,7 +325,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       set :migrate_target, :latest
       update_code
       migrate
-      symlink
+      symlink unless releases.length == 1
       restart
     end
 
