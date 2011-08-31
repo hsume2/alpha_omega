@@ -48,12 +48,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :version_dir,       "releases"
   _cset :current_dir,       "current"
-  _cset :services_dir,      "services"
+  _cset :service_dir,      "service"
   _cset :releases,          %w(alpha omega)
 
   _cset(:releases_path)     { File.join(deploy_to, version_dir) }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
-  _cset(:services_path)     { File.join(deploy_to, services_dir) }
+  _cset(:service_path)     { File.join(deploy_to, service_dir) }
   _cset(:release_path)      { File.join(releases_path, release_name) }
 
   _cset(:current_release)   { release_path }
@@ -201,7 +201,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task (if you want to perform the `restart' task separately).
     DESC
     task :update_code, :except => { :no_release => true } do
-      dirs = [ releases_path, services_path, "#{deploy_to}/log" ]
+      dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
       dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
       run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
       run "cd #{deploy_to} && install -d -m 0775 #{dir_args}"
