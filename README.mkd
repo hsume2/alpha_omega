@@ -11,14 +11,20 @@ Getting Started
 figlet must be installed. Your local machine must let you ssh and run sudo
 without a password during the deploy.
 
-    bin/deploy
-    bin/deploy
-    bin/deploy
-    bin/deploy
-    bin/rollback
-    bin/stage
-    bin/deploy
-    bin/patch
+Move the example Capfile.
+
+    mv Capfile.example Capfile
+
+Run the convience scripts:
+
+    bin/deploy deploy
+    bin/deploy deploy
+    bin/deploy deploy
+    bin/deploy deploy
+    bin/deploy rollback
+    bin/deploy stage
+    bin/deploy deploy
+    bin/deploy patch
 
 LICENSE
 -------
