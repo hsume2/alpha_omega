@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   ]
 
   s.add_runtime_dependency(%q<capistrano>, ["2.5.21"])
-  s.add_runtime_dependency(%q<capistrano-colors>)
+  s.add_runtime_dependency(%q<capistrano_colors>)
   s.add_runtime_dependency(%q<capistrano-log_with_awesome>)
   s.add_runtime_dependency(%q<foreman>)
   s.add_runtime_dependency(%q<grit>)
