@@ -1,6 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env ruby
 
-which figlet 2>&- > /dev/null
-bundle check || bundle --local --path vendor/bundle
-exec bundle exec foreman start -c git=1,cap=1,rollback=0,stage=0,patch=0
-
+require 'pp'
+pp __FILE__
