@@ -7,7 +7,6 @@ load 'alpha_omega/deploy'
 ssh_options[:forward_agent] = true
 
 set :application, File.basename(Dir.pwd)
-#set :repository, %x{git config remote.origin.url}.strip
 set :repository, "git://localhost/.git"
 
 set :user, Etc.getlogin
