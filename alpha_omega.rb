@@ -1,4 +1,4 @@
-$:.unshift File.join(File.dirname(__FILE__),'..','lib')
+$:.unshift File.expand_path(File.join(File.dirname(__FILE__),'lib'))
 
 require 'benchmark'
 require 'yaml'
@@ -7,7 +7,7 @@ require 'alpha_omega/deploy/strategy'
 require 'capistrano_colors'
 require 'capistrano/log_with_awesome'
 
-Capistrano::Configuration.instance(:must_exist).load do
+Capistrano::Configuration.instance(:must_exist).load do |config|
 
   def _cset(name, *args, &block)
     unless exists?(name)
