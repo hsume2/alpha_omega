@@ -208,7 +208,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task (if you want to perform the `restart' task separately).
     DESC
     task :update_code, :except => { :no_release => true } do
-      boostrap_code
+      bootstrap_code
       strategy.deploy!
     end
 
