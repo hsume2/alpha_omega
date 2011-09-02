@@ -15,16 +15,12 @@ Move the example Capfile.
 
     mv Capfile.example Capfile
 
-Run the convience scripts:
+Run the deploy script.
 
-    bin/deploy deploy
-    bin/deploy deploy
-    bin/deploy deploy
-    bin/deploy deploy
-    bin/deploy rollback
-    bin/deploy stage
-    bin/deploy deploy
-    bin/deploy patch
+    bundle exec deploy
+    bundle exec deploy stage
+    bundle exec deploy
+    bundle exec deploy rollback
 
 LICENSE
 -------

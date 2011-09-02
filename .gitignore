@@ -4,3 +4,4 @@
 /releases
 /log
 /*.gem
+/Capfile
