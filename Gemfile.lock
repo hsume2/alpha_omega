@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    alpha_omega (0.0.6)
+    alpha_omega (0.0.9)
       HeSYINUvSBZfxqA-foreman
       capistrano (= 2.5.21)
       capistrano-log_with_awesome
@@ -11,7 +11,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    HeSYINUvSBZfxqA-foreman (0.20.0.1)
+    HeSYINUvSBZfxqA-foreman (0.20.0.3)
       term-ansicolor (~> 1.0.5)
       thor (>= 0.13.6)
     capistrano (2.5.21)
