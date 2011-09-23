@@ -441,7 +441,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         end
       end
 
-      run_sript = <<-SCRIPT
+      run_script = <<-SCRIPT
         set -e;
         cd #{deploy_to};
         echo #{epoch} #{ENV['USER']} > .deploy_lock;
