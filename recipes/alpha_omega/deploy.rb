@@ -236,7 +236,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       if releases.length == 1
-        sudo "ln -snf #{latest_release} #{current_path}"
+        run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || sudo ln -snf #{latest_release} #{current_path}"
       else
         run "ln -snf #{latest_release} #{current_path}"
       end
