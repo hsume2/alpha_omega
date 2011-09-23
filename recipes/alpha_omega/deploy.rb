@@ -194,10 +194,15 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     task :bootstrap_code, :except => { :no_release => true } do
-      dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
-      dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-      run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
-      run "cd #{deploy_to} && install -d -m 0775 #{dir_args}"
+      if releases.length == 1 # without services and run as root
+        sudo "install -d -m 0775 -o root -g root #{deploy_to}"
+        sudo "install -d -m 0775 -o #{user} -g #{group} #{releases_path} #{deploy_to}/log"
+      else
+        dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
+        dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
+        run "#{try_sudo} install -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
+        run "cd #{deploy_to} && install -d -m 0775 #{dir_args}"
+      end
     end
 
     desc <<-DESC
@@ -230,7 +235,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         end
       end
 
-      run "ln -snf #{latest_release} #{current_path}"
+      if releases.length == 1
+        sudo "ln -snf #{latest_release} #{current_path}"
+      else
+        run "ln -snf #{latest_release} #{current_path}"
+      end
 
       system "figlet -w 200 #{release_name} activated"
     end
