@@ -428,7 +428,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
         bundle check || bundle install --deployment --quiet --local --without development test || bundle check;
       SCRIPT
-      run run_script.sub(/[\n\r]+[ \t]+/, " ")
+      run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
   end
 
