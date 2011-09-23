@@ -85,6 +85,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:latest_release) { current_release }
 
   # =========================================================================
+  # deploy:lock defaults
+  # =========================================================================
+  _cset(:lock_timeout) { 300 }
+
+  # =========================================================================
   # These are helper methods that will be available to your recipes.
   # =========================================================================
 
@@ -418,6 +423,43 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   on :exit do
     put full_log, "#{deploy_to}/log/#{application}_last_deploy.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+  end
+
+  task :lock do
+    epoch = Time.now.to_i
+    locker = ''
+
+    run "cat #{deploy_to}/.deploy_lock 2>&- || true" do |ch, stream, data|
+      locker << data
+    end
+
+    if !locker.empty?
+      lock_epoch = locker.split[0].to_i
+      lock_user = locker.split[1]
+
+      lock_elasped = epoch-lock_epoch
+
+      if lock_elasped < lock_timeout
+        puts "deploy in progress by #{lock_user} #{epoch-lock_epoch} seconds ago"
+        abort
+      elsif
+        puts "Found a chef lock by #{lock_user} #{epoch-lock_epoch} seconds ago: too old, deleting and ignoring"
+      end
+    end
+
+    run_sript = <<-SCRIPT
+      set -e;
+      cd #{deploy_to};
+      echo #{epoch} #{ENV['USER']} > .deploy_lock;
+    SCRIPT
+
+    at_exit { self.unlock; }
+
+    run run_script.gsub(/[\n\r]+[ \t]+/, " ")
+  end
+
+  task :unlock do
+    run "rm -f #{deploy_to}/.deploy_lock"
   end
 
   namespace :ruby do
