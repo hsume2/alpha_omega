@@ -413,3 +413,15 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
 end # Capistrano::Configuration
 
+namespace :ruby do
+  task :bundle do
+    run_script = <<-SCRIPT
+      set -e; cd #{release_path};
+      [[ -f #{ruby_env} ]] && . #{ruby_env};
+      [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
+      bundle check || bundle install --deployment --quiet --local --without development test || bundle check;
+    SCRIPT
+    run run_script
+  end
+end
+
