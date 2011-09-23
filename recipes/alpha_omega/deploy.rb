@@ -423,7 +423,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       epoch = Time.now.to_i
       locker = ''
 
-      run "cat #{deploy_to}/.deploy_lock 2>&- || true" do |ch, stream, data|
+      run "cat #{deploy_to}/log/.deploy_lock 2>&- || true" do |ch, stream, data|
         locker << data
       end
 
@@ -442,9 +442,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       run_script = <<-SCRIPT
-        set -e;
-        cd #{deploy_to};
-        echo #{epoch} #{ENV['USER']} > .deploy_lock;
+        echo #{epoch} #{ENV['USER']} > #{deploy_to}/log/.deploy_lock;
       SCRIPT
 
       at_exit { self.unlock; }
