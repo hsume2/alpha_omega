@@ -473,7 +473,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         set -e; cd #{release_path};
         [[ -f #{ruby_env} ]] && . #{ruby_env};
         [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
-        bundle check || bundle install --deployment --quiet --local --without development test || bundle check;
+        bundle check || { bundle install --deployment --quiet --local --without development test && bundle check; };
       SCRIPT
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
