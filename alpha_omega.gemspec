@@ -21,9 +21,9 @@ Gem::Specification.new do |s|
     "README.mkd"
   ]
 
-  s.add_runtime_dependency(%q<capistrano>, ["2.5.21"])
-  s.add_runtime_dependency(%q<capistrano_colors>)
-  s.add_runtime_dependency(%q<capistrano-log_with_awesome>)
   s.add_runtime_dependency(%q<grit>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-foreman>)
+  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
+  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
+  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
 end
