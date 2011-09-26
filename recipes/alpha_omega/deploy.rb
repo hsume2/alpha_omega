@@ -280,6 +280,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :restart, :roles => :app, :except => { :no_release => true } do
     end
 
+    desc <<-DESC
+      Compares your application.
+    DESC
+    task :compare, :roles => :app, :except => { :no_release => true } do
+      update
+    end
+
     namespace :rollback do
       desc <<-DESC
         [internal] Points the current symlink at the previous revision.
