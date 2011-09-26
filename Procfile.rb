@@ -6,4 +6,6 @@ patch:    bundle exec cap deploy
 rollback: bundle exec cap deploy:rollback
 stage:    bundle exec cap deploy:update_code
 compare:  bundle exec cap deploy:compare
+shell:    bundle exec cap shell
 HERE
+
