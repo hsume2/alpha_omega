@@ -1,1 +1,5 @@
-deploy
+#!/bin/bash -e
+
+which figlet 2>&- > /dev/null
+bundle check || { bundle --local --path vendor/bundle && bundle check; }
+exec bundle exec cap "$@" shell
