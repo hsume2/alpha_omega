@@ -284,7 +284,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Compares your application.
     DESC
     task :compare, :roles => :app, :except => { :no_release => true } do
-      update
+      update_code
     end
 
     namespace :rollback do
