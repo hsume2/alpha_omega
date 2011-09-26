@@ -4,6 +4,7 @@ require 'benchmark'
 require 'yaml'
 require 'alpha_omega/deploy/scm'
 require 'alpha_omega/deploy/strategy'
+require 'alpha_omega/utils'
 require 'capistrano_colors'
 require 'capistrano/log_with_awesome'
 
