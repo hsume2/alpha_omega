@@ -1,3 +1,5 @@
+require 'capistrano'
+
 module AlphaOmega
 
   def self.what_branch
@@ -6,7 +8,7 @@ module AlphaOmega
     elsif ENV["TAG"]
       ENV["TAG"]
     else
-      current = run_locally("git branch").split("\n").find {|b| b.split(" ")[0] == '*' } # use Grit
+      current = `git branch`.split("\n").find {|b| b.split(" ")[0] == '*' } # use Grit
       if current
         star, branch_name = current.split(" ")
         branch_type, branch_feature = branch_name.split("/")
