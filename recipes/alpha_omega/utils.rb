@@ -42,8 +42,14 @@ module AlphaOmega
       yield node if node[:node_name] && node["public_ip"] # TODO is the :node_name test necessary?
     end
 
+    nodes
+
+  end
+
+  def self.what_groups (nodes)
     # generalize groups
     cap_groups = {}
+
     nodes.each do |nm_node, node|
       %w(chef_group cap_group).each do |nm_group| # TODO get rid of chef_group
         if node.member?(nm_group) && !node["ignore"]
@@ -56,12 +62,10 @@ module AlphaOmega
     end
 
     cap_groups.each do |nm_group, group|
-      task nm_group.to_sym do
-        group.each do |nm_node, node|
-          role nm_node.to_sym, nm_node, :ssh => true
-        end
-      end
+      yield nm_group, group
     end
+
+    cap_groups
   end
 
 end
