@@ -1,6 +1,6 @@
 module AlphaOmega
 
-  def what_branch
+  def self.what_branch
     if ENV["BRANCH"]
       ENV["BRANCH"]
     elsif ENV["TAG"]
@@ -25,7 +25,7 @@ module AlphaOmega
     end
   end
 
-  def what_hosts (nodes_spec)
+  def self.what_hosts (nodes_spec)
     # load all the nodes and define cap tasks
     nodes = {}
 
