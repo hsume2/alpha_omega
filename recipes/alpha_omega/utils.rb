@@ -2,7 +2,7 @@ require 'capistrano'
 
 module AlphaOmega
 
-  def self.what_branch
+  def self.what_branch (allowed = %w(production master develop))
     if ENV["BRANCH"]
       ENV["BRANCH"]
     elsif ENV["TAG"]
@@ -14,10 +14,10 @@ module AlphaOmega
         branch_type, branch_feature = branch_name.split("/")
         if %w(feature hotfix).member?(branch_type)
           branch_name
-        elsif !branch_feature && allow_branches.member?(branch_type)
+        elsif !branch_feature && allowed.member?(branch_type)
           branch_type
         else
-          puts "current branch must be #{allow_branches.join(', ')}, feature/xyz, or hotfix/xyz"
+          puts "current branch must be #{allowed.join(', ')}, feature/xyz, or hotfix/xyz"
           abort
         end
       else
