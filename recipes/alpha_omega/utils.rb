@@ -14,10 +14,10 @@ module AlphaOmega
         branch_type, branch_feature = branch_name.split("/")
         if %w(feature hotfix).member?(branch_type)
           branch_name
-        elsif !branch_feature && %w(master develop).member?(branch_type)
+        elsif !branch_feature && allow_branches.member?(branch_type)
           branch_type
         else
-          puts "current branch must be master, develop, feature/xyz, or hotfix/xyz"
+          puts "current branch must be #{allow_branches.join(', ')}, feature/xyz, or hotfix/xyz"
           abort
         end
       else

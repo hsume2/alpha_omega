@@ -31,6 +31,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :scm, :git
   _cset :deploy_via, :checkout
+  _cset :allow_branches, %w(production master develop)
+
   _cset :default_shell, "/bin/bash"
 
   _cset(:deploy_to) { "/u/apps/#{application}" }
