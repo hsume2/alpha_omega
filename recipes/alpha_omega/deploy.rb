@@ -36,6 +36,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:deploy_to) { "/u/apps/#{application}" }
   _cset(:revision)  { source.head }
 
+  _cset :root_user, "root"
+  _cset :root_group, "root"
+
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -49,12 +52,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :version_dir,       "releases"
   _cset :current_dir,       "current"
-  _cset :service_dir,      "service"
+  _cset :service_dir,       "service"
   _cset :releases,          %w(alpha omega)
 
   _cset(:releases_path)     { File.join(deploy_to, version_dir) }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
-  _cset(:service_path)     { File.join(deploy_to, service_dir) }
+  _cset(:service_path)      { File.join(deploy_to, service_dir) }
   _cset(:release_path)      { File.join(releases_path, release_name) }
 
   _cset(:current_release)   { release_path }
@@ -201,8 +204,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :bootstrap_code, :except => { :no_release => true } do
       if releases.length == 1 # without services and run as root
-        sudo "install -d -m 0775 -o root -g root #{deploy_to}"
-        sudo "install -d -m 0775 -o #{user} -g #{group} #{releases_path} #{deploy_to}/log"
+        run "[[ -d #{deploy_to} ]] || sudo install -d -m 0775 -o #{root_user} -g #{root_group} #{deploy_to}"
+        run "sudo install -d -m 0775 -o #{user} -g #{group} #{releases_path} #{deploy_to}/log"
       else
         dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
