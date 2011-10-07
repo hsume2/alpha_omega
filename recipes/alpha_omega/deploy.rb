@@ -204,12 +204,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :bootstrap_code, :except => { :no_release => true } do
       if releases.length == 1 # without services and run as root
-        run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m 0775 -o #{root_user} -g #{root_group} #{deploy_to}"
-        run "#{try_sudo} istall -v -d -m 0775 -o #{user} -g #{group} #{releases_path} #{deploy_to}/log"
+        run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m 0775 #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
+        run "#{try_sudo} install -v -d -m 0775 #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
       else
         dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-        run "#{try_sudo} install -v -d -m 0775 -o #{user} -g #{group} #{deploy_to}"
+        run "#{try_sudo} install -v -d -m 0775 #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
         run "cd #{deploy_to} && install -v -d -m 0775 #{dir_args}"
       end
     end
@@ -238,16 +238,16 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :symlink, :except => { :no_release => true } do
       on_rollback do
         if previous_release
-          run "ln -snf #{previous_release} #{current_path}; true"
+          run "ln -vsnf #{previous_release} #{current_path}; true"
         else
           logger.important "no previous release to rollback to, rollback of symlink skipped"
         end
       end
 
       if releases.length == 1
-        run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -snf #{latest_release} #{current_path}"
+        run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -vsnf #{latest_release} #{current_path}"
       else
-        run "ln -snf #{latest_release} #{current_path}"
+        run "ln -vsnf #{latest_release} #{current_path}"
       end
 
       system "figlet -w 200 #{release_name} activated"
@@ -300,7 +300,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task :revision, :except => { :no_release => true } do
         if previous_release
           system "figlet -w 200 on #{previous_release}"
-          run "ln -snf #{previous_release} #{current_path}"
+          run "ln -vsnf #{previous_release} #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
         end
