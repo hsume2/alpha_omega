@@ -205,7 +205,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :bootstrap_code, :except => { :no_release => true } do
       if releases.length == 1 # without services and run as root
         run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m 0775 -o #{root_user} -g #{root_group} #{deploy_to}"
-        run "#{try_sudo} install -v -d -m 0775 -o #{user} -g #{group} #{releases_path} #{deploy_to}/log"
+        run "#{try_sudo} istall -v -d -m 0775 -o #{user} -g #{group} #{releases_path} #{deploy_to}/log"
       else
         dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
@@ -477,7 +477,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         set -e; cd #{release_path};
         [[ -f #{ruby_env} ]] && . #{ruby_env};
         [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
-        bundle check || { bundle install --deployment --quiet --local --without development test && bundle check; };
+        bundle check 2>&1 > /dev/null || { bundle install --deployment --quiet --local --without development test && bundle check; };
       SCRIPT
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
