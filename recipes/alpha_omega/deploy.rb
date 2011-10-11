@@ -492,7 +492,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   end
 
   on :exit do
-    put full_log, "#{deploy_to}/log/#{application}_last_deploy.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+    put full_log, "#{deploy_to}/log/#{application}_last_deploy_#{release_name}_#{branch}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
   end
 
 end # Capistrano::Configuration
