@@ -41,6 +41,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :dir_perms, "0775"
 
+  _cset :ruby_env, false
+  _cset :ruby_rvm, false
+
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -65,21 +68,21 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:current_release)   { release_path }
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
   _cset(:previous_release)  { if releases.length > 0
-                                w = current_workarea
-                                releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
-                              else
-                                ""
-                              end
-                            }
+    w = current_workarea
+    releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
+else
+  ""
+end
+  }
   _cset(:release_name)      { if releases.length > 0
-                                w = current_workarea
-                                stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
-                                system "figlet -w 200 on #{stage}"
-                                stage
+    w = current_workarea
+    stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+    system "figlet -w 200 on #{stage}"
+    stage
                               else
                                 ""
                               end
-                            }
+  }
 
   _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
   _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).chomp }
@@ -483,10 +486,24 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :bundle do
       run_script = <<-SCRIPT
         set -e; cd #{release_path};
-        [[ -f #{ruby_env} ]] && . #{ruby_env};
-        [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
+      SCRIPT
+
+      if ruby_env
+        run_script += <<-SCRIPT
+          [[ -f #{ruby_env} ]] && . #{ruby_env};
+        SCRIPT
+      end
+
+      if ruby_rvm
+        run_script += <<-SCRIPT
+          [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
+        SCRIPT
+      end
+
+      run_script += <<-SCRIPT
         bundle check 2>&1 > /dev/null || { bundle install --deployment --quiet --local --without development test && bundle check; };
       SCRIPT
+
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
   end
