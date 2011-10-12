@@ -246,21 +246,23 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       except `restart').
     DESC
     task :symlink, :except => { :no_release => true } do
-      on_rollback do
-        if previous_release
-          run "ln -vsnf #{previous_release} #{current_path}; true"
-        else
-          logger.important "no previous release to rollback to, rollback of symlink skipped"
+      if releases.length > 0
+        on_rollback do
+          if previous_release
+            run "ln -vsnf #{previous_release} #{current_path}; true"
+          else
+            logger.important "no previous release to rollback to, rollback of symlink skipped"
+          end
         end
-      end
 
-      if releases.length < 2
-        run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -vsnf #{latest_release} #{current_path}"
-      else
-        run "ln -vsnf #{latest_release} #{current_path}"
-      end
+        if releases.length == 1
+          run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -vsnf #{latest_release} #{current_path}"
+        else
+          run "ln -vsnf #{latest_release} #{current_path}"
+        end
 
-      system "figlet -w 200 #{release_name} activated"
+        system "figlet -w 200 #{release_name} activated"
+      end
     end
 
     desc <<-DESC
