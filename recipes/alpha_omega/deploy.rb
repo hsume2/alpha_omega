@@ -39,6 +39,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :root_user, "root"
   _cset :root_group, "root"
 
+  _cset :dir_perms, "0775"
+
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -50,7 +52,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
 
-  _cset :version_dir,       "releases"
+  _cset(:version_dir)       { releases.length > 0 ? "releases" : "" }
   _cset :current_dir,       "current"
   _cset :service_dir,       "service"
   _cset :releases,          %w(alpha omega)
@@ -62,13 +64,21 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:current_release)   { release_path }
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
-  _cset(:previous_release)  { w = current_workarea
-                              releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
+  _cset(:previous_release)  { if releases.length > 0
+                                w = current_workarea
+                                releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
+                              else
+                                ""
+                              end
                             }
-  _cset(:release_name)      { w = current_workarea
-                              stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
-                              system "figlet -w 200 on #{stage}"
-                              stage
+  _cset(:release_name)      { if releases.length > 0
+                                w = current_workarea
+                                stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+                                system "figlet -w 200 on #{stage}"
+                                stage
+                              else
+                                ""
+                              end
                             }
 
   _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
@@ -203,14 +213,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     task :bootstrap_code, :except => { :no_release => true } do
-      if releases.length == 1 # without services and run as root
-        run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m 0775 #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
-        run "#{try_sudo} install -v -d -m 0775 #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
+      if releases.length < 2 # without services and run as root
+        run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
+        run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
       else
         dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-        run "#{try_sudo} install -v -d -m 0775 #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
-        run "cd #{deploy_to} && install -v -d -m 0775 #{dir_args}"
+        run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
+        run "cd #{deploy_to} && install -v -d -m #{dir_perms} #{dir_args}"
       end
     end
 
@@ -244,7 +254,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         end
       end
 
-      if releases.length == 1
+      if releases.length < 2
         run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -vsnf #{latest_release} #{current_path}"
       else
         run "ln -vsnf #{latest_release} #{current_path}"
@@ -467,10 +477,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   end # :deploy
 
-  on :exit do
-    put full_log, "#{deploy_to}/log/#{application}_last_deploy_#{release_name}_#{branch}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
-  end
-
   namespace :ruby do
     task :bundle do
       run_script = <<-SCRIPT
@@ -481,6 +487,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       SCRIPT
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
+  end
+
+  on :exit do
+    put full_log, "#{deploy_to}/log/#{application}_last_deploy.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
   end
 
 end # Capistrano::Configuration
