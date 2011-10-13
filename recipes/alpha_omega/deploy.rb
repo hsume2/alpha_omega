@@ -508,6 +508,20 @@ end
     end
   end
 
+  namespace :node do
+    task :bundle do
+      run_script = <<-SCRIPT
+        set -e; cd #{release_path};
+      SCRIPT
+
+      run_script += <<-SCRIPT
+        npm install;
+      SCRIPT
+
+      run run_script.gsub(/[\n\r]+[ \t]+/, " ")
+    end
+  end
+
   on :exit do
     put full_log, "#{deploy_to}/log/#{application}_last_deploy_#{release_name}_#{branch}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
   end
