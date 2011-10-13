@@ -44,6 +44,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :ruby_env, false
   _cset :ruby_rvm, false
 
+  _cset :bundler_options, "--deployment --without development test"
+
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -501,7 +503,7 @@ end
       end
 
       run_script += <<-SCRIPT
-        bundle check 2>&1 > /dev/null || { bundle install --deployment --quiet --local --without development test && bundle check; };
+        bundle check 2>&1 > /dev/null || { bundle install --quiet --local #{bundler_options} && bundle check; };
       SCRIPT
 
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
