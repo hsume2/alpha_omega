@@ -60,11 +60,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:version_dir)       { releases.length > 0 ? "releases" : "" }
   _cset :current_dir,       "current"
   _cset :service_dir,       "service"
+  _cset :log_dir,           "log"
   _cset :releases,          %w(alpha omega)
 
   _cset(:releases_path)     { File.join(deploy_to, version_dir) }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
   _cset(:service_path)      { File.join(deploy_to, service_dir) }
+  _cset(:log_path)          { File.join(deploy_to, log_dir) }
+  _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
   _cset(:release_path)      { File.join(releases_path, release_name) }
 
   _cset(:current_release)   { release_path }
@@ -222,7 +225,7 @@ end
         run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
         run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
       else
-        dirs = [ releases_path, service_path, "#{deploy_to}/log" ]
+        dirs = [ releases_path, service_path, service_drop, log_path ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
         run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
         run "cd #{deploy_to} && install -v -d -m #{dir_perms} #{dir_args}"
