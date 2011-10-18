@@ -454,7 +454,7 @@ end
       epoch = Time.now.to_i
       locker = ''
 
-      run "cat #{deploy_to}/log/.#{application}_deploy_lock 2>&- || true" do |ch, stream, data|
+      run "cat #{log_path}/.#{application}_deploy_lock 2>&- || true" do |ch, stream, data|
         locker << data
       end
 
@@ -473,7 +473,7 @@ end
       end
 
       run_script = <<-SCRIPT
-        echo #{epoch} #{ENV['USER']} > #{deploy_to}/log/.#{application}_deploy_lock;
+        echo #{epoch} #{ENV['USER']} > #{log_path}/.#{application}_deploy_lock;
       SCRIPT
 
       at_exit { self.unlock; }
@@ -482,7 +482,7 @@ end
     end
 
     task :unlock do
-      run "rm -f #{deploy_to}/log/.#{application}_deploy_lock"
+      run "rm -f #{log_path}/.#{application}_deploy_lock"
     end
 
   end # :deploy
@@ -528,7 +528,7 @@ end
   end
 
   on :exit do
-    put full_log, "#{deploy_to}/log/#{application}_last_deploy_#{release_name}_#{branch}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+    put full_log, "#{log_path}/#{application}_last_deploy-#{release_name}-#{branch.gsub(/\W+/,"_")}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
   end
 
 end # Capistrano::Configuration
