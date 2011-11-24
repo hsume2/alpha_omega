@@ -305,6 +305,25 @@ end
     end
 
     desc <<-DESC
+      Builds binaries (like assets, jars, format conversions for distribution
+      by deploy:dist.
+    DESC
+    task :build, :roles => :build, :except => { :no_release => true } do
+    end
+
+    desc <<-DESC
+      Distribute binaries built in deploy:build.
+    DESC
+    task :dist, :roles => :app, :except => { :no_release => true } do
+    end
+
+    desc <<-DESC
+      Apply microwave tvdinners to a release directory.
+    DESC
+    task :cook, :roles => :app, :except => { :no_release => true } do
+    end
+
+    desc <<-DESC
       Compares your application.
     DESC
     task :compare, :roles => :app, :except => { :no_release => true } do
