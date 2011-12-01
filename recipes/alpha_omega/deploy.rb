@@ -41,10 +41,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :dir_perms, "0775"
 
-  _cset :ruby_env, false
-  _cset :ruby_rvm, false
-
   _cset :bundler_options, "--deployment --without development test"
+  _cset :ruby_loader, ""
 
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
@@ -512,20 +510,8 @@ end
         set -e; cd #{release_path};
       SCRIPT
 
-      if ruby_env
-        run_script += <<-SCRIPT
-          [[ -f #{ruby_env} ]] && . #{ruby_env};
-        SCRIPT
-      end
-
-      if ruby_rvm
-        run_script += <<-SCRIPT
-          [[ -f #{ruby_rvm} ]] && { set +e; source #{ruby_rvm}; set -e; };
-        SCRIPT
-      end
-
       run_script += <<-SCRIPT
-        bundle check 2>&1 > /dev/null || { bundle install --quiet --local #{bundler_options} && bundle check; };
+        #{ruby_loader} bundle check 2>&1 > /dev/null || { #{ruby_loader} bundle install --quiet --local #{bundler_options} && #{ruby_loader} bundle check; };
       SCRIPT
 
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
