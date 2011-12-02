@@ -44,7 +44,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :bundler_options, "--deployment --without development test"
   _cset :ruby_loader, ""
 
-  _cset :figlet, { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
+  _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
