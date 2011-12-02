@@ -44,6 +44,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :bundler_options, "--deployment --without development test"
   _cset :ruby_loader, ""
 
+  _cset :figlet, { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
+
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -80,7 +82,7 @@ end
   _cset(:release_name)      { if releases.length > 0
     w = current_workarea
     stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
-    system "figlet -w 200 on #{stage}"
+    system "#{figlet} -w 200 on #{stage}"
     stage
                               else
                                 ""
@@ -269,7 +271,7 @@ end
           run "ln -vsnf #{latest_release} #{current_path}"
         end
 
-        system "figlet -w 200 #{release_name} activated"
+        system "#{figlet} -w 200 #{release_name} activated"
       end
     end
 
@@ -345,7 +347,7 @@ end
       DESC
       task :revision, :except => { :no_release => true } do
         if previous_release
-          system "figlet -w 200 on #{previous_release}"
+          system "#{figlet} -w 200 on #{previous_release}"
           run "ln -vsnf #{previous_release} #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
