@@ -13,13 +13,9 @@ Gem::Specification.new do |s|
   s.summary     = %q{alpha_omega capistrano recipes}
   s.description = %q{Common reciples for persistent capistrano releases}
   s.date        = %q{2011-08-31}
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["recipes"]
-  s.extra_rdoc_files = [
-    "README.mkd"
-  ]
+  s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("recipes/**/*") +
 
   s.add_runtime_dependency(%q<grit>)
   s.add_runtime_dependency(%q<microwave>)
@@ -28,3 +24,4 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
 end
+
