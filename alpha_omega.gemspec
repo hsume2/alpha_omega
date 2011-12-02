@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.date        = %q{2011-08-31}
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["recipes"]
-  s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("recipes/**/*") +
+  s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("recipes/**/*")
 
   s.add_runtime_dependency(%q<grit>)
   s.add_runtime_dependency(%q<microwave>)
