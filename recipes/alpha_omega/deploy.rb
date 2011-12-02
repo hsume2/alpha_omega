@@ -240,6 +240,8 @@ end
     task :update_code, :except => { :no_release => true } do
       bootstrap_code
       strategy.deploy!
+      bundle
+      cook
     end
 
     desc <<-DESC
@@ -316,9 +318,16 @@ end
     end
 
     desc <<-DESC
+      Checkpoint for various language bundlers
+    DESC
+    task :bundle, :roles => :app, :except => { :no_release => true } do
+    end
+
+    desc <<-DESC
       Apply microwave tvdinners to a release directory.
     DESC
     task :cook, :roles => :app, :except => { :no_release => true } do
+      run "#{ruby_loader} nuke"
     end
 
     desc <<-DESC
@@ -517,6 +526,8 @@ end
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
   end
+
+  after "deploy:bundle", "ruby:bundle"
 
   namespace :node do
     task :bundle do
