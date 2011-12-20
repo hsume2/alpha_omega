@@ -6,3 +6,6 @@
 /*.gem
 /Capfile
 /pub/
+/.bundle/
+/vendor/bundle/
+/*.gem
