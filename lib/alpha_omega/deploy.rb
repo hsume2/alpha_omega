@@ -49,14 +49,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :admin_hosts, /^/
   _cset :gateway_host, "localhost"
 
-  _cset (:gateway) { 
-    unless admin_hosts.match(Socket.gethostname)
-      ssh_options[:forward_agent] = true
-      ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
-    else
-      nil
-    end
-  }
+  unless admin_hosts.match(Socket.gethostname)
+    ssh_options[:forward_agent] = true
+    _cset :gateway, ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
+  end
 
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
