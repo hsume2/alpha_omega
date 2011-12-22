@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
   s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("recipes/**/*")
 
   s.add_runtime_dependency(%q<grit>)
-  s.add_runtime_dependency(%q<microwave>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-foreman>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
