@@ -1,8 +1,4 @@
 #!/bin/bash -e
 
 bundle check || { bundle --local --path vendor/bundle && bundle check; }
-if [[ -z $1 ]]; then
-  exec bundle exec foreman start -f $(dirname $(dirname $0))/Procfile.rb -m 0 -c git=0,$(basename $0)=1
-else
-  exec bundle exec foreman start -f $(dirname $(dirname $0))/Procfile.rb -m 0 -c git=0,$(basename $0)=1 --args ssh_gateway "$@"
-fi
+exec bundle exec foreman start -f $(dirname $(dirname $0))/Procfile.rb -m 0 -c git=0,$(basename $0)=1 --args ssh_gateway "$@"
