@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 #
-$:.push File.expand_path("../recipes", __FILE__)
+$:.push File.expand_path("../lib", __FILE__)
 require "alpha_omega/version"
 
 Gem::Specification.new do |s|
@@ -14,8 +14,8 @@ Gem::Specification.new do |s|
   s.description = %q{Common reciples for persistent capistrano releases}
   s.date        = %q{2011-08-31}
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["recipes"]
-  s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("recipes/**/*")
+  s.require_paths = ["lib"]
+  s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("lib/**/*")
 
   s.add_runtime_dependency(%q<grit>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-foreman>)

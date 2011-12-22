@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'etc'
-require 'recipes/alpha_omega/deploy'
+require 'lib/alpha_omega/deploy'
 
 ssh_options[:forward_agent] = true
 

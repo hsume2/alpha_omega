@@ -1,4 +1,4 @@
-$:.unshift File.expand_path(File.join(File.dirname(__FILE__),'..','..','recipes'))
+$:.unshift File.expand_path(File.join(File.dirname(__FILE__),'..','..','lib'))
 
 require 'benchmark'
 require 'yaml'
@@ -46,6 +46,18 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
+  _cset :admin_hosts, /^/
+  _cset :gateway_host, "localhost"
+
+  _cset (:gateway) { 
+    unless admin_hosts.match(Socket.gethostname)
+      ssh_options[:forward_agent] = true
+      ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
+    else
+      nil
+    end
+  }
+
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -72,21 +84,25 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:current_release)   { release_path }
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
-  _cset(:previous_release)  { if releases.length > 0
-    w = current_workarea
-    releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
-else
-  ""
-end
+
+  _cset(:previous_release) { 
+    if releases.length > 0
+      w = current_workarea
+      releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
+    else
+      ""
+    end
   }
-  _cset(:release_name)      { if releases.length > 0
-    w = current_workarea
-    stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
-    system "#{figlet} -w 200 on #{stage}"
-    stage
-                              else
-                                ""
-                              end
+
+  _cset(:release_name) { 
+    if releases.length > 0
+      w = current_workarea
+      stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+      system "#{figlet} -w 200 on #{stage}"
+      stage
+    else
+      ""
+    end
   }
 
   _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
@@ -542,6 +558,18 @@ end
       SCRIPT
 
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
+    end
+  end
+
+  task :no_gateway do
+    set :gateway, nil
+  end
+
+  task :ssh_gateway do
+    # set gateway on non-admin servers, defaulting to the developer admin host
+    unless admin_hosts.match(Socket.gethostname)
+      ssh_options[:forward_agent] = true
+      set :gateway, ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
     end
   end
 
