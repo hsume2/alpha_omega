@@ -49,11 +49,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :admin_hosts, /^/
   _cset :gateway_host, "localhost"
 
-  unless admin_hosts.match(Socket.gethostname)
-    ssh_options[:forward_agent] = true
-    _cset :gateway, ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
-  end
-
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -558,12 +553,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   end
 
   task :no_gateway do
-    set :gateway, nil
+    unset :gateway
   end
 
   task :ssh_gateway do
     # set gateway on non-admin servers, defaulting to the developer admin host
-    unless admin_hosts.match(Socket.gethostname)
+    if ENV["GATEWAY"] || !admin_hosts.match(Socket.gethostname) 
       ssh_options[:forward_agent] = true
       set :gateway, ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
     end
