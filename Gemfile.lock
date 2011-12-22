@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    alpha_omega (0.0.47)
+    alpha_omega (0.0.48)
       HeSYINUvSBZfxqA-capistrano
       HeSYINUvSBZfxqA-capistrano_colors
       HeSYINUvSBZfxqA-capistrano_log
@@ -28,7 +28,7 @@ GEM
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
     highline (1.6.2)
-    mime-types (1.16)
+    mime-types (1.17.2)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-sftp (2.0.5)
@@ -36,12 +36,11 @@ GEM
     net-ssh (2.2.1)
     net-ssh-gateway (1.1.0)
       net-ssh (>= 1.99.1)
-    term-ansicolor (1.0.6)
+    term-ansicolor (1.0.7)
     thor (0.14.6)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  HeSYINUvSBZfxqA-capistrano
   alpha_omega!
