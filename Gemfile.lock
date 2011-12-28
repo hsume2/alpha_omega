@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    alpha_omega (0.0.48)
+    alpha_omega (0.0.50)
       HeSYINUvSBZfxqA-capistrano
       HeSYINUvSBZfxqA-capistrano_colors
       HeSYINUvSBZfxqA-capistrano_log
@@ -43,4 +43,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  HeSYINUvSBZfxqA-capistrano
   alpha_omega!
