@@ -1,9 +1,6 @@
-.bundle
-/vendor/bundle
 /current
 /releases
 /log
-/*.gem
 /Capfile
 /pub/
 /.bundle/
