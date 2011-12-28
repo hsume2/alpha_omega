@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "capistrano/version"
 
 Gem::Specification.new do |s|
-  s.name        = "capistrano"
+  s.name        = "HeSYINUvSBZfxqA-capistrano"
   s.version     = Capistrano::Version.to_s
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Jamis Buck", "Lee Hambley"]
