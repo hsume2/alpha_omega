@@ -18,7 +18,8 @@ Gem::Specification.new do |s|
   s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("lib/**/*")
 
   s.add_runtime_dependency(%q<grit>)
-  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-foreman>)
+  s.add_runtime_dependency(%q<surface>)
+  s.add_runtime_dependency(%q<marathon>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
