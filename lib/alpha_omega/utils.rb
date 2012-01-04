@@ -27,13 +27,15 @@ module AlphaOmega
     end
   end
 
-  def self.what_pods (node_home, node_suffix = "")
+  def self.what_pods (node_home)
     pods = { 
       "default" => {
         "nodes_spec" => "#{node_home}/nodes/*.json",
-        "node_suffix" => node_suffix
+        "node_suffix" => ""
       }
     }
+
+    yield "default", pods["default"]
 
     this_host = Socket.gethostname.chomp.split(".")[0]
     this_node = JSON.load(File.read("#{node_home}/nodes/#{this_host}.json"))
@@ -42,6 +44,8 @@ module AlphaOmega
         "nodes_spec" => "#{node_home}/pods/#{pod_name}/*.json",
         "node_suffix" => ".#{pod_name}"
       }
+
+      yield pod_name, pods[pod_name]
     end
 
     pods
