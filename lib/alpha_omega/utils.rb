@@ -32,14 +32,14 @@ module AlphaOmega
     nodes = {}
 
     Dir[nodes_spec].each do |fname|
-      nm_node = File.basename(fname, ".json")
+      node_name = File.basename(fname, ".json")
 
       node = JSON.parse(IO.read(fname))
-      node[:node_name] = nm_node
+      node["node_name"] = node_name
 
-      nodes[nm_node] = node
+      nodes[node_name] = node
 
-      yield node if node[:node_name] && node["public_ip"] # TODO is the :node_name test necessary?
+      yield node_name, node unless node["virtual"]
     end
 
     nodes
@@ -50,12 +50,12 @@ module AlphaOmega
     # generalize groups
     cap_groups = {}
 
-    nodes.each do |nm_node, node|
+    nodes.each do |node_name, node|
       %w(chef_group cap_group).each do |nm_group| # TODO get rid of chef_group
         if node.member?(nm_group) && !node["ignore"]
           node[nm_group].each do |g|
             cap_groups[g] ||= {}
-            cap_groups[g][nm_node] = node
+            cap_groups[g][node_name] = node
           end
         end
       end
