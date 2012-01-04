@@ -27,19 +27,40 @@ module AlphaOmega
     end
   end
 
-  def self.what_hosts (nodes_spec)
+  def self.what_pods (node_home, node_suffix = "")
+    pods = { 
+      "default" => {
+        "nodes_spec" => "#{node_home}/nodes/*.json",
+        "node_suffix" => node_suffix
+      }
+    }
+
+    this_host = Socket.gethostname.chomp.split(".")[0]
+    this_node = JSON.load(File.read("#{node_home}/nodes/#{this_host}.json"))
+    (this_node["pods"] || []).each do |pod_name|
+      pods[pod_name] = { 
+        "nodes_spec" => "#{node_home}/pods/#{pod_name}/*.json",
+        "node_suffix" => ".#{pod_name}"
+      }
+    end
+
+    pods
+  end
+
+  def self.what_hosts (pod)
     # load all the nodes and define cap tasks
     nodes = {}
 
-    Dir[nodes_spec].each do |fname|
+    Dir[pod["node_spec"]].each do |fname|
       node_name = File.basename(fname, ".json")
 
       node = JSON.parse(IO.read(fname))
       node["node_name"] = node_name
+      node["pod_context"] = pod
 
       nodes[node_name] = node
 
-      yield node_name, node unless node["virtual"]
+      yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
     end
 
     nodes
@@ -51,18 +72,15 @@ module AlphaOmega
     cap_groups = {}
 
     nodes.each do |node_name, node|
-      %w(chef_group cap_group).each do |nm_group| # TODO get rid of chef_group
-        if node.member?(nm_group) && !node["ignore"]
-          node[nm_group].each do |g|
-            cap_groups[g] ||= {}
-            cap_groups[g][node_name] = node
-          end
-        end
+      remote_name = "#{node_name}#{node["pod_context"]["node_suffix"]}"
+      node["cap_group"].each do |g|
+        cap_groups[g] ||= {}
+        cap_groups[g][remote_name] = node
       end
     end
 
-    cap_groups.each do |nm_group, group|
-      yield nm_group, group
+    cap_groups.each do |group_name, nodes|
+      yield group_name, nodes
     end
 
     cap_groups
