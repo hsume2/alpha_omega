@@ -55,7 +55,7 @@ module AlphaOmega
     # load all the nodes and define cap tasks
     nodes = {}
 
-    Dir[pod["node_spec"]].each do |fname|
+    Dir[pod["nodes_spec"]].each do |fname|
       node_name = File.basename(fname, ".json")
 
       node = JSON.parse(IO.read(fname))
@@ -77,7 +77,7 @@ module AlphaOmega
 
     nodes.each do |node_name, node|
       remote_name = "#{node_name}#{node["pod_context"]["node_suffix"]}"
-      node["cap_group"].each do |g|
+      (node["cap_group"] || []).each do |g|
         cap_groups[g] ||= {}
         cap_groups[g][remote_name] = node
       end
