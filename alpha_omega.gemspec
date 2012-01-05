@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{alpha_omega capistrano recipes}
   s.description = %q{Common reciples for persistent capistrano releases}
   s.date        = %q{2011-08-31}
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.executables   = ["alpha_omega"]
   s.require_paths = ["lib"]
   s.files = %w(LICENSE README.mkd Procfile.rb) + Dir.glob("libexec/**/*") +Dir.glob("lib/**/*")
 
