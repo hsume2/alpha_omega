@@ -4,6 +4,10 @@ module AlphaOmega
 
   def self.default_pods_tasks
     Proc.new do |config, pod_name, pod, mix_pods|
+      # world task accumulates all.* after tasks
+      config.task "world" do
+      end
+
       # each pod task sets the pod context for host/group tasks
       config.task pod_name do
         set :current_pod, pod_name
@@ -33,6 +37,15 @@ module AlphaOmega
           nodes.keys.sort.each do |remote_name|
             role :app, remote_name
           end
+        end
+
+        if task_name == "all"
+          # simulate all podXX all
+          unless pod_name == "default"
+            config.after "world", pod_name
+          end
+          
+          config.after "world", task_name
         end
 
         config.task task_name do
