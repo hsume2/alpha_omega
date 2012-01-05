@@ -42,7 +42,7 @@ module AlphaOmega
     end
   end
 
-  def self.setup_pods (config, node_home, mix_pods = false)
+  def self.setup_pods (config, node_home, mix_pods = true)
     self.what_pods(config, node_home) { |config, pod_name, pod| self.default_pods_tasks.call(config, pod_name, pod, mix_pods) }
   end
 
