@@ -3,7 +3,7 @@ require 'capistrano'
 module AlphaOmega
 
   def self.default_pods_tasks
-    Proc.new do |config, pod_name, pod|
+    Proc.new do |config, pod_name, pod, mix_pods|
       # each pod task sets the pod context for host/group tasks
       config.task pod_name do
         set :current_pod, pod_name
@@ -21,6 +21,14 @@ module AlphaOmega
         end
 
       AlphaOmega.what_groups hosts do |task_name, nodes|
+        unless mix_pods
+          if last_pod && last_pod != pod_name
+            puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
+            exit 1
+          end
+        end
+
+        set :last_pod, pod_name
         config.task "#{task_name}.#{pod_name}" do
           nodes.keys.sort.each do |remote_name|
             role :app, remote_name
@@ -34,8 +42,8 @@ module AlphaOmega
     end
   end
 
-  def self.setup_pods (config, node_home)
-    self.what_pods(config, node_home) { |config, pod_name, pod| self.default_pods_tasks.call(config, pod_name, pod) }
+  def self.setup_pods (config, node_home, mix_pods = false)
+    self.what_pods(config, node_home) { |config, pod_name, pod| self.default_pods_tasks.call(config, pod_name, pod, mix_pods) }
   end
 
   def self.what_branch (allowed = %w(production master develop))

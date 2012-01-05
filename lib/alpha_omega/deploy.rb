@@ -45,6 +45,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :ruby_loader, ""
 
   _cset :current_pod, "default"
+  _cset :last_pod, nil
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
