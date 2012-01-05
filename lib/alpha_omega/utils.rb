@@ -21,15 +21,15 @@ module AlphaOmega
         end
 
       AlphaOmega.what_groups hosts do |task_name, nodes|
-        unless mix_pods
-          if last_pod && last_pod != pod_name
-            puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
-            exit 1
-          end
-        end
-
-        set :last_pod, pod_name
         config.task "#{task_name}.#{pod_name}" do
+          unless mix_pods
+            if last_pod && last_pod != pod_name
+              puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
+              exit 1
+            end
+          end
+
+          set :last_pod, pod_name
           nodes.keys.sort.each do |remote_name|
             role :app, remote_name
           end
