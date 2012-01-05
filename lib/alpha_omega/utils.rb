@@ -2,6 +2,8 @@ require 'capistrano'
 
 module AlphaOmega
 
+  echo_magic = "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
+
   def self.default_pods_tasks
     Proc.new do |config, pod_name, pod, mix_pods|
       # world task accumulates all.* after tasks
@@ -22,9 +24,29 @@ module AlphaOmega
           config.task task_name do
             after task_name, "#{task_name}.#{current_pod}"
           end
+
+          config.task "#{task_name}.#{pod_name}.echo" do
+            puts "#{echo_magic} #{task_name}"
+          end
+        
+          config.task "#{task_name}.echo" do
+            after task_name, "#{task_name}.#{current_pod}.echo"
+          end
+
         end
 
       AlphaOmega.what_groups hosts do |task_name, nodes|
+        if task_name == "all"
+          # simulate all podXX all
+          unless pod_name == "default"
+            config.after "world", pod_name
+            config.after "world.echo", "#{pod_name}.echo"
+          end
+          
+          config.after "world", task_name
+          config.after "world.echo", "#{task_name}.echo"
+        end
+
         config.task "#{task_name}.#{pod_name}" do
           unless mix_pods
             if last_pod && last_pod != pod_name
@@ -39,17 +61,26 @@ module AlphaOmega
           end
         end
 
-        if task_name == "all"
-          # simulate all podXX all
-          unless pod_name == "default"
-            config.after "world", pod_name
-          end
-          
-          config.after "world", task_name
-        end
-
         config.task task_name do
           after task_name, "#{task_name}.#{current_pod}"
+        end
+
+        config.task "#{task_name}.#{pod_name}.echo" do
+          unless mix_pods
+            if last_pod && last_pod != pod_name
+              puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
+              exit 1
+            end
+          end
+
+          set :last_pod, pod_name
+          nodes.keys.sort.each do |remote_name|
+            puts "#{echo_magic} #{remote_name}"
+          end
+        end
+
+        config.task "#{task_name}.echo" do
+          after task_name, "#{task_name}.#{current_pod}.echo"
         end
       end
     end
