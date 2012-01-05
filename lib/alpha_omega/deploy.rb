@@ -47,6 +47,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :current_pod, "default"
   _cset :last_pod, nil
+  _cset :local_only, ENV['LOCAL_ONLY'] ? true : false
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
@@ -574,7 +575,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   end
 
   on :exit do
-    put full_log, "#{log_path}/#{application}_last_deploy-#{release_name}-#{branch.gsub(/\W+/,"_")}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+    unless local_only
+      put full_log, "#{log_path}/#{application}_last_deploy-#{release_name}-#{branch.gsub(/\W+/,"_")}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+    end
   end
 
 end # Capistrano::Configuration

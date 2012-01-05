@@ -2,7 +2,9 @@ require 'capistrano'
 
 module AlphaOmega
 
-  echo_magic = "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
+  def self.echo_magic
+    "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
+  end
 
   def self.default_pods_tasks
     Proc.new do |config, pod_name, pod, mix_pods|
@@ -10,8 +12,15 @@ module AlphaOmega
       config.task "world" do
       end
 
+      config.task "world.echo" do
+      end
+
       # each pod task sets the pod context for host/group tasks
       config.task pod_name do
+        set :current_pod, pod_name
+      end
+
+      config.task "#{pod_name}.echo" do
         set :current_pod, pod_name
       end
 
@@ -26,11 +35,11 @@ module AlphaOmega
           end
 
           config.task "#{task_name}.#{pod_name}.echo" do
-            puts "#{echo_magic} #{task_name}"
+            puts "#{AlphaOmega.echo_magic} #{task_name}"
           end
         
           config.task "#{task_name}.echo" do
-            after task_name, "#{task_name}.#{current_pod}.echo"
+            after "#{task_name}.echo", "#{task_name}.#{current_pod}.echo"
           end
 
         end
@@ -75,12 +84,12 @@ module AlphaOmega
 
           set :last_pod, pod_name
           nodes.keys.sort.each do |remote_name|
-            puts "#{echo_magic} #{remote_name}"
+            puts "#{AlphaOmega.echo_magic} #{remote_name}"
           end
         end
 
         config.task "#{task_name}.echo" do
-          after task_name, "#{task_name}.#{current_pod}.echo"
+          after "#{task_name}.echo", "#{task_name}.#{current_pod}.echo"
         end
       end
     end
