@@ -1,4 +1,3 @@
 #!/bin/bash -e
 
-bundle check || { bundle --local --path vendor/bundle && bundle check; }
-exec bundle exec cap ssh_gateway "$@" shell
+exec cap ssh_gateway "$@" shell

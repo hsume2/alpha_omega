@@ -3,6 +3,5 @@
 export LOCAL_ONLY=true
 
 {
-bundle check || { bundle --local --path vendor/bundle && bundle check; }
-bundle exec cap $(for a in "$@"; do echo $a.echo; done)
+cap $(for a in "$@"; do echo $a.echo; done)
 } 2>&1  | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u

@@ -1,7 +1,3 @@
 #!/usr/bin/env ruby
 
-unless ARGV.length > 0
-  ARGV << "deploy"
-end
-
 system(File.expand_path(File.join(File.dirname(__FILE__),"..","libexec",ARGV[0])),*ARGV[1..-1])
