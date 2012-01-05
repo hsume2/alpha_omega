@@ -44,6 +44,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :bundler_options, "--deployment --without development test"
   _cset :ruby_loader, ""
 
+  _cset :current_pod, "default"
+
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
   _cset :admin_hosts, /^/

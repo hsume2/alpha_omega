@@ -2,6 +2,42 @@ require 'capistrano'
 
 module AlphaOmega
 
+  def self.default_pods_tasks
+    Proc.new do |config, pod_name, pod|
+      # each pod task sets the pod context for host/group tasks
+      config.task pod_name do
+        set :current_pod, pod_name
+      end
+
+      hosts =
+        AlphaOmega.what_hosts pod do |task_name, remote_name, node|
+          config.task "#{task_name}.#{pod_name}" do
+            role :app, remote_name
+          end
+        
+          config.task task_name do
+            after task_name, "#{task_name}.#{current_pod}"
+          end
+        end
+
+      AlphaOmega.what_groups hosts do |task_name, nodes|
+        config.task "#{task_name}.#{pod_name}" do
+          nodes.keys.sort.each do |remote_name|
+            role :app, remote_name
+          end
+        end
+
+        config.task task_name do
+          after task_name, "#{task_name}.#{current_pod}"
+        end
+      end
+    end
+  end
+
+  def self.setup_pods (config, node_home)
+    self.what_pods(config, node_home) { |config, pod_name, pod| self.default_pods_tasks.call(config, pod_name, pod) }
+  end
+
   def self.what_branch (allowed = %w(production master develop))
     if ENV["BRANCH"]
       ENV["BRANCH"]
