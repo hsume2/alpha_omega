@@ -35,7 +35,7 @@ module AlphaOmega
           end
 
           config.task "#{task_name}.#{pod_name}.echo" do
-            puts "#{AlphaOmega.echo_magic} #{task_name}"
+            puts "#{AlphaOmega.echo_magic} #{remote_name}"
           end
         
           config.task "#{task_name}.echo" do
