@@ -156,7 +156,7 @@ module AlphaOmega
     Dir[pod["nodes_spec"]].each do |fname|
       node_name = File.basename(fname, ".yaml")
 
-      node = YAML.parse(IO.read(fname))
+      node = YAML.load(IO.read(fname))
       node["node_name"] = node_name
       node["pod_context"] = pod
 
