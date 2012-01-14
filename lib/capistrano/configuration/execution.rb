@@ -95,7 +95,7 @@ module Capistrano
       # execute it. If no such task exists, a Capistrano::NoSuchTaskError will
       # be raised.
       def find_and_execute_task(path, hooks={})
-        task = find_task(path) or raise NoSuchTaskError, "the task `#{path}' does not exist"
+        task = find_task(path) || find_task("default") or raise NoSuchTaskError, "the task `#{path}' does not exist"
 
         trigger(hooks[:before], task) if hooks[:before]
         result = execute_task(task)
