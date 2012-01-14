@@ -1,5 +1,20 @@
 require 'capistrano/errors'
 
+class Defer
+  def initialize(old_self, context)
+    @old_self = old_self
+    @context = context
+  end
+
+  def context
+    @context
+  end
+
+  def method_missing(method, *args, &block)
+    @old_self.send method, *args, &block
+  end
+end
+
 module Capistrano
   class Configuration
     module Execution
@@ -83,10 +98,10 @@ module Capistrano
 
       # Executes the task with the given name, without invoking any associated
       # callbacks.
-      def execute_task(task)
+      def execute_task(task, path)
         logger.debug "executing `#{task.fully_qualified_name}'"
         push_task_call_frame(task)
-        invoke_task_directly(task)
+        invoke_task_directly(task, path)
       ensure
         pop_task_call_frame
       end
@@ -98,7 +113,7 @@ module Capistrano
         task = find_task(path) || find_task("default") or raise NoSuchTaskError, "the task `#{path}' does not exist"
 
         trigger(hooks[:before], task) if hooks[:before]
-        result = execute_task(task)
+        result = execute_task(task, path)
         trigger(hooks[:after], task) if hooks[:after]
 
         result
@@ -135,8 +150,9 @@ module Capistrano
       end
 
       # Invokes the task's body directly, without setting up the call frame.
-      def invoke_task_directly(task)
-        task.namespace.instance_eval(&task.body)
+      def invoke_task_directly(task, path)
+        defer = Defer.new(task.namespace, { :task => task, :path => path })
+        defer.instance_eval(&task.body)
       end
     end
   end
