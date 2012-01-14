@@ -1,4 +1,5 @@
 require 'capistrano'
+require 'yaml'
 
 module AlphaOmega
 
@@ -127,7 +128,7 @@ module AlphaOmega
   def self.what_pods (config, node_home)
     pods = { 
       "default" => {
-        "nodes_spec" => "#{node_home}/nodes/*.json",
+        "nodes_spec" => "#{node_home}/nodes/*.yaml",
         "node_suffix" => ""
       }
     }
@@ -135,10 +136,10 @@ module AlphaOmega
     yield config, "default", pods["default"]
 
     this_host = Socket.gethostname.chomp.split(".")[0]
-    this_node = JSON.load(File.read("#{node_home}/nodes/#{this_host}.json"))
+    this_node = YAML.load(File.read("#{node_home}/nodes/#{this_host}.yaml"))
     (this_node["pods"] || []).each do |pod_name|
       pods[pod_name] = { 
-        "nodes_spec" => "#{node_home}/pods/#{pod_name}/*.json",
+        "nodes_spec" => "#{node_home}/pods/#{pod_name}/*.yaml",
         "node_suffix" => ".#{pod_name}"
       }
 
@@ -153,9 +154,9 @@ module AlphaOmega
     nodes = {}
 
     Dir[pod["nodes_spec"]].each do |fname|
-      node_name = File.basename(fname, ".json")
+      node_name = File.basename(fname, ".yaml")
 
-      node = JSON.parse(IO.read(fname))
+      node = YAML.parse(IO.read(fname))
       node["node_name"] = node_name
       node["pod_context"] = pod
 
