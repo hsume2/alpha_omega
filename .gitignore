@@ -1,10 +1,11 @@
+<<<<<<< HEAD
 coverage
 doc
 pkg
 *.swp
 *.patch
-*.gem
 *.sh
 .DS_Store
-.bundle/*
-vendor/bundle
+/.bundle/
+/vendor/bundle/
+/*.gem
