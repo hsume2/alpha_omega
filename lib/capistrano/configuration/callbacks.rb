@@ -72,6 +72,10 @@ module Capistrano
         on :after, *args, &block
       end
 
+      def reset(event)
+        callbacks[event.to_sym] = []
+      end
+
       # Defines one or more callbacks to be invoked in response to some event.
       # Capistrano currently understands the following events:
       #
