@@ -126,23 +126,23 @@ module AlphaOmega
   end
 
   def self.what_pods (config, node_home)
-    pods = { 
-      "default" => {
-        "nodes_spec" => "#{node_home}/nodes/*.yaml",
-        "node_suffix" => ""
-      }
-    }
+    pods = { }
 
-    yield config, "default", pods["default"]
+    this_pod = File.read("/etc/podname").strip
+    pods["default"] = {
+      "nodes_spec" => "#{node_home}/pods/#{this_pod}/*.yaml",
+      "node_suffix" => ""
+    }
+    yield config, "default", pods[this_pod] # TODO get rid of default and use this_pod
 
     this_host = Socket.gethostname.chomp.split(".")[0]
-    this_node = YAML.load(File.read("#{node_home}/nodes/#{this_host}.yaml"))
+    this_node = YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml"))
+
     (this_node["pods"] || []).each do |pod_name|
       pods[pod_name] = { 
         "nodes_spec" => "#{node_home}/pods/#{pod_name}/*.yaml",
         "node_suffix" => ".#{pod_name}"
       }
-
       yield config, pod_name, pods[pod_name]
     end
 
