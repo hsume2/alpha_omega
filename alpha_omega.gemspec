@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<grit>)
   s.add_runtime_dependency(%q<surface>)
   s.add_runtime_dependency(%q<marathon>)
+  s.add_runtime_dependency(%q<deep_merge>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
