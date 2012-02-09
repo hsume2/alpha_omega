@@ -4,4 +4,4 @@ export LOCAL_ONLY=true
 
 {
 cap $(for a in "$@"; do echo $a.echo; done)
-} 2>&1  | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
+} 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
