@@ -149,8 +149,7 @@ module AlphaOmega
 
           set :last_pod, pod_name
           nodes.sort.each do |remote_name, node|
-            n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
-            StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
+            StringIO.new({ remote_name => node }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
           end
         end
 
