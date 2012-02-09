@@ -54,8 +54,10 @@ module AlphaOmega
 
     node["run_list"].concat pods_config[env_pod]["run_list"] if pods_config[env_pod].key? "run_list"
 
-    node.delete "pod_context"
-    node.delete "node"
+    node["cap_group"] << "all"
+    node["cap_group"] << node_name.sub(/\d+/, "")
+
+    node["cap_group"].concat pods_config[env_pod]["cap_group"] if pods_config[env_pod].key? "cap_group"
 
     node
   end
@@ -75,6 +77,8 @@ module AlphaOmega
 
       hosts =
         AlphaOmega.what_hosts pod do |task_name, remote_name, node|
+          n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
+
           config.task "#{task_name}.#{pod_name}" do
             role :app, remote_name
           end
@@ -84,7 +88,6 @@ module AlphaOmega
           end
         
           config.task "#{task_name}.#{pod_name}.yaml" do
-            n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
             StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
           end
         
@@ -93,6 +96,8 @@ module AlphaOmega
               after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
             end
           end
+
+          n
         end
 
       AlphaOmega.what_groups hosts do |task_name, nodes|
@@ -226,22 +231,16 @@ module AlphaOmega
 
   def self.what_hosts (pod)
     # load all the nodes and define cap tasks
-    nodes = {}
-
-    Dir[pod["nodes_spec"]].each do |fname|
+    Dir[pod["nodes_spec"]].inject({}) do |acc, fname|
       node_name = File.basename(fname, ".yaml")
 
       node = YAML.load(IO.read(fname))
       node["node_name"] = node_name
       node["pod_context"] = pod
 
-      nodes[node_name] = node
-
-      yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
+      acc[node_name] = yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
+      acc
     end
-
-    nodes
-
   end
 
   def self.what_groups (nodes)
