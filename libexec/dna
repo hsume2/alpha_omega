@@ -3,5 +3,5 @@
 export LOCAL_ONLY=true
 
 {
-cap $(for a in "$@"; do yaml $a.yaml; done)
-} 2>&1  | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
+  cap $(for a in "$@"; do echo $a.yaml; done)
+} 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'

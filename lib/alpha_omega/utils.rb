@@ -1,5 +1,6 @@
 require 'capistrano'
 require 'yaml'
+require 'deep_merge'
 
 module AlphaOmega
 
@@ -8,6 +9,9 @@ module AlphaOmega
   end
 
   def self.node_defaults(node, pods_config, opsdb, env_pod, this_pod, node_name)
+    env_pod = this_pod if env_pod == "default" # TODO get rid of default
+    node_name = node_name.split(".").first
+
     node["node_name"] = node_name
 
     # defaults
@@ -32,7 +36,7 @@ module AlphaOmega
     node["p_name"] = "#{node["node_name"]}.#{node["env_pod"]}"
 
     # check if managed
-    if "default" != env_pod # TODO get rid of default, use this_pod
+    if this_pod != env_pod # TODO get rid of default, use this_pod
       node["q_name"] = "#{node["node_name"]}.#{node["env_pod"]}"
       node["managed"] = true
     else
@@ -49,6 +53,9 @@ module AlphaOmega
     end
 
     node["run_list"].concat pods_config[env_pod]["run_list"] if pods_config[env_pod].key? "run_list"
+
+    node.delete "pod_context"
+    node.delete "node"
 
     node
   end
@@ -77,11 +84,11 @@ module AlphaOmega
           end
         
           config.task "#{task_name}.#{pod_name}.yaml" do
-            n = self.node_defaults(node, pods_config. opsdb, pod_name, this_pod, task_name)
+            n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
             StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
           end
         
-          [ "", ".echo", ".yaml" ].eeach do |tsuffix|
+          [ "", ".echo", ".yaml" ].each do |tsuffix|
             config.task "#{task_name}#{tsuffix}" do
               after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
             end
@@ -136,8 +143,8 @@ module AlphaOmega
           end
 
           set :last_pod, pod_name
-          nodes.keys.sort.each do |remote_name|
-            n = self.node_defaults(node, pods_config. opsdb, pod_name, this_pod, task_name)
+          nodes.sort.each do |remote_name, node|
+            n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
             StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
           end
         end
@@ -200,10 +207,11 @@ module AlphaOmega
       "nodes_spec" => "#{node_home}/pods/#{this_pod}/*.yaml",
       "node_suffix" => ""
     }
-    yield config, "default", pods[this_pod], pods_config. opsdb, this_pod # TODO get rid of default and use this_pod
+    yield config, "default", pods["default"], pods_config, opsdb, this_pod # TODO get rid of default and use this_pod
 
     this_host = Socket.gethostname.chomp.split(".")[0]
-    this_node = YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml"))
+    n = YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml"))
+    this_node = AlphaOmega.node_defaults(n, pods_config, opsdb, this_pod, this_pod, this_host)
 
     (this_node["pods"] || []).each do |pod_name|
       pods[pod_name] = { 
