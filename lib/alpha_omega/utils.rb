@@ -247,10 +247,9 @@ module AlphaOmega
     cap_groups = {}
 
     nodes.each do |node_name, node|
-      remote_name = "#{node_name}#{node["q_name"]}"
-      (node["cap_group"] || []).each do |g|
+      node["cap_group"].each do |g|
         cap_groups[g] ||= {}
-        cap_groups[g][remote_name] = node
+        cap_groups[g][node["q_name"]] = node
       end
     end
 
