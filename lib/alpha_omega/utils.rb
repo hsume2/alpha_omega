@@ -236,7 +236,6 @@ module AlphaOmega
 
       node = YAML.load(IO.read(fname))
       node["node_name"] = node_name
-      node["pod_context"] = pod
 
       acc[node_name] = yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
       acc
@@ -248,7 +247,7 @@ module AlphaOmega
     cap_groups = {}
 
     nodes.each do |node_name, node|
-      remote_name = "#{node_name}#{node["pod_context"]["node_suffix"]}"
+      remote_name = "#{node_name}#{node["q_name"]}"
       (node["cap_group"] || []).each do |g|
         cap_groups[g] ||= {}
         cap_groups[g][remote_name] = node
