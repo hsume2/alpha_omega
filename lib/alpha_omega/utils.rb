@@ -26,7 +26,7 @@ module AlphaOmega
     node.deep_merge!(pods_config[env_pod])
 
     # enrich with opsdb
-    node.deep_merge!(opsdb[env_pod][node_name])
+    node.deep_merge!(opsdb[env_pod][node_name]) if opsdb[env_pod].key? node_name
 
     node["run_list"] = node["run_list"].clone # TODO without a clone, node.run_list also updates pods_config.env_pod.run_list
 
@@ -199,7 +199,7 @@ module AlphaOmega
 
     # opsdb config
     opsdb = Dir["#{node_home}/config/pod/*.yaml"].inject({}) do |acc, fname|
-      env_pod = File.basename fname, ".yaml"
+      env_pod = File.basename(File.basename(fname, ".yaml"), ".json")
       acc[env_pod] = YAML.load(File.read(fname))
       acc
     end
@@ -208,18 +208,18 @@ module AlphaOmega
 
     this_pod = File.read("/etc/podname").strip
     pods["default"] = {
-      "nodes_spec" => "#{node_home}/pods/#{this_pod}/*.yaml",
+      "nodes_specs" => [ "#{node_home}/pods/#{this_pod}/*.yaml", "#{node_home}/pods/#{this_pod}/*.json" ],
       "node_suffix" => ""
     }
     yield config, "default", pods["default"], pods_config, opsdb, this_pod # TODO get rid of default and use this_pod
 
     this_host = Socket.gethostname.chomp.split(".")[0]
-    n = YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml"))
+    n = File.exists?("#{node_home}/pods/#{this_pod}/#{this_host}.yaml") ? YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml")) : JSON.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.json"))
     this_node = AlphaOmega.node_defaults(n, pods_config, opsdb, this_pod, this_pod, this_host)
 
     (this_node["pods"] || []).each do |pod_name|
       pods[pod_name] = { 
-        "nodes_spec" => "#{node_home}/pods/#{pod_name}/*.yaml",
+        "nodes_specs" => [ "#{node_home}/pods/#{pod_name}/*.yaml", "#{node_home}/pods/#{pod_name}/*.json" ],
         "node_suffix" => ".#{pod_name}"
       }
       yield config, pod_name, pods[pod_name], pods_config, opsdb, this_pod
@@ -230,14 +230,16 @@ module AlphaOmega
 
   def self.what_hosts (pod)
     # load all the nodes and define cap tasks
-    Dir[pod["nodes_spec"]].inject({}) do |acc, fname|
-      node_name = File.basename(fname, ".yaml")
+    pod["nodes_specs"].inject({}) do |hosts, spec|
+      Dir[spec].inject(hosts) do |acc, fname|
+        node_name = File.basename(File.basename(fname, ".yaml"), ".json")
 
-      node = YAML.load(IO.read(fname))
-      node["node_name"] = node_name
+        node = YAML.load(IO.read(fname))
+        node["node_name"] = node_name
 
-      acc[node_name] = yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
-      acc
+        acc[node_name] = yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
+        acc
+      end
     end
   end
 
