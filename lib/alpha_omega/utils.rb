@@ -63,7 +63,7 @@ module AlphaOmega
   end
 
   def self.default_pods_tasks
-    Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod|
+    Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, &node_filter|
       [ "", ".echo", ".yaml" ].each do |tsuffix|
          # world task accumulates all.* after tasks
         config.task "world#{tsuffix}" do
@@ -79,25 +79,30 @@ module AlphaOmega
         AlphaOmega.what_hosts pod do |task_name, remote_name, node|
           n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
 
-          config.task "#{task_name}.#{pod_name}" do
-            role :app, remote_name
-          end
-        
-          config.task "#{task_name}.#{pod_name}.echo" do
-            puts "#{AlphaOmega.magic_prefix} #{remote_name}"
-          end
-        
-          config.task "#{task_name}.#{pod_name}.yaml" do
-            StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
-          end
-        
-          [ "", ".echo", ".yaml" ].each do |tsuffix|
-            config.task "#{task_name}#{tsuffix}" do
-              after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
+          if node_filter.nil? || node_filter.call(n)
+            config.task "#{task_name}.#{pod_name}" do
+              role :app, remote_name
             end
-          end
+          
+            config.task "#{task_name}.#{pod_name}.echo" do
+              puts "#{AlphaOmega.magic_prefix} #{remote_name}"
+            end
+          
+            config.task "#{task_name}.#{pod_name}.yaml" do
+              StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
+            end
+          
+            [ "", ".echo", ".yaml" ].each do |tsuffix|
+              config.task "#{task_name}#{tsuffix}" do
+                after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
+              end
+            end
 
-          n
+            puts "found #{n["node_name"]}"
+            n
+          else
+            nil
+          end
         end
 
       AlphaOmega.what_groups hosts do |task_name, nodes|
@@ -162,9 +167,9 @@ module AlphaOmega
     end
   end
 
-  def self.setup_pods (config, node_home, mix_pods = true)
+  def self.setup_pods (config, node_home, mix_pods = true, &node_filter)
     self.what_pods(config, node_home) do |config, pod_name, pod, pods_config, opsdb, this_pod| 
-      self.default_pods_tasks.call(config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod) 
+      self.default_pods_tasks.call(config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, &node_filter) 
     end
   end
 
@@ -237,7 +242,8 @@ module AlphaOmega
         node = YAML.load(IO.read(fname))
         node["node_name"] = node_name
 
-        acc[node_name] = yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
+        n = yield node_name, "#{node_name}#{pod["node_suffix"]}", node unless node["virtual"]
+        acc[node_name] = n if n
         acc
       end
     end
