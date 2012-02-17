@@ -98,7 +98,6 @@ module AlphaOmega
               end
             end
 
-            puts "found #{n["node_name"]}"
             n
           else
             nil
