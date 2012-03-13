@@ -1,3 +1,9 @@
 #!/usr/bin/env ruby
 
-system(File.expand_path(File.join(File.dirname(__FILE__),"..","libexec",ARGV[0])),*ARGV[1..-1])
+search = $:.inject([]) {|acc,d| acc.concat(["#{d}/libexec", "#{File.dirname(d)}/libexec" ].select {|libexec| libexec if File.directory? libexec }) }
+
+script = search.collect {|f| "#{f}/#{File.basename(ARGV[0])}" }.find {|f| File.exists f }
+
+if script
+  system(script, *ARGV[1..-1])
+end

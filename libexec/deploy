@@ -1,3 +1,48 @@
 #!/bin/bash -e
 
-exec foreman start -f $(dirname $(dirname $0))/Procfile.rb -m 0 -c git=0,$(basename $0)=1 --args ssh_gateway "$@"
+case "$(basename $0)" in
+  deploy|major|patch)
+    bundle exec cap ssh_gateway "$@" deploy
+    ;;
+
+  rollback)
+    bundle exec cap ssh_gateway "$@" deploy:rollback
+    ;;
+
+  stage)
+    bundle exec cap ssh_gateway "$@" deploy:update_code
+    ;;
+
+  compare)
+    bundle exec cap ssh_gateway "$@" deploy:compare
+    ;;
+
+  restart)
+    bundle exec cap ssh_gateway "$@" deploy:restart
+    ;;
+
+  shell)
+    bundle exec cap ssh_gateway "$@" shell
+    ;;
+
+  hosts)
+    export LOCAL_ONLY=true
+
+    {
+    cap $(for a in "$@"; do echo $a.echo; done)
+    } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
+    ;;
+
+  dna)
+    export LOCAL_ONLY=true
+
+    {
+      cap $(for a in "$@"; do echo $a.yaml; done)
+    } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
+    ;;
+
+  *)
+    bundle exec cap ssh_gateway "$@"
+    ;;
+esac
+
