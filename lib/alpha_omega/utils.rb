@@ -63,7 +63,7 @@ module AlphaOmega
   end
 
   def self.default_pods_tasks
-    Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, &node_filter|
+    Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, this_node, &node_filter|
       [ "", ".echo", ".yaml" ].each do |tsuffix|
          # world task accumulates all.* after tasks
         config.task "world#{tsuffix}" do
@@ -79,7 +79,7 @@ module AlphaOmega
         AlphaOmega.what_hosts pod do |task_name, remote_name, node|
           n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
 
-          if node_filter.nil? || node_filter.call(n)
+          if node_filter.nil? || node_filter.call(this_node, n)
             config.task "#{task_name}.#{pod_name}" do
               role :app, remote_name
             end
@@ -167,8 +167,8 @@ module AlphaOmega
   end
 
   def self.setup_pods (config, node_home, mix_pods = true, &node_filter)
-    self.what_pods(config, node_home) do |config, pod_name, pod, pods_config, opsdb, this_pod| 
-      self.default_pods_tasks.call(config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, &node_filter) 
+    self.what_pods(config, node_home) do |config, pod_name, pod, pods_config, opsdb, this_pod, this_node| 
+      self.default_pods_tasks.call(config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, this_node, &node_filter) 
     end
   end
 
@@ -226,7 +226,7 @@ module AlphaOmega
         "nodes_specs" => [ "#{node_home}/pods/#{pod_name}/*.yaml", "#{node_home}/pods/#{pod_name}/*.json" ],
         "node_suffix" => ".#{pod_name}"
       }
-      yield config, pod_name, pods[pod_name], pods_config, opsdb, this_pod
+      yield config, pod_name, pods[pod_name], pods_config, opsdb, this_pod, this_node
     end
 
     pods
