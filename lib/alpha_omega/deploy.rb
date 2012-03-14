@@ -51,9 +51,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
-  _cset :admin_hosts, /^/
-  _cset :gateway_host, "localhost"
-
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
@@ -559,18 +556,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       SCRIPT
 
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
-    end
-  end
-
-  task :no_gateway do
-    unset :gateway
-  end
-
-  task :ssh_gateway do
-    # set gateway on non-admin servers, defaulting to the developer admin host
-    if ENV["GATEWAY"] || !admin_hosts.match(Socket.gethostname) 
-      ssh_options[:forward_agent] = true
-      set :gateway, ENV["GATEWAY"] ? ENV["GATEWAY"] : gateway_host
     end
   end
 

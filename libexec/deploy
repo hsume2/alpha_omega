@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+if [[ ! echo "$hst_this" | egrep "^(admin|develop)" ]]; then
+  exec bin/proxy $(basename $0) "$@"
+fi
+
 case "$(basename $0)" in
   deploy|release)
     bundle exec cap ssh_gateway "$@" deploy
