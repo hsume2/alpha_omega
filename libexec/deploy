@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
-if [[ ! echo "$hst_this" | egrep "^(admin|develop)" ]]; then
+if ! echo "$hst_this" | egrep "^(admin|develop)"; then
+  # ssh into deploy host and run from there
   exec bin/proxy $(basename $0) "$@"
+  exit 1
 fi
 
 case "$(basename $0)" in
