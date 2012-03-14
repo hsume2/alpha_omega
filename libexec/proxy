@@ -3,4 +3,4 @@
 hst_proxy="${GATEWAY:=deploy}"
 git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
 
-ssh zendesk@$hst_proxy alpha_omega_proxy_helper "$USER" "$git_url" "$@"
+ssh $hst_proxy alpha_omega_proxy_helper "$USER" "$git_url" "$@"
