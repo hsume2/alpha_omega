@@ -211,15 +211,16 @@ module AlphaOmega
     pods = { }
 
     this_pod = File.read("/etc/podname").strip
+    
+    this_host = Socket.gethostname.chomp.split(".")[0]
+    n = File.exists?("#{node_home}/pods/#{this_pod}/#{this_host}.yaml") ? YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml")) : JSON.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.json"))
+    this_node = AlphaOmega.node_defaults(n, pods_config, opsdb, this_pod, this_pod, this_host)
+
     pods["default"] = {
       "nodes_specs" => [ "#{node_home}/pods/#{this_pod}/*.yaml", "#{node_home}/pods/#{this_pod}/*.json" ],
       "node_suffix" => ""
     }
-    yield config, "default", pods["default"], pods_config, opsdb, this_pod # TODO get rid of default and use this_pod
-
-    this_host = Socket.gethostname.chomp.split(".")[0]
-    n = File.exists?("#{node_home}/pods/#{this_pod}/#{this_host}.yaml") ? YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml")) : JSON.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.json"))
-    this_node = AlphaOmega.node_defaults(n, pods_config, opsdb, this_pod, this_pod, this_host)
+    yield config, "default", pods["default"], pods_config, opsdb, this_pod, this_node # TODO get rid of default and use this_pod
 
     (this_node["pods"] || []).each do |pod_name|
       pods[pod_name] = { 
