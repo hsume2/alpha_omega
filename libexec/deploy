@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+hst_this=$(hostname -s)
 if ! echo "$hst_this" | egrep "^(admin|develop)"; then
   # ssh into deploy host and run from there
   exec bin/proxy $(basename $0) "$@"
