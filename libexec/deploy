@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 hst_this=$(hostname -s)
-if ! echo "$hst_this" | egrep "^(admin|develop)"; then
+if ! echo "$hst_this" | egrep -q "^(admin|develop)"; then
   # ssh into deploy host and run from there
   exec bin/proxy $(basename $0) "$@"
   exit 1
@@ -9,47 +9,47 @@ fi
 
 case "$(basename $0)" in
   deploy|release)
-    bundle exec cap ssh_gateway "$@" deploy
+    bundle exec cap "$@" deploy
     ;;
 
   rollback)
-    bundle exec cap ssh_gateway "$@" deploy:rollback
+    bundle exec cap "$@" deploy:rollback
     ;;
 
   stage)
-    bundle exec cap ssh_gateway "$@" deploy:update_code
+    bundle exec cap "$@" deploy:update_code
     ;;
 
   compare)
-    bundle exec cap ssh_gateway "$@" deploy:compare
+    bundle exec cap "$@" deploy:compare
     ;;
 
   restart)
-    bundle exec cap ssh_gateway "$@" deploy:restart
+    bundle exec cap "$@" deploy:restart
     ;;
 
   restart)
-    bundle exec cap ssh_gateway "$@" deploy:restart
+    bundle exec cap "$@" deploy:restart
     ;;
 
   build)
-    bundle exec cap ssh_gateway "$@" deploy:build
+    bundle exec cap "$@" deploy:build
     ;;
 
   dist)
-    bundle exec cap ssh_gateway "$@" deploy:dist
+    bundle exec cap "$@" deploy:dist
     ;;
 
   config)
-    bundle exec cap ssh_gateway "$@" deploy:config
+    bundle exec cap "$@" deploy:config
     ;;
 
   invoke)
-    bundle exec cap ssh_gateway "$@" invoke
+    bundle exec cap "$@" invoke
     ;;
 
   shell)
-    bundle exec cap ssh_gateway "$@" shell
+    bundle exec cap "$@" shell
     ;;
 
   hosts)
@@ -69,7 +69,7 @@ case "$(basename $0)" in
     ;;
 
   *)
-    bundle exec cap ssh_gateway "$@"
+    bundle exec cap "$@"
     ;;
 esac
 
