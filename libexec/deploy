@@ -2,9 +2,12 @@
 
 hst_this=$(hostname -s)
 if ! echo "$hst_this" | egrep -q "^(admin|develop)"; then
-  # ssh into deploy host and run from there
-  exec bin/proxy $(basename $0) "$@"
-  exit 1
+  # unless the .ao_no_proxy file exists
+  if [[ -f ".ao_no_proxy" ]]; then
+    # ssh into deploy host and run from there
+    exec bin/proxy $(basename $0) "$@"
+    exit 1
+  fi
 fi
 
 case "$(basename $0)" in
