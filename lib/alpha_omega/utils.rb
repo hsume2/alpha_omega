@@ -75,15 +75,16 @@ module AlphaOmega
         end
       end
 
+      node_dna = { }
       hosts =
         AlphaOmega.what_hosts pod do |task_name, remote_name, node|
           n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
+          node_dna[remote_name] = {}
+          node_dna[remote_name].deep_merge!(n)
 
           if node_filter.nil? || node_filter.call(this_node, n)
             config.task "#{task_name}.#{pod_name}" do # task host.default, host.pod1
               role :app, remote_name
-              node_dna[remote_name] = {}
-              node_dna[remote_name].deep_merge!(n)
               set :dna, node_dna[remote_name]
             end
           
