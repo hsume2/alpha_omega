@@ -82,7 +82,9 @@ module AlphaOmega
           if node_filter.nil? || node_filter.call(this_node, n)
             config.task "#{task_name}.#{pod_name}" do # task host.default, host.pod1
               role :app, remote_name
-              set :dna, n
+              node_dna[remote_name] = {}
+              node_dna[remote_name].deep_merge!(n)
+              set :dna, node_dna[remote_name]
             end
           
             config.task "#{task_name}.#{pod_name}.echo" do # task host.default.echo, host.pod1.echo
@@ -127,6 +129,7 @@ module AlphaOmega
           set :last_pod, pod_name
           nodes.keys.sort.each do |remote_name|
             role :app, remote_name
+            set :dna, node_dna[remote_name]
           end
         end
 
