@@ -66,11 +66,11 @@ module AlphaOmega
     Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, this_node, &node_filter|
       [ "", ".echo", ".yaml" ].each do |tsuffix|
          # world task accumulates all.* after tasks
-        config.task "world#{tsuffix}" do
+        config.task "world#{tsuffix}" do # task world
         end
 
         # each pod task sets the pod context for host/group tasks
-        config.task "#{pod_name}#{tsuffix}" do
+        config.task "#{pod_name}#{tsuffix}" do # task default, pod1
           set :current_pod, pod_name
         end
       end
@@ -80,20 +80,21 @@ module AlphaOmega
           n = AlphaOmega.node_defaults(node, pods_config, opsdb, pod_name, this_pod, remote_name)
 
           if node_filter.nil? || node_filter.call(this_node, n)
-            config.task "#{task_name}.#{pod_name}" do
+            config.task "#{task_name}.#{pod_name}" do # task host.default, host.pod1
               role :app, remote_name
+              set :dna, n
             end
           
-            config.task "#{task_name}.#{pod_name}.echo" do
+            config.task "#{task_name}.#{pod_name}.echo" do # task host.default.echo, host.pod1.echo
               puts "#{AlphaOmega.magic_prefix} #{remote_name}"
             end
           
-            config.task "#{task_name}.#{pod_name}.yaml" do
+            config.task "#{task_name}.#{pod_name}.yaml" do # task host.default.yaml, host.pod1..yaml
               StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
             end
           
             [ "", ".echo", ".yaml" ].each do |tsuffix|
-              config.task "#{task_name}#{tsuffix}" do
+              config.task "#{task_name}#{tsuffix}" do # task host -> host.current_pod
                 after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
               end
             end
