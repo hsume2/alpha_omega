@@ -1,3 +1,3 @@
 module AlphaOmega
-  Version = "0.0.92"
+  Version = "0.0.93"
 end

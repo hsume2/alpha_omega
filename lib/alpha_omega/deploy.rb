@@ -8,6 +8,8 @@ require 'alpha_omega/utils'
 require 'capistrano_colors'
 require 'capistrano/log_with_awesome'
 
+ENV["AO_USER"] || ENV["AO_USER"] = ENV["USER"]
+
 Capistrano::Configuration.instance(:must_exist).load do |config|
 
   def _cset(name, *args, &block)

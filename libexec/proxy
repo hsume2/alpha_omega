@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
 hst_proxy="${GATEWAY:=deploy}"
+
+# remote arguments
 git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
 git_head="$(git log HEAD | head -1 | grep ^commit | awk '{print $2}')"
 
