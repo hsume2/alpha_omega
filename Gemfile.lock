@@ -35,6 +35,7 @@ GEM
       mime-types (~> 1.15)
     highline (1.6.11)
     hirb (0.6.0)
+    json (1.6.6)
     marathon (0.0.2)
       HeSYINUvSBZfxqA-foreman
     mime-types (1.17.2)
@@ -56,3 +57,4 @@ PLATFORMS
 
 DEPENDENCIES
   alpha_omega!
+  json
