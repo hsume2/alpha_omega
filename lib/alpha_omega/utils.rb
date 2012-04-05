@@ -64,13 +64,13 @@ module AlphaOmega
 
   def self.default_pods_tasks
     Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, this_node, &node_filter|
-      [ "", ".echo", ".yaml" ].each do |tsuffix|
+      %w(app echo yaml).each do |tsuffix|
          # world task accumulates all.* after tasks
-        config.task "world#{tsuffix}" do # task world
+        config.task "world.#{tsuffix}" do # task world
         end
 
         # each pod task sets the pod context for host/group tasks
-        config.task "#{pod_name}#{tsuffix}" do # task default, pod1
+        config.task "#{pod_name}.#{tsuffix}" do # task default, pod1
           set :current_pod, pod_name
         end
       end
@@ -96,9 +96,9 @@ module AlphaOmega
               StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
             end
           
-            [ "", ".echo", ".yaml" ].each do |tsuffix|
-              config.task "#{task_name}#{tsuffix}" do # task host -> host.current_pod
-                after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
+            %w(app echo yaml).each do |tsuffix|
+              config.task "#{task_name}.#{tsuffix}" do # task host -> host.current_pod
+                after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
               end
             end
 
@@ -111,11 +111,11 @@ module AlphaOmega
       AlphaOmega.what_groups hosts do |task_name, nodes|
         if task_name == "all"
           # simulate all podXX all
-          [ "", ".echo", ".yaml" ].each do |tsuffix|
+          %w(app echo yaml).each do |tsuffix|
             unless pod_name == "default"
-              config.after "world#{tsuffix}", "#{pod_name}#{tsuffix}"
+              config.after "world.#{tsuffix}", "#{pod_name}.#{tsuffix}"
             end
-            config.after "world#{tsuffix}", "#{task_name}#{tsuffix}"
+            config.after "world.#{tsuffix}", "#{task_name}.#{tsuffix}"
           end
         end
 
@@ -162,9 +162,9 @@ module AlphaOmega
           end
         end
 
-        [ "", ".echo", ".yaml" ].each do |tsuffix|
-          config.task "#{task_name}#{tsuffix}" do
-            after "#{task_name}#{tsuffix}", "#{task_name}.#{current_pod}#{tsuffix}"
+        %w(app echo yaml).each do |tsuffix|
+          config.task "#{task_name}.#{tsuffix}" do
+            after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
           end
         end
       end
