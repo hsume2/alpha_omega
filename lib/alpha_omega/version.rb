@@ -1,3 +1,3 @@
 module AlphaOmega
-  Version = "0.0.96"
+  Version = File.read(File.expand_path('../../../VERSION',  __FILE__)).strip
 end
