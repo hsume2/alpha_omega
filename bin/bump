@@ -36,5 +36,16 @@ case "$1" in
     fi
     ;;
 esac
-cat VERSION
-bundle check 2>&1 >/dev/null || { bundle install --local --path vendor/bundle || bundle check; }
+
+if [[ -f Gemfile ]]; then
+  bundle check 2>&1 >/dev/null || { bundle install --local --path vendor/bundle || bundle check; }
+  git add Gemfile.lock
+fi
+
+git add VERSION
+
+ver_bumped=$(cat VERSION)
+git commit -m "bump: $ver_bumped"
+git tag "v$ver_bumped"
+
+echo $ver_bumped
