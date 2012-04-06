@@ -11,50 +11,6 @@ if ! echo "$hst_this" | egrep -q "^(admin|develop)"; then
 fi
 
 case "$(basename $0)" in
-  deploy|release)
-    bundle exec cap "$@" deploy
-    ;;
-
-  rollback)
-    bundle exec cap "$@" deploy:rollback
-    ;;
-
-  stage)
-    bundle exec cap "$@" deploy:update_code
-    ;;
-
-  compare)
-    bundle exec cap "$@" deploy:compare
-    ;;
-
-  restart)
-    bundle exec cap "$@" deploy:restart
-    ;;
-
-  restart)
-    bundle exec cap "$@" deploy:restart
-    ;;
-
-  build)
-    bundle exec cap "$@" deploy:build
-    ;;
-
-  dist)
-    bundle exec cap "$@" deploy:dist
-    ;;
-
-  config)
-    bundle exec cap "$@" deploy:config
-    ;;
-
-  invoke)
-    bundle exec cap "$@" invoke
-    ;;
-
-  shell)
-    bundle exec cap "$@" shell
-    ;;
-
   hosts)
     export LOCAL_ONLY=true
 
@@ -72,7 +28,55 @@ case "$(basename $0)" in
     ;;
 
   *)
-    bundle exec cap "$@"
-    ;;
+    set $(for a in "$@"; do echo $a.app; done)
+    case "$(basename $0)" in
+      deploy|release)
+        bundle exec cap "$@" deploy
+        ;;
+
+      rollback)
+        bundle exec cap "$@" deploy:rollback
+        ;;
+
+      stage)
+        bundle exec cap "$@" deploy:update_code
+        ;;
+
+      compare)
+        bundle exec cap "$@" deploy:compare
+        ;;
+
+      restart)
+        bundle exec cap "$@" deploy:restart
+        ;;
+
+      restart)
+        bundle exec cap "$@" deploy:restart
+        ;;
+
+      build)
+        bundle exec cap "$@" deploy:build
+        ;;
+
+      dist)
+        bundle exec cap "$@" deploy:dist
+        ;;
+
+      config)
+        bundle exec cap "$@" deploy:config
+        ;;
+
+      invoke)
+        bundle exec cap "$@" invoke
+        ;;
+
+      shell)
+        bundle exec cap "$@" shell
+        ;;
+
+      *)
+        bundle exec cap "$@"
+        ;;
+  esac
 esac
 

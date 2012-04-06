@@ -83,7 +83,7 @@ module AlphaOmega
           node_dna[remote_name].deep_merge!(n)
 
           if node_filter.nil? || node_filter.call(this_node, n)
-            config.task "#{task_name}.#{pod_name}" do # task host.default, host.pod1
+            config.task "#{task_name}.#{pod_name}.app" do # task host.default.app, host.pod1.app
               role :app, remote_name
               set :dna, node_dna[remote_name]
             end
@@ -119,7 +119,7 @@ module AlphaOmega
           end
         end
 
-        config.task "#{task_name}.#{pod_name}" do
+        config.task "#{task_name}.#{pod_name}.app" do
           unless mix_pods
             if last_pod && last_pod != pod_name
               puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
