@@ -93,7 +93,7 @@ module AlphaOmega
             end
           
             config.task "#{task_name}.#{pod_name}.yaml" do # task host.default.yaml, host.pod1..yaml
-              StringIO.new({ remote_name => n }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
+              StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
             end
           
             %w(app echo yaml).each do |tsuffix|
