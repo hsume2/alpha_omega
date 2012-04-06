@@ -230,7 +230,9 @@ module AlphaOmega
     end
 
     cap_groups.each do |group_name, nodes|
-      yield group_name, nodes
+      unless nodes.member? group_name
+        yield group_name, nodes
+      end
     end
 
     cap_groups
