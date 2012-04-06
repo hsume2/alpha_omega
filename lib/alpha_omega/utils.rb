@@ -63,7 +63,7 @@ module AlphaOmega
   end
 
   def self.default_pods_tasks
-    Proc.new do |config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, this_node, &node_filter|
+    Proc.new do |config, pod_name, pod, pods_config, opsdb, this_pod, this_node, &node_filter|
       %w(app echo yaml).each do |tsuffix|
          # world task accumulates all.* after tasks
         config.task "world.#{tsuffix}" do # task world
@@ -98,7 +98,7 @@ module AlphaOmega
           
             %w(app echo yaml).each do |tsuffix|
               config.task "#{task_name}.#{tsuffix}" do # task host -> host.current_pod
-                after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
+                config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
               end
             end
 
@@ -113,67 +113,31 @@ module AlphaOmega
           # simulate all podXX all
           %w(app echo yaml).each do |tsuffix|
             unless pod_name == "default"
-              config.after "world.#{tsuffix}", "#{pod_name}.#{tsuffix}"
+              config.after "world.#{tsuffix}", "#{pod_name}.#{tsuffix}" # podXX, hence the guard for default
             end
-            config.after "world.#{tsuffix}", "#{task_name}.#{tsuffix}"
-          end
-        end
-
-        config.task "#{task_name}.#{pod_name}.app" do
-          unless mix_pods
-            if last_pod && last_pod != pod_name
-              puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
-              exit 1
-            end
-          end
-
-          set :last_pod, pod_name
-          nodes.keys.sort.each do |remote_name|
-            role :app, remote_name
-            set :dna, node_dna[remote_name]
-          end
-        end
-
-        config.task "#{task_name}.#{pod_name}.echo" do
-          unless mix_pods
-            if last_pod && last_pod != pod_name
-              puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
-              exit 1
-            end
-          end
-
-          set :last_pod, pod_name
-          nodes.keys.sort.each do |remote_name|
-            puts "#{AlphaOmega.magic_prefix} #{remote_name}"
-          end
-        end
-
-        config.task "#{task_name}.#{pod_name}.yaml" do
-          unless mix_pods
-            if last_pod && last_pod != pod_name
-              puts "ERROR: cannot call tasks that mix different dc_env (last pod = #{last_pod}, current pod = #{pod_name})"
-              exit 1
-            end
-          end
-
-          set :last_pod, pod_name
-          nodes.sort.each do |remote_name, node|
-            StringIO.new({ remote_name => node }.to_yaml).lines.each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
+            config.after "world.#{tsuffix}", "#{task_name}.#{tsuffix}" # all
           end
         end
 
         %w(app echo yaml).each do |tsuffix|
+          config.task "#{task_name}.#{pod_name}.#{tsuffix}" do
+          end
+
+          nodes.keys.sort.each do |remote_name|
+            config.after "#{task_name}.#{pod_name}.#{tsuffix}", "#{remote_name}.#{tsuffix}"
+          end
+
           config.task "#{task_name}.#{tsuffix}" do
-            after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
+            config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
           end
         end
       end
     end
   end
 
-  def self.setup_pods (config, node_home, mix_pods = true, &node_filter)
+  def self.setup_pods (config, node_home, &node_filter)
     self.what_pods(config, node_home) do |config, pod_name, pod, pods_config, opsdb, this_pod, this_node| 
-      self.default_pods_tasks.call(config, pod_name, pod, mix_pods, pods_config, opsdb, this_pod, this_node, &node_filter) 
+      self.default_pods_tasks.call(config, pod_name, pod, pods_config, opsdb, this_pod, this_node, &node_filter) 
     end
   end
 
