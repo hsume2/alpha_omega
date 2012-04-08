@@ -44,7 +44,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :dir_perms, "0775"
 
-  _cset :bundler_options, "--deployment --without development test"
+  _cset :bundler_options, "--deployment --without development:test"
   _cset :ruby_loader, ""
 
   _cset :current_pod, "default"
