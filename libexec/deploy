@@ -11,6 +11,14 @@ if ! echo "$hst_this" | egrep -q "^(admin|develop)"; then
 fi
 
 case "$(basename $0)" in
+  debug)
+    export LOCAL_ONLY=true
+
+    {
+    cap $(for a in "$@"; do echo $a.echo; done)
+    }
+    ;;
+
   hosts)
     export LOCAL_ONLY=true
 
