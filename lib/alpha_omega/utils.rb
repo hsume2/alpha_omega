@@ -153,8 +153,8 @@ module AlphaOmega
         branch_type, branch_feature = branch_name.split("/")
         if %w(feature hotfix).member?(branch_type)
           branch_name
-        elsif !branch_feature && allowed.any? {|rx| rx.match(branch_type) }
-          branch_type
+        elsif allowed.any? {|rx| rx.match(branch_name) }
+          branch_name
         else
           puts "current branch must be #{allowed.join(', ')}, feature/xyz, or hotfix/xyz"
           abort
