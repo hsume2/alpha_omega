@@ -51,6 +51,10 @@ case "$(basename $0)" in
         bundle exec cap "$@" deploy:update_code
         ;;
 
+      activate)
+        bundle exec cap "$@" deploy:symlink deploy:restart
+        ;;
+
       compare)
         bundle exec cap "$@" deploy:compare
         ;;
