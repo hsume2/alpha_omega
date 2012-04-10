@@ -4,6 +4,11 @@ hst_proxy="${GATEWAY:=deploy}"
 
 # remote arguments
 git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
-git_head="$(git log HEAD | head -1 | grep ^commit | awk '{print $2}')"
+git_head="$(git show HEAD | head -1 | grep ^commit | awk '{print $2}')"
+
+if [[ -z $git_head ]]; then
+  echo "ERROR: could not find the SHA for HEAD" 1>&2
+  exit 1
+fi
 
 ssh -t $hst_proxy alpha_omega_proxy_helper "$USER" "$git_url" "$git_head" "$@"
