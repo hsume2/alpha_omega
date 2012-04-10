@@ -71,6 +71,10 @@ module Capistrano
           def revision
             configuration[:real_revision]
           end
+
+          def branch
+            configuration[:real_branch]
+          end
       end
 
     end
