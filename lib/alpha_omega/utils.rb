@@ -152,7 +152,6 @@ module AlphaOmega
         star, branch_name = current.split(" ")
         branch_type, branch_feature = branch_name.split("/")
         if %w(feature hotfix).member?(branch_type)
-
           branch_name
         elsif allowed.any? {|rx| rx.match(branch_name) }
           branch_name
