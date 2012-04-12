@@ -55,7 +55,6 @@ module AlphaOmega
     node["run_list"].concat pods_config[env_pod]["run_list"] if pods_config[env_pod].key? "run_list"
 
     node["cap_group"] << "all"
-    node["cap_group"] << node_name.sub(/\d+/, "")
 
     node["cap_group"].concat pods_config[env_pod]["cap_group"] if pods_config[env_pod].key? "cap_group"
 
