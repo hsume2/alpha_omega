@@ -140,28 +140,19 @@ module AlphaOmega
     end
   end
 
-  def self.what_branch (allowed = %w(production master develop))
-    if ENV["BRANCH"]
-      ENV["BRANCH"]
-    elsif ENV["TAG"]
-      ENV["TAG"]
-    else
-      current = `git branch`.split("\n").find {|b| b.split(" ")[0] == '*' } # use Grit
-      if current
-        star, branch_name = current.split(" ")
-        branch_type, branch_feature = branch_name.split("/")
-        if %w(feature hotfix).member?(branch_type)
-          branch_name
-        elsif allowed.any? {|rx| rx.match(branch_name) }
-          branch_name
-        else
-          puts "current branch must be #{allowed.join(', ')}, feature/xyz, or hotfix/xyz"
-          abort
-        end
+  def self.what_branch (allowed = %w(production staging master develop) + [%r(/)])
+    current = `git branch`.split("\n").find {|b| b.split(" ")[0] == '*' } # use Grit
+    if current
+      star, branch_name = current.split(" ")
+      if allowed.any? {|rx| rx.match(branch_name) }
+        branch_name
       else
-        puts "could not find a suitable branch"
+        puts "current branch must be one of #{allowed.join(', ')}"
         abort
       end
+    else
+      puts "could not find a suitable branch"
+      abort
     end
   end
 
