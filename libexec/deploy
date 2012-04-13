@@ -171,7 +171,7 @@ case "$(basename $0)" in
             ;;
 
           lock)
-            bundle exec cap "$@" deploy:dont_lock deploy:lock
+            bundle exec cap "$@" deploy:dont_unlock deploy:lock
             ;;
 
           unlock)
