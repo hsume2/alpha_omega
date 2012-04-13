@@ -74,7 +74,16 @@ case "$(basename $0)" in
         ;;
     esac
 
+    if [[ -f Gemfile ]]; then
+      bundle check 2>&1 >/dev/null || { bundle --quiet install --local --path vendor/bundle || bundle check > /dev/null; }
+      git add Gemfile.lock
+    fi
+
+    git add VERSION
+
     ver_bumped=$(cat VERSION)
+    git commit -m "bump: $ver_bumped"
+    git tag "v$ver_bumped"
     echo $ver_bumped
     ;;
 
