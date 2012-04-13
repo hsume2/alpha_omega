@@ -23,7 +23,14 @@ case "$(basename $0)" in
     fi
 
     LOCAL_ONLY=
-    bundle exec cap "$@" invoke
+    tmp_invoke=$(mktemp -t XXXXXXXXX)
+    bundle exec cap "$@" invoke 2>&1 | perl -pe 's{.\[\d+m}{}g' | perl -ne 'm{^\s*\*+\s*\[(out|err)\s*::\s*([^]]+)\] ?(.*)} && print "$1 $2 $3\n"' > $tmp_invoke 2>&1
+
+    cat $tmp_invoke | awk '{print $2}' | sort -u | while read -r nm_host; do
+      egrep "^(out|err) $nm_host" $tmp_invoke || true
+      echo
+    done
+    rm -f $tmp_invoke
     ;;
   *)
     if [[ -n $1 ]]; then
