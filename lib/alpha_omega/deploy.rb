@@ -517,7 +517,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       run_script = <<-SCRIPT
-        echo #{epoch} #{ENV['USER']} > #{log_path}/.#{application}_deploy_lock;
+        echo #{epoch} #{ENV['AO_USER']} > #{log_path}/.#{application}_deploy_lock;
       SCRIPT
 
       at_exit { self.unlock; }
