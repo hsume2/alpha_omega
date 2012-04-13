@@ -535,7 +535,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :unlock do
       if want_unlock
         run "rm -f #{log_path}/.#{application}_deploy_lock"
-      fi
+      end
     end
 
   end # :deploy
