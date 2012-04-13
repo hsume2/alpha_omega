@@ -529,7 +529,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     task :dont_unlock  do
-      set want_unlock, false
+      set :want_unlock, false
     end
 
     task :unlock do
