@@ -60,35 +60,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # =========================================================================
 
   _cset(:source)            { Capistrano::Deploy::SCM.new(scm, self) }
+  _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
   _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } } }
 
-  _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
-
-  _cset(:version_dir)       { releases.length > 0 ? "releases" : "" }
-  _cset :current_dir,       "current"
-  _cset :service_dir,       "service"
-  _cset :log_dir,           "log"
-  _cset :releases,          %w(alpha omega)
-
-  _cset(:releases_path)     { File.join(deploy_to, version_dir) }
-  _cset(:current_path)      { File.join(deploy_to, current_dir) }
-  _cset(:service_path)      { File.join(deploy_to, service_dir) }
-  _cset(:log_path)          { File.join(deploy_to, log_dir) }
-  _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
-  _cset(:release_path)      { File.join(releases_path, release_name) }
-
-  _cset(:current_release)   { release_path }
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
-
-  _cset(:previous_release) { 
-    if releases.length > 0
-      w = current_workarea
-      releases.index(w) && releases[(releases.index(w)-1)%releases.length] || nil
-    else
-      ""
-    end
-  }
-
   _cset(:release_name) { 
     if releases.length > 0
       w = current_workarea
@@ -100,9 +75,32 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   }
 
+  _cset :releases,          [ "alpha", "beta", "omega" ]
+  _cset(:releases_dir)      { releases.length > 0 ? "releases" : "" }
+  _cset :previous_dir,        "previous"
+  _cset :current_dir,         "current"
+  _cset :service_dir,         "service"
+  _cset :log_dir,             "log"
+
+
+  _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
+  _cset(:release_path)      { File.join(releases_path, release_name) }
+  _cset(:previous_path) { 
+    if releases.length > 0
+      w = current_workarea
+      releases.index(w) && releases[(releases.index(w)-1)%releases.length] || ""
+    else
+      ""
+    end
+  }
+  _cset(:current_path)      { File.join(deploy_to, current_dir) }
+  _cset(:service_path)      { File.join(deploy_to, service_dir) }
+  _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
+  _cset(:log_path)          { File.join(deploy_to, log_dir) }
+
+  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
   _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
   _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).chomp }
-  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
 
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
@@ -115,7 +113,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # standalone case, or during deployment.
   #
   # with persistent releases, the latest release is always the current release
-  _cset(:latest_release) { current_release }
+  _cset(:previous_release)  { previous_path }
+  _cset(:current_release)   { release_path }
+  _cset(:latest_release)    { current_release }
 
   # =========================================================================
   # deploy:lock defaults
