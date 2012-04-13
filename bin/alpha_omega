@@ -4,8 +4,9 @@ search = $:.inject([]) {|acc,d| acc.concat(["#{d}/libexec", "#{File.dirname(d)}/
 
 script = search.collect {|f| "#{f}/#{File.basename(ARGV[0])}" }.find {|f| File.exists? f }
 
-if script
-  system(script, *ARGV[1..-1])
-else
+unless script
   puts "ERROR: can't find script #{File.basename(ARGV[0])}"
+  exit 1
 end
+
+system(script, *ARGV[1..-1])
