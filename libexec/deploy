@@ -12,147 +12,174 @@ fi
 
 export LOCAL_ONLY=true
 
+default_pod=$(cat /etc/podname 2>&- || true)
+
 case "$(basename $0)" in
-  debug)
-    cap $(for a in "$@"; do echo $a.echo; done)
-    ;;
+  invoke)
+    export COMMAND="$1"; shift
 
-  hosts)
-    {
-    cap $(for a in "$@"; do echo $a.echo; done)
-    } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
-    ;;
-
-  dna)
-    {
-      echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
-      cap $(for a in "$@"; do echo $a.yaml; done)
-    } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
-    ;;
-
-  bump)
-    case "$1" in
-      patch|minor|major)
-        bump=$1; shift
-        set $(cat VERSION | sed 's#\.# #g')
-        case "$bump" in
-          patch)
-            echo "$1.$2.$(($3 + 1))"
-            ;;
-          minor)
-            echo "$1.$(($2 + 1)).0"
-            ;;
-          major)
-            echo "$(($1 + 1)).0.0"
-            ;;
-        esac > VERSION
-        ;;
-      *)
-        ver_new=$1; shift
-        set $(echo "$ver_new" | sed 's#\.# #g') 0
-        M=$1; shift
-        m=$1; shift
-        p=$1; shift
-
-        tmp_version=$(mktemp -t XXXXXXXXX)
-        (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
-        ver_new_same=$(cat $tmp_version)
-        rm -f $tmp_version
-
-        if [[ $ver_new = $ver_new_same ]]; then
-          echo "$ver_new" > VERSION
-        else
-          echo "ERROR: invalid version: $ver_new" 1>&2
-          exit 1
-        fi
-        ;;
-    esac
-
-    if [[ -f Gemfile ]]; then
-      bundle check 2>&1 >/dev/null || { bundle --quiet install --local --path vendor/bundle || bundle check > /dev/null; }
-      git add Gemfile.lock
+    if [[ -n $1 ]]; then
+      set $(for a in "$@"; do if [[ $default_pod = $a ]]; then echo "default.app"; else echo $a.app; fi; done)
     fi
 
-    git add VERSION
-
-    ver_bumped=$(cat VERSION)
-    git commit -m "bump: $ver_bumped"
-    git tag "v$ver_bumped"
-    echo $ver_bumped
-    ;;
-
-  *)
     LOCAL_ONLY=
-    set $(for a in "$@"; do echo $a.app; done)
+    bundle exec cap "$@" invoke
+    ;;
+  *)
+    if [[ -n $1 ]]; then
+      set $(for a in "$@"; do if [[ $default_pod = $a ]]; then echo "default"; else echo $a; fi; done)
+    fi
+
     case "$(basename $0)" in
-      deploy)
-        bundle exec cap "$@" deploy
+      debug)
+        if [[ -z $1 ]]; then
+          set "world"
+        fi
+
+        if [[ -n $1 ]]; then
+          cap $(for a in "$@"; do echo $a.echo; done)
+        fi
         ;;
 
-      release)
-        bundle exec cap "$@" deploy
+      hosts)
+        {
+          if [[ -n $1 ]]; then
+            cap $(for a in "$@"; do echo $a.echo; done)
+          fi
+        } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
         ;;
 
-      stage)
-        bundle exec cap "$@" deploy:update_code
+      dna)
+        {
+          echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
+          if [[ -n $1 ]]; then
+            cap $(for a in "$@"; do echo $a.yaml; done)
+          fi
+        } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
         ;;
 
-      restart)
-        bundle exec cap "$@" deploy:restart
-        ;;
+      bump)
+        case "$1" in
+          patch|minor|major)
+            bump=$1; shift
+            set $(cat VERSION | sed 's#\.# #g')
+            case "$bump" in
+              patch)
+                echo "$1.$2.$(($3 + 1))"
+                ;;
+              minor)
+                echo "$1.$(($2 + 1)).0"
+                ;;
+              major)
+                echo "$(($1 + 1)).0.0"
+                ;;
+            esac > VERSION
+            ;;
+          *)
+            ver_new=$1; shift
+            set $(echo "$ver_new" | sed 's#\.# #g') 0
+            M=$1; shift
+            m=$1; shift
+            p=$1; shift
 
-      config)
-        bundle exec cap "$@" deploy:config
-        ;;
+            tmp_version=$(mktemp -t XXXXXXXXX)
+            (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
+            ver_new_same=$(cat $tmp_version)
+            rm -f $tmp_version
 
-      build)
-        bundle exec cap "$@" deploy:build
-        ;;
+            if [[ $ver_new = $ver_new_same ]]; then
+              echo "$ver_new" > VERSION
+            else
+              echo "ERROR: invalid version: $ver_new" 1>&2
+              exit 1
+            fi
+            ;;
+        esac
 
-      dist)
-        bundle exec cap "$@" deploy:dist
-        ;;
+        if [[ -f Gemfile ]]; then
+          bundle check 2>&1 >/dev/null || { bundle --quiet install --local --path vendor/bundle || bundle check > /dev/null; }
+          git add Gemfile.lock
+        fi
 
-      activate)
-        bundle exec cap "$@" deploy:symlink deploy:restart
-        ;;
+        git add VERSION
 
-      rollback)
-        bundle exec cap "$@" deploy:rollback
-        ;;
-
-      check)
-        bundle exec cap "$@" deploy:check
-        ;;
-
-      compare)
-        bundle exec cap "$@" deploy:compare
-        ;;
-
-      plan)
-        bundle exec cap "$@" deploy:plan
-        ;;
-
-      lock)
-        bundle exec cap "$@" deploy:lock
-        ;;
-
-      unlock)
-        bundle exec cap "$@" deploy:unlock
-        ;;
-
-      invoke)
-        export COMMAND="$1"; shift
-        bundle exec cap "$@" invoke
-        ;;
-
-      shell)
-        bundle exec cap "$@" shell
+        ver_bumped=$(cat VERSION)
+        git commit -m "bump: $ver_bumped"
+        git tag "v$ver_bumped"
+        echo $ver_bumped
         ;;
 
       *)
-        bundle exec cap "$@"
-        ;;
-  esac
+        LOCAL_ONLY=
+        if [[ -n $1 ]]; then
+          set $(for a in "$@"; do echo $a.app; done)
+        fi
+        case "$(basename $0)" in
+          deploy)
+            bundle exec cap "$@" deploy
+            ;;
+
+          release)
+            bundle exec cap "$@" deploy
+            ;;
+
+          stage)
+            bundle exec cap "$@" deploy:update_code
+            ;;
+
+          restart)
+            bundle exec cap "$@" deploy:restart
+            ;;
+
+          config)
+            bundle exec cap "$@" deploy:config
+            ;;
+
+          build)
+            bundle exec cap "$@" deploy:build
+            ;;
+
+          dist)
+            bundle exec cap "$@" deploy:dist
+            ;;
+
+          activate)
+            bundle exec cap "$@" deploy:symlink deploy:restart
+            ;;
+
+          rollback)
+            bundle exec cap "$@" deploy:rollback
+            ;;
+
+          check)
+            bundle exec cap "$@" deploy:check
+            ;;
+
+          compare)
+            bundle exec cap "$@" deploy:compare
+            ;;
+
+          plan)
+            bundle exec cap "$@" deploy:plan
+            ;;
+
+          lock)
+            bundle exec cap "$@" deploy:lock
+            ;;
+
+          unlock)
+            bundle exec cap "$@" deploy:unlock
+            ;;
+
+          shell)
+            bundle exec cap "$@" shell
+            ;;
+
+          *)
+            bundle exec cap "$@"
+            ;;
+        esac
+    esac
+    ;;
 esac
 
