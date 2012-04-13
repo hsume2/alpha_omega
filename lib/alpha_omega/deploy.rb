@@ -120,6 +120,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # =========================================================================
   # deploy:lock defaults
   # =========================================================================
+  _cset(:want_unlock) { true }
   _cset(:lock_timeout) { 300 }
 
   # =========================================================================
@@ -520,13 +521,21 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         echo #{epoch} #{ENV['AO_USER']} > #{log_path}/.#{application}_deploy_lock;
       SCRIPT
 
-      at_exit { self.unlock; }
+      if want_unlock
+        at_exit { self.unlock; }
+      end
 
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
 
+    task :dont_unlock  do
+      set want_unlock, false
+    end
+
     task :unlock do
-      run "rm -f #{log_path}/.#{application}_deploy_lock"
+      if want_unlock
+        run "rm -f #{log_path}/.#{application}_deploy_lock"
+      fi
     end
 
   end # :deploy
