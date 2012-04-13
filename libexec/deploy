@@ -36,35 +36,69 @@ case "$(basename $0)" in
     } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
     ;;
 
+  bump)
+    case "$1" in
+      patch|minor|major)
+        bump=$1; shift
+        set $(cat VERSION | sed 's#\.# #g')
+        case "$bump" in
+          patch)
+            echo "$1.$2.$(($3 + 1))"
+            ;;
+          minor)
+            echo "$1.$(($2 + 1)).0"
+            ;;
+          major)
+            echo "$(($1 + 1)).0.0"
+            ;;
+        esac > VERSION
+        ;;
+      *)
+        ver_new=$1; shift
+        set $(echo "$ver_new" | sed 's#\.# #g') 0
+        M=$1; shift
+        m=$1; shift
+        p=$1; shift
+
+        tmp_version=$(mktemp -t XXXXXXXXX)
+        (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
+        ver_new_same=$(cat $tmp_version)
+        rm -f $tmp_version
+
+        if [[ $ver_new = $ver_new_same ]]; then
+          echo "$ver_new" > VERSION
+        else
+          echo "ERROR: invalid version: $ver_new" 1>&2
+          exit 1
+        fi
+        ;;
+    esac
+
+    ver_bumped=$(cat VERSION)
+    echo $ver_bumped
+    ;;
+
   *)
     set $(for a in "$@"; do echo $a.app; done)
     case "$(basename $0)" in
-      deploy|release)
+      deploy)
         bundle exec cap "$@" deploy
         ;;
 
-      rollback)
-        bundle exec cap "$@" deploy:rollback
+      release)
+        bundle exec cap "$@" deploy
         ;;
 
       stage)
         bundle exec cap "$@" deploy:update_code
         ;;
 
-      activate)
-        bundle exec cap "$@" deploy:symlink deploy:restart
-        ;;
-
-      compare)
-        bundle exec cap "$@" deploy:compare
-        ;;
-
       restart)
         bundle exec cap "$@" deploy:restart
         ;;
 
-      restart)
-        bundle exec cap "$@" deploy:restart
+      config)
+        bundle exec cap "$@" deploy:config
         ;;
 
       build)
@@ -75,8 +109,32 @@ case "$(basename $0)" in
         bundle exec cap "$@" deploy:dist
         ;;
 
-      config)
-        bundle exec cap "$@" deploy:config
+      activate)
+        bundle exec cap "$@" deploy:symlink deploy:restart
+        ;;
+
+      rollback)
+        bundle exec cap "$@" deploy:rollback
+        ;;
+
+      check)
+        bundle exec cap "$@" deploy:check
+        ;;
+
+      compare)
+        bundle exec cap "$@" deploy:compare
+        ;;
+
+      plan)
+        bundle exec cap "$@" deploy:plan
+        ;;
+
+      lock)
+        bundle exec cap "$@" deploy:lock
+        ;;
+
+      unlock)
+        bundle exec cap "$@" deploy:unlock
         ;;
 
       invoke)
