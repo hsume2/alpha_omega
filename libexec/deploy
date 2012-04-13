@@ -10,26 +10,20 @@ if ! echo "$hst_this" | egrep -q "^(admin|develop)"; then
   fi
 fi
 
+export LOCAL_ONLY=true
+
 case "$(basename $0)" in
   debug)
-    export LOCAL_ONLY=true
-
-    {
     cap $(for a in "$@"; do echo $a.echo; done)
-    }
     ;;
 
   hosts)
-    export LOCAL_ONLY=true
-
     {
     cap $(for a in "$@"; do echo $a.echo; done)
     } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
     ;;
 
   dna)
-    export LOCAL_ONLY=true
-
     {
       echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
       cap $(for a in "$@"; do echo $a.yaml; done)
@@ -88,6 +82,7 @@ case "$(basename $0)" in
     ;;
 
   *)
+    LOCAL_ONLY=
     set $(for a in "$@"; do echo $a.app; done)
     case "$(basename $0)" in
       deploy)
@@ -147,6 +142,7 @@ case "$(basename $0)" in
         ;;
 
       invoke)
+        export COMMAND="$1"; shift
         bundle exec cap "$@" invoke
         ;;
 
