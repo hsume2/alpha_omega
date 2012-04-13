@@ -75,7 +75,8 @@ module Capistrano
           execute = []
 
           execute << "[[ -d #{destination}/.git ]] || #{git} clone #{verbose} #{variable(:repository)} #{destination}"
-          execute << "cd #{destination} && #{git} fetch -q && #{git} reset --hard #{revision} && #{git} submodule update --init --recursive"
+          execute << "cd #{destination} && #{git} fetch -q && #{git} checkout -q --force #{revision}"
+          execute << "cd #{destination} && #{git} reset --hard #{revision} && #{git} submodule update --init --recursive"
 
           execute
         end
