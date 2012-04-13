@@ -538,7 +538,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       SCRIPT
 
       run_script += <<-SCRIPT
-        #{ruby_loader} bundle check 2>&1 > /dev/null || { #{ruby_loader} bundle install --quiet --local #{bundler_options} && #{ruby_loader} bundle check; };
+        #{ruby_loader} bundle check 2>&1 > /dev/null || { #{ruby_loader} bundle install --quiet --local #{bundler_options} && #{ruby_loader} bundle check > /dev/null; };
       SCRIPT
 
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
