@@ -258,6 +258,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       cook
     end
 
+    task :symlink_next, :except => { :no_release => true } do
+      if releases.length >= 2
+          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{latest_release} #{next_path}"
+      end
+    end
+
     desc <<-DESC
       Updates the symlink to the most recently deployed version. Capistrano works \
       by putting each new release of your application in its own directory. When \
@@ -271,6 +277,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       if releases.length > 0
         on_rollback do
           if previous_release
+            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} rm -fv #{previous_path} #{next_path}; true"
             run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{previous_release} #{current_path}; true"
           else
             logger.important "no previous release to rollback to, rollback of symlink skipped"
@@ -280,7 +287,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         if releases.length == 1
           run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -vsnf #{latest_release} #{current_path}"
         else
+          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} rm -fv #{previous_path} #{next_path}"
           run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{latest_release} #{current_path}"
+          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{previous_release} #{previous_path}"
         end
 
         system "#{figlet} -w 200 #{release_name} activated"
@@ -365,6 +374,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task :revision, :except => { :no_release => true } do
         if previous_release
           system "#{figlet} -w 200 on #{previous_release}"
+          run "rm -fv #{previous_path} #{next_path}"
           run "ln -vsnf #{previous_release} #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
