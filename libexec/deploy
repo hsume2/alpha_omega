@@ -131,7 +131,7 @@ case "$(basename $0)" in
             ;;
 
           stage)
-            bundle exec cap "$@" deploy:update_code
+            bundle exec cap "$@" deploy:update_code deploy:symlink_next
             ;;
 
           restart)
