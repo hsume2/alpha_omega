@@ -5,6 +5,9 @@ hst_proxy="${GATEWAY:=deploy}"
 # remote arguments
 git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
 git_branch="$(git branch | grep '^\*' | awk '{print $2}' | head -1)"
+if [[ $git_branch = "(no" ]]; then
+  git_branch=""
+fi
 git_head="$(git show-ref --head HEAD |  awk '$2 == "HEAD" {print $1}')"
 
 if [[ -z $git_head ]]; then
