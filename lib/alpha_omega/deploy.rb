@@ -79,6 +79,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:releases_dir)      { releases.length > 0 ? "releases" : "" }
   _cset :previous_dir,        "previous"
   _cset :current_dir,         "current"
+  _cset :next_dir,            "next"
   _cset :service_dir,         "service"
   _cset :log_dir,             "log"
 
@@ -94,12 +95,21 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
+  _cset(:next_path) { 
+    if releases.length > 0
+      w = current_workarea
+      releases.index(w) && releases[(releases.index(w)+1)%releases.length] || ""
+    else
+      ""
+    end
+  }
   _cset(:service_path)      { File.join(deploy_to, service_dir) }
   _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
   _cset(:log_path)          { File.join(deploy_to, log_dir) }
 
   _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
   _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
+  _cset(:next_revision)     { capture("cat #{next_release}/REVISION", :except => { :no_release => true }).chomp if next_release }
   _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).chomp }
 
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
@@ -115,6 +125,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # with persistent releases, the latest release is always the current release
   _cset(:previous_release)  { previous_path }
   _cset(:current_release)   { release_path }
+  _cset(:next_release)      { next_path }
   _cset(:latest_release)    { current_release }
 
   # =========================================================================
