@@ -7,7 +7,7 @@ git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
 
 git_ref=$(cat .git/HEAD)
 if echo "$git_ref" | egrep -q "^ref:"; then
-  git_branch=$(echo "$git_ref" | awk '{print $1}' | cut -d/ -f3-)
+  git_branch=$(echo "$git_ref" | awk '{print $2}' | cut -d/ -f3-)
   git_head=$(git show-ref --hash "$(echo "$git_ref" | awk '{print $2}')")
 else
   git_branch=""
