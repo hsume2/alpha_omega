@@ -141,9 +141,9 @@ module AlphaOmega
   end
 
   def self.what_branch (allowed = %w(production staging master develop) + [%r(/)])
-    current = `git branch`.split("\n").find {|b| b.split(" ")[0] == '*' } # use Grit
-    if current
-      star, branch_name = current.split(" ")
+    current = `cat .git/HEAD`.strip
+    if current[0] == "ref:"
+      branch_name = current[1].split("/")[2..-1].join("/")
       if allowed.any? {|rx| rx.match(branch_name) }
         branch_name
       else
@@ -151,8 +151,7 @@ module AlphaOmega
         abort
       end
     else
-      puts "could not find a suitable branch"
-      abort
+      current[0]
     end
   end
 
