@@ -141,7 +141,7 @@ module AlphaOmega
   end
 
   def self.what_branch (allowed = %w(production staging master develop) + [%r(/)])
-    current = `cat .git/HEAD`.strip
+    current = `cat .git/HEAD`.strip.split(" ")
     if current[0] == "ref:"
       branch_name = current[1].split("/")[2..-1].join("/")
       if allowed.any? {|rx| rx.match(branch_name) }
