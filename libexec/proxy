@@ -4,11 +4,15 @@ hst_proxy="${GATEWAY:=deploy}"
 
 # remote arguments
 git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
-git_branch="$(git branch | grep '^\*' | awk '{print $2}' | head -1)"
-if [[ $git_branch = "(no" ]]; then
+
+git_ref=$(cat .git/HEAD)
+if echo "$git_ref" | egrep -q "^ref:"; then
+  git_branch=$(echo "$git_ref" | awk '{print $1}' | cut -d/ -f3-)
+  git_head=$(git show-ref --hash "$(echo "$git_ref" | awk '{print $2}')")
+else
   git_branch=""
+  git_head=$git_ref
 fi
-git_head="$(git show-ref --head HEAD |  awk '$2 == "HEAD" {print $1}')"
 
 if [[ -z $git_head ]]; then
   echo "ERROR: could not find the SHA for HEAD" 1>&2
