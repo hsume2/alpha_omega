@@ -64,6 +64,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } } }
 
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
+  _cset(:rollback_release_path) { 
+    if releases.length > 0
+      w = current_workarea
+      releases.index(w) && releases[(releases.index(w))%releases.length]
+    else
+      ""
+    end
+  }
   _cset(:previous_release_path) { 
     if releases.length > 0
       w = current_workarea
@@ -109,6 +117,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
   _cset(:log_path)          { File.join(deploy_to, log_dir) }
 
+  _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).chomp if rollback_release }
   _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
   _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
   _cset(:next_revision)     { capture("cat #{next_release}/REVISION", :except => { :no_release => true }).chomp if next_release }
@@ -125,6 +134,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # standalone case, or during deployment.
   #
   # with persistent releases, the latest release is always the current release
+  _cset(:rollback_release)  { rollback_release_path }
   _cset(:previous_release)  { previous_release_path }
   _cset(:current_release)   { release_path }
   _cset(:next_release)      { next_release_path }
@@ -273,7 +283,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :symlink_next, :except => { :no_release => true } do
       if releases.length >= 2
-          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{latest_release} #{next_path}"
+          run "ln -vsnf #{latest_release} #{next_path}"
       end
     end
 
@@ -289,9 +299,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :symlink, :except => { :no_release => true } do
       if releases.length > 0
         on_rollback do
-          if previous_release
-            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} rm -fv #{previous_path} #{next_path}; true"
-            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{previous_release} #{current_path}; true"
+          if rollback_release
+            run "rm -fv #{previous_path} #{next_path}; true"
+            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{rollback_release} #{current_path}; true"
           else
             logger.important "no previous release to rollback to, rollback of symlink skipped"
           end
@@ -300,9 +310,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         if releases.length == 1
           run "[[ $(readlink #{current_path} 2>&-) = #{latest_release} ]] || #{try_sudo} ln -vsnf #{latest_release} #{current_path}"
         else
-          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} rm -fv #{previous_path} #{next_path}"
-          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{latest_release} #{current_path}"
-          run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{previous_release} #{previous_path}"
+          run "rm -fv #{previous_path} #{next_path}"
+          if current_path == "#{deploy_to}/current"
+            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{latest_release} #{current_path}"
+          else
+            run "ln -vsnf #{latest_release} #{deploy_to}/current"
+            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{deploy_to}/current #{current_path}"
+          end
+          run "ln -vsnf #{rollback_release} #{previous_path}"
         end
 
         system "#{figlet} -w 200 #{release_name} activated"
@@ -388,7 +403,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         if previous_release
           system "#{figlet} -w 200 on #{previous_release}"
           run "rm -fv #{previous_path} #{next_path}"
-          run "ln -vsnf #{previous_release} #{current_path}"
+
+          if current_path == "#{deploy_to}/current"
+            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{previous_release} #{current_path}"
+          else
+            run "ln -vsnf #{previous_release} #{deploy_to}/current"
+            run "#{File.dirname(current_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{deploy_to}/current #{current_path}"
+          end
         else
           abort "could not rollback the code because there is no prior release"
         end
