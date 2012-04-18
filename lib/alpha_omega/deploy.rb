@@ -80,7 +80,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset(:release_name) { 
+  _cset(:current_release_path) { 
     if releases.length > 0
       w = current_workarea
       stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
@@ -109,7 +109,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
 
   _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
-  _cset(:release_path)      { File.join(releases_path, release_name) }
   _cset(:previous_path)     { File.join(deploy_to, previous_dir) }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
   _cset(:external_path)     { current_path }
@@ -118,11 +117,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
   _cset(:log_path)          { File.join(deploy_to, log_dir) }
 
-  _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).chomp if rollback_release }
-  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).chomp if previous_release }
-  _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).chomp }
-  _cset(:next_revision)     { capture("cat #{next_release}/REVISION", :except => { :no_release => true }).chomp if next_release }
-  _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).chomp }
+  _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).strip }
+  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).strip }
+  _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).strip }
+  _cset(:next_revision)     { capture("cat #{next_release}/REVISION",     :except => { :no_release => true }).strip }
+  _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).strip }
 
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
@@ -135,11 +134,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # standalone case, or during deployment.
   #
   # with persistent releases, the latest release is always the current release
-  _cset(:rollback_release)  { rollback_release_path }
-  _cset(:previous_release)  { previous_release_path }
-  _cset(:current_release)   { release_path }
-  _cset(:next_release)      { next_release_path }
+
+  _cset(:rollback_release)  { File.join(releases_path, rollback_release_path) }
+  _cset(:previous_release)  { File.join(releases_path, previous_release_path) }
+  _cset(:current_release)   { File.join(releases_path, current_release_path) }
   _cset(:latest_release)    { current_release }
+  _cset(:next_release)      { File.join(releases_path, next_release_path) }
 
   # =========================================================================
   # deploy:lock defaults
