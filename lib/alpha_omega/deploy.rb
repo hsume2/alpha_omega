@@ -64,7 +64,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } } }
 
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
-  _cset(:rollback_release_path) { 
+  _cset(:rollback_release_name) { 
     if releases.length > 0
       w = current_workarea
       releases.index(w) && releases[(releases.index(w))%releases.length]
@@ -72,7 +72,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset(:previous_release_path) { 
+  _cset(:previous_release_name) { 
     if releases.length > 0
       w = current_workarea
       releases.index(w) && releases[(releases.index(w)-1)%releases.length]
@@ -80,7 +80,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset(:current_release_path) { 
+  _cset(:current_release_name) { 
     if releases.length > 0
       w = current_workarea
       stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
@@ -90,7 +90,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset(:next_release_path) { 
+  _cset (:release_name) { current_release_name } # compact
+  _cset(:next_release_name) { 
     if releases.length > 0
       w = current_workarea
       releases.index(w) && releases[(releases.index(w)+1)%releases.length]
@@ -119,9 +120,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).strip }
   _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).strip }
-  _cset(:current_revision)  { capture("cat #{current_path}/REVISION",     :except => { :no_release => true }).strip }
+  _cset(:current_revision)  { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).strip }
   _cset(:next_revision)     { capture("cat #{next_release}/REVISION",     :except => { :no_release => true }).strip }
-  _cset(:latest_revision)   { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).strip }
 
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
@@ -135,11 +135,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   #
   # with persistent releases, the latest release is always the current release
 
-  _cset(:rollback_release)  { File.join(releases_path, rollback_release_path) }
-  _cset(:previous_release)  { File.join(releases_path, previous_release_path) }
-  _cset(:current_release)   { File.join(releases_path, current_release_path) }
-  _cset(:latest_release)    { current_release }
-  _cset(:next_release)      { File.join(releases_path, next_release_path) }
+  _cset(:rollback_release)  { File.join(releases_path, rollback_release_name) }
+  _cset(:previous_release)  { File.join(releases_path, previous_release_name) }
+  _cset(:current_release)   { File.join(releases_path, current_release_name) }
+  _cset(:next_release)      { File.join(releases_path, next_release_name) }
 
   # =========================================================================
   # deploy:lock defaults
@@ -284,7 +283,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :symlink_next, :except => { :no_release => true } do
       if releases.length >= 2
-          run "ln -vsnf #{latest_release} #{next_path}"
+          run "ln -vsnf #{current_release} #{next_path}"
       end
     end
 
@@ -309,17 +308,17 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         end
 
         if releases.length == 1
-          run "ln -vsnf #{latest_release} #{current_path}"
+          run "ln -vsnf #{current_release} #{current_path}"
         else
           run "rm -fv #{previous_path} #{next_path}"
-          run "ln -vsnf #{latest_release} #{current_path}"
+          run "ln -vsnf #{current_release} #{current_path}"
           if current_path != external_path
             run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{current_path} #{external_path}"
           end
           run "ln -vsnf #{rollback_release} #{previous_path}"
         end
 
-        system "#{figlet} -w 200 #{release_name} activated"
+        system "#{figlet} -w 200 #{current_release_path} activated"
       end
     end
 
@@ -378,7 +377,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     DESC
     task :cook, :roles => :app, :except => { :no_release => true } do
       run_script = <<-SCRIPT
-        set -e; cd #{release_path};
+        set -e; cd #{current_release};
         if [[ -x bin/nuke ]]; then #{ruby_loader} bin/nuke; fi;
       SCRIPT
 
@@ -581,7 +580,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :ruby do
     task :bundle do
       run_script = <<-SCRIPT
-        set -e; cd #{release_path};
+        set -e; cd #{current_release};
       SCRIPT
 
       run_script += <<-SCRIPT
@@ -597,7 +596,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :node do
     task :bundle do
       run_script = <<-SCRIPT
-        set -e; cd #{release_path};
+        set -e; cd #{current_release};
       SCRIPT
 
       run_script += <<-SCRIPT
@@ -610,7 +609,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   on :exit do
     unless local_only
-      put full_log, "#{log_path}/#{application}_last_deploy-#{release_name}-#{branch.gsub(/\W+/,"_")}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+      put full_log, "#{log_path}/#{application}_last_deploy-#{current_release_path}-#{branch.gsub(/\W+/,"_")}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
     end
   end
 
