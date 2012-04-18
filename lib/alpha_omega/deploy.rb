@@ -64,12 +64,28 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } } }
 
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
+  _cset(:previous_release_path) { 
+    if releases.length > 0
+      w = current_workarea
+      releases.index(w) && releases[(releases.index(w)-1)%releases.length]
+    else
+      ""
+    end
+  }
   _cset(:release_name) { 
     if releases.length > 0
       w = current_workarea
       stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
       system "#{figlet} -w 200 on #{stage}"
       stage
+    else
+      ""
+    end
+  }
+  _cset(:next_release_path) { 
+    if releases.length > 0
+      w = current_workarea
+      releases.index(w) && releases[(releases.index(w)+1)%releases.length]
     else
       ""
     end
@@ -86,23 +102,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
   _cset(:release_path)      { File.join(releases_path, release_name) }
-  _cset(:previous_path) { 
-    if releases.length > 0
-      w = current_workarea
-      releases.index(w) && releases[(releases.index(w)-1)%releases.length] || ""
-    else
-      ""
-    end
-  }
+  _cset(:previous_path)     { File.join(deploy_to, previous_dir) }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
-  _cset(:next_path) { 
-    if releases.length > 0
-      w = current_workarea
-      releases.index(w) && releases[(releases.index(w)+1)%releases.length] || ""
-    else
-      ""
-    end
-  }
+  _cset(:next_path)         { File.join(deploy_to, next_dir) }
   _cset(:service_path)      { File.join(deploy_to, service_dir) }
   _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
   _cset(:log_path)          { File.join(deploy_to, log_dir) }
@@ -123,9 +125,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # standalone case, or during deployment.
   #
   # with persistent releases, the latest release is always the current release
-  _cset(:previous_release)  { previous_path }
+  _cset(:previous_release)  { previous_release_path }
   _cset(:current_release)   { release_path }
-  _cset(:next_release)      { next_path }
+  _cset(:next_release)      { next_release_path }
   _cset(:latest_release)    { current_release }
 
   # =========================================================================
