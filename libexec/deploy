@@ -116,6 +116,15 @@ function git_tag {
   fi
 }
 
+function ensure_clean_git_status {
+  local lines=$(git status -s -uno | wc -l | awk '{print $1}')
+  if [[ $lines != "0" ]]; then
+    echo "ERROR: git status is not clean, cannot tag" 1>&2
+    git status -s -uno
+    exit 1
+  fi
+}
+
 case "$(basename $0)" in
   bump)
     true
@@ -189,6 +198,7 @@ case "$(basename $0)" in
         ;;
 
       bump)
+        ensure_clean_git_status
         if [[ -f VERSION || -L VERSION ]]; then
           if [[ -e VERSION ]]; then
             bump_version_file "$@"
