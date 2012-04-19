@@ -450,21 +450,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Override in deploy recipes.  Formerly a railsy rake db:migrate.
     DESC
     task :migrate, :roles => :db, :only => { :primary => true } do
-    end
-
-    desc <<-DESC
-      Deploy and run pending migrations. This will work similarly to the \
-      `deploy' task, but will also run any pending migrations (via the \
-      `deploy:migrate' task) prior to updating the symlink. Note that the \
-      update in this case it is not atomic, and transactions are not used, \
-      because migrations are not guaranteed to be reversible.
-    DESC
-    task :migrations do
-      set :migrate_target, :latest
+      set :current_release_name, "migrate"
       update_code
-      migrate
-      symlink
-      restart
+      run "ln -vnfs #{migrate_release} #{migrate_path}"
     end
 
     desc <<-DESC
