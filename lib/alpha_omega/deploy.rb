@@ -318,7 +318,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           run "ln -vsnf #{rollback_release} #{previous_path}"
         end
 
-        system "#{figlet} -w 200 #{current_release_path} activated"
+        system "#{figlet} -w 200 #{current_release_name} activated"
       end
     end
 
@@ -609,7 +609,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   on :exit do
     unless local_only
-      put full_log, "#{log_path}/#{application}_last_deploy-#{current_release_path}-#{branch.gsub(/\W+/,"_")}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+      put full_log, "#{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
     end
   end
 
