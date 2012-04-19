@@ -387,12 +387,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Apply microwave tvdinners to a release directory.
     DESC
     task :cook, :roles => :app, :except => { :no_release => true } do
-      run_script = <<-SCRIPT
-        set -e; cd #{current_release};
-        if [[ -x bin/nuke ]]; then #{ruby_loader} bin/nuke; fi;
-      SCRIPT
-
-      run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
 
     desc <<-DESC
