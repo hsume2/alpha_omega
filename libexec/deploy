@@ -5,9 +5,8 @@ function bump_version {
 
   local_file=
   if [[ -f VERSION || -L VERSION ]]; then
-    if [[ -e VERSION ]]; then
       local_file=1
-    else
+    if [[ ! -e VERSION ]]; then
       echo "ERROR: cannot write to VERSION file" 1>&2
       exit 1
     fi
@@ -15,7 +14,7 @@ function bump_version {
 
   tmp_version=$(mktemp -t XXXXXXXXX)
   if [[ -n $local_file ]]; then
-    cp VERSION $tmp_version
+    cp VERSION > $tmp_version
   else
     git tag | perl -ne 'm{^v(\d+)\.(\d+)\.(\d+)$} && printf("v%03d.%03d.%03d v%d.%d.%d\n",$1,$2,$3,$1,$2,$3)' | sort -r | head -1 | awk '{print $2}' > $tmp_version
   fi
