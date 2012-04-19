@@ -37,24 +37,28 @@ function bump_version {
       ;;
     *)
       ver_new=$1; shift
-      set $(echo "$ver_new" | sed 's#\.# #g') 0
-      M=$1; shift
-      m=$1; shift
-      p=$1; shift
-
-      (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
-      ver_new_same=$(cat $tmp_version)
-
-      if [[ $ver_new != $ver_new_same ]]; then
-        echo "ERROR: invalid version: $ver_new" 1>&2
-        exit 1
-      fi
+      ver_new=${ver_new#v}
+      echo $ver_new > $tmp_version
       ;;
   esac
 
-  ver_bumped=$(cat $tmp_version)
+  ver_new=$(cat $tmp_version)
+  set $(echo "$ver_new" | sed 's#\.# #g') 0
+  M=$1; shift
+  m=$1; shift
+  p=$1; shift
+
+  (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
+  ver_new_same=$(cat $tmp_version)
+
+  if [[ $ver_new != $ver_new_same ]]; then
+    echo "ERROR: invalid version: $ver_new" 1>&2
+    exit 1
+  fi
+
+  ver_bumped="v$(cat $tmp_version)"
   rm -f $tmp_version
-  ensure_git_tag_available "v$ver_bumped"
+  ensure_git_tag_available $ver_bumped
 
   if [[ -n $local_file ]]; then
     echo $ver_bumped > VERSION
@@ -68,7 +72,7 @@ function bump_version {
     git push
   fi
 
-  git_tag "v$ver_bumped"
+  git_tag "$ver_bumped"
   echo $ver_bumped
 }
 
