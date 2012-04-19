@@ -190,7 +190,43 @@ case "$(basename $0)" in
             ;;
 
           migrate)
-            bundle exec cap "$@" deploy:migrate
+            want_list=
+            if [[ $1 = "list" ]]; then
+              want_list=1; shift
+            fi
+
+            change_group=
+            migration=
+            case $1 in
+              data)
+                change_group=$1; shift
+                ;;
+              pre)
+                change_group=$1; shift
+                ;;
+              during)
+                change_group=$1; shift
+                ;;
+              post)
+                change_group=$1; shift
+                ;;
+              [0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789])
+                migration=$1; shift
+                ;;
+            esac
+
+            if [[ -n $change_group ]]; then
+              if [[ -n $want_list ]]; then
+                echo "listing change group $change_group"
+              else
+                echo "running change group $change_group"
+              fi
+            elif [[ -n $migration ]]; then
+              echo "running migration $migratio"
+            elif [[ -n $want_list ]]; then
+              echo "listing migrations"
+            fi
+            #bundle exec cap "$@" deploy:migrate
             ;;
 
           *)
