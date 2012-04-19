@@ -75,6 +75,7 @@ function bump_version {
 }
 
 function ensure_git_tag_available {
+  version=$1; shift
   git fetch --tags
   remote_sha=$(git ls-remote origin $version | awk '{print $1}')
   if [[ -n $remote_sha ]]; then
