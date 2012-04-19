@@ -14,7 +14,7 @@ function bump_version {
 
   tmp_version=$(mktemp -t XXXXXXXXX)
   if [[ -n $local_file ]]; then
-    cp VERSION $tmp_version
+    cat VERSION | perl -ne 'm{^\s*v?(\d+)\.(\d+)\.(\d+)\s*$} && printf("%03d.%03d.%03d %d.%d.%d\n",$1,$2,$3,$1,$2,$3)' | sort -r | head -1 | awk '{print $2}' > $tmp_version
   else
     git tag | perl -ne 'm{^v(\d+)\.(\d+)\.(\d+)$} && printf("%03d.%03d.%03d %d.%d.%d\n",$1,$2,$3,$1,$2,$3)' | sort -r | head -1 | awk '{print $2}' > $tmp_version
   fi
