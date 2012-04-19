@@ -74,6 +74,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :next_dir,            "next"
   _cset :compare_dir,         "compare"
   _cset :migrate_dir,         "migrate"
+  _cset(:deploy_dir)        { current_dir }
 
   _cset :service_dir,         "service"
   _cset :log_dir,             "log"
@@ -118,6 +119,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   }
   _cset :compare_release_name, compare_dir
   _cset :migrate_release_name, migrate_dir
+  _cset(:deploy_release_name) { current_release_name }
 
   _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
   _cset(:previous_path)     { File.join(deploy_to, previous_dir) }
@@ -126,6 +128,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:next_path)         { File.join(deploy_to, next_dir) }
   _cset(:compare_path)      { File.join(deploy_to, compare_dir) }
   _cset(:migrate_path)      { File.join(deploy_to, migrate_dir) }
+  _cset(:deploy_path)       { File.join(deploy_to, deploy_dir) }
 
   _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).strip }
   _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).strip }
@@ -133,6 +136,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:next_revision)     { capture("cat #{next_release}/REVISION",     :except => { :no_release => true }).strip }
   _cset(:compare_revision)  { capture("cat #{compare_release}/REVISION",  :except => { :no_release => true }).strip }
   _cset(:migrate_revision)  { capture("cat #{migrate_release}/REVISION",  :except => { :no_release => true }).strip }
+  _cset(:deploy_revision)   { capture("cat #{deploy_release}/REVISION",   :except => { :no_release => true }).strip }
 
   # formerly:
   #
@@ -150,6 +154,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:next_release)      { File.join(releases_path, next_release_name) }
   _cset(:compare_release)   { File.join(releases_path, compare_release_name) }
   _cset(:migrate_release)   { File.join(releases_path, migrate_release_name) }
+  _cset(:deploy_release)    { File.join(releases_path, deploy_release_name) }
 
   # =========================================================================
   # deploy:lock defaults
@@ -355,7 +360,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       files = (ENV["FILES"] || "").split(",").map { |f| Dir[f.strip] }.flatten
       abort "Please specify at least one file or directory to update (via the FILES environment variable)" if files.empty?
 
-      files.each { |file| top.upload(file, File.join(current_path, file)) }
+      files.each { |file| top.upload(file, File.join(deploy_path, file)) }
     end
 
     desc <<-DESC
@@ -393,9 +398,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Compares your application.
     DESC
     task :compare, :roles => :app, :except => { :no_release => true } do
-      set :current_release_name, "compare"
+      set :deploy_dir, "compare"
+      set :deploy_release_name, "compare"
       update_code
-      run "ln -vnfs #{compare_release} #{compare_path}"
+      run "ln -vnfs #{deploy_release} #{deploy_path}"
     end
 
     namespace :rollback do
@@ -450,9 +456,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Override in deploy recipes.  Formerly a railsy rake db:migrate.
     DESC
     task :migrate, :roles => :db, :only => { :primary => true } do
-      set :current_release_name, "migrate"
+      set :deploy_dir, "migrate"
+      set :deploy_release_name, "migrate"
       update_code
-      run "ln -vnfs #{migrate_release} #{migrate_path}"
+      run "ln -vnfs #{deploy_release} #{deploy_path}"
     end
 
     desc <<-DESC
