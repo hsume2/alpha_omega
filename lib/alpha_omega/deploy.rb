@@ -47,6 +47,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :bundler_options, "--deployment --without development:test"
   _cset :ruby_loader, ""
 
+  _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
+
   _cset :current_pod, "default"
   _cset :last_pod, nil
   _cset :local_only, ENV['LOCAL_ONLY'] ? true : false
@@ -63,7 +65,23 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
   _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } } }
 
+  _cset :releases,          [ "alpha", "beta", "omega" ]
+  _cset(:releases_dir)      { releases.length > 0 ? "releases" : "" }
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] || releases[0] }
+
+  _cset :previous_dir,        "previous"
+  _cset :current_dir,         "current"
+  _cset :next_dir,            "next"
+  _cset :compare_dir,         "compare"
+  _cset :migrate_dir,         "migrate"
+
+  _cset :service_dir,         "service"
+  _cset :log_dir,             "log"
+
+  _cset(:service_path)      { File.join(deploy_to, service_dir) }
+  _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
+  _cset(:log_path)          { File.join(deploy_to, log_dir) }
+
   _cset(:rollback_release_name) { 
     if releases.length > 0
       w = current_workarea
@@ -98,31 +116,23 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-
-  _cset :releases,          [ "alpha", "beta", "omega" ]
-  _cset(:releases_dir)      { releases.length > 0 ? "releases" : "" }
-  _cset :previous_dir,        "previous"
-  _cset :current_dir,         "current"
-  _cset :next_dir,            "next"
-  _cset :service_dir,         "service"
-  _cset :log_dir,             "log"
-
+  _cset :compare_release_name, compare_dir
+  _cset :migrate_release_name, migrate_dir
 
   _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
   _cset(:previous_path)     { File.join(deploy_to, previous_dir) }
   _cset(:current_path)      { File.join(deploy_to, current_dir) }
   _cset(:external_path)     { current_path }
   _cset(:next_path)         { File.join(deploy_to, next_dir) }
-  _cset(:service_path)      { File.join(deploy_to, service_dir) }
-  _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
-  _cset(:log_path)          { File.join(deploy_to, log_dir) }
+  _cset(:compare_path)      { File.join(deploy_to, compare_dir) }
+  _cset(:migrate_path)      { File.join(deploy_to, migrate_dir) }
 
   _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).strip }
   _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).strip }
   _cset(:current_revision)  { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).strip }
   _cset(:next_revision)     { capture("cat #{next_release}/REVISION",     :except => { :no_release => true }).strip }
-
-  _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
+  _cset(:compare_revision)  { capture("cat #{compare_release}/REVISION",  :except => { :no_release => true }).strip }
+  _cset(:migrate_revision)  { capture("cat #{migrate_release}/REVISION",  :except => { :no_release => true }).strip }
 
   # formerly:
   #
@@ -138,6 +148,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:previous_release)  { File.join(releases_path, previous_release_name) }
   _cset(:current_release)   { File.join(releases_path, current_release_name) }
   _cset(:next_release)      { File.join(releases_path, next_release_name) }
+  _cset(:compare_release)   { File.join(releases_path, compare_release_name) }
+  _cset(:migrate_release)   { File.join(releases_path, migrate_release_name) }
 
   # =========================================================================
   # deploy:lock defaults
@@ -387,7 +399,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Compares your application.
     DESC
     task :compare, :roles => :app, :except => { :no_release => true } do
+      set :current_release_name, "compare"
       update_code
+      run "ln -vnfs #{compare_release} #{compare_path}"
     end
 
     namespace :rollback do
