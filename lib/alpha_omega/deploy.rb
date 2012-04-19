@@ -144,7 +144,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # deploy:lock defaults
   # =========================================================================
   _cset(:want_unlock) { true }
-  _cset(:lock_timeout) { 300 }
+  _cset(:lock_timeout) { 86400 }
 
   # =========================================================================
   # These are helper methods that will be available to your recipes.
@@ -547,11 +547,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         lock_elasped = epoch-lock_epoch
 
         if lock_elasped < lock_timeout
-          puts "deploy in progress by #{lock_user} #{epoch-lock_epoch} seconds ago"
-          abort
-        elsif
-          puts "Found a chef lock by #{lock_user} #{epoch-lock_epoch} seconds ago: too old, deleting and ignoring"
+          true # don't do anything if locks timeout, jus advise unlock
         end
+
+        puts "deploy locked by #{lock_user} #{epoch-lock_epoch} seconds ago"
+        puts "use bin/unlock to remove this lock"
+        abort
       end
 
       run_script = <<-SCRIPT
