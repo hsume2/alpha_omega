@@ -1,6 +1,7 @@
 #!/bin/bash -e
 
 function bump_version {
+  set -x
   ensure_clean_git_status
 
   local_file=
@@ -18,9 +19,6 @@ function bump_version {
   else
     git tag | perl -ne 'm{^v(\d+)\.(\d+)\.(\d+)$} && printf("v%03d.%03d.%03d v%d.%d.%d\n",$1,$2,$3,$1,$2,$3)' | sort -r | head -1 | awk '{print $2}' > $tmp_version
   fi
-
-  cat $tmp_version
-  exit 1
 
   case "$1" in
     patch|minor|major)
@@ -73,6 +71,7 @@ function bump_version {
 
   git_tag "v$ver_bumped"
   echo $ver_bumped
+  exit 0
 }
 
 function ensure_git_tag_available {
