@@ -135,14 +135,12 @@ esac
 
 export LOCAL_ONLY=true
 
-default_pod=$(cat /etc/podname 2>&- || true)
-
 case "$(basename $0)" in
   invoke)
     export COMMAND="$1"; shift
 
     if [[ -n $1 ]]; then
-      set $(for a in "$@"; do if [[ $default_pod = $a ]]; then echo "default.app"; else echo $a.app; fi; done)
+      set $(for a in "$@"; do echo $a.app; done)
     fi
 
     LOCAL_ONLY=
@@ -157,7 +155,7 @@ case "$(basename $0)" in
     ;;
   *)
     if [[ -n $1 ]]; then
-      set $(for a in "$@"; do if [[ $default_pod = $a ]]; then echo "default"; else echo $a; fi; done)
+      set $(for a in "$@"; do echo $a; done)
     fi
 
     case "$(basename $0)" in
