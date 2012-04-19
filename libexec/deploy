@@ -123,51 +123,47 @@ case "$(basename $0)" in
         fi
         case "$(basename $0)" in
           deploy)
-            bundle exec cap "$@" deploy
+            bundle exec cap "$@" deploy:lock deploy
             ;;
 
           release)
-            bundle exec cap "$@" deploy
+            bundle exec cap "$@" deploy:lock deploy
             ;;
 
           stage)
-            bundle exec cap "$@" deploy:update_code deploy:symlink_next
+            bundle exec cap "$@" deploy:lock deploy:update_code deploy:symlink_next
             ;;
 
           restart)
-            bundle exec cap "$@" deploy:restart
+            bundle exec cap "$@" deploy:lock deploy:restart
             ;;
 
           config)
-            bundle exec cap "$@" deploy:config
+            bundle exec cap "$@" deploy:lock deploy:config
             ;;
 
           build)
-            bundle exec cap "$@" deploy:build
+            bundle exec cap "$@" deploy:lock deploy:build
             ;;
 
           dist)
-            bundle exec cap "$@" deploy:dist
+            bundle exec cap "$@" deploy:lock deploy:dist
             ;;
 
           activate)
-            bundle exec cap "$@" deploy:symlink deploy:restart
+            bundle exec cap "$@" deploy:lock deploy:symlink deploy:restart
             ;;
 
           rollback)
-            bundle exec cap "$@" deploy:rollback
+            bundle exec cap "$@" deploy:lock deploy:rollback
             ;;
 
           check)
-            bundle exec cap "$@" deploy:check
-            ;;
-
-          compare)
-            bundle exec cap "$@" deploy:compare
+            bundle exec cap "$@" deploy:lock deploy:check
             ;;
 
           plan)
-            bundle exec cap "$@" deploy:plan
+            bundle exec cap "$@" deploy:lock deploy:plan
             ;;
 
           lock)
@@ -180,6 +176,14 @@ case "$(basename $0)" in
 
           shell)
             bundle exec cap "$@" shell
+            ;;
+
+          compare)
+            bundle exec cap "$@" deploy:compare
+            ;;
+
+          migrate)
+            bundle exec cap "$@" deploy:migrate
             ;;
 
           *)
