@@ -73,9 +73,7 @@ function bump_version {
   echo $ver_bumped
 }
 
-function git_tag {
-  local version=$1; shift
-
+function ensure_git_tag_available {
   git fetch --tags
   remote_sha=$(git ls-remote origin $version | awk '{print $1}')
   if [[ -n $remote_sha ]]; then
@@ -88,6 +86,12 @@ function git_tag {
     echo "ERROR: already a local tag $version" 1>&2
     exit 1
   fi
+}
+
+function git_tag {
+  local version=$1; shift
+
+  ensure_git_tag_available "$version"
 
   git tag $version
   git push origin tag $version
