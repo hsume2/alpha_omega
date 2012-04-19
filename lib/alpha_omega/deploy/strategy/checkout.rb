@@ -11,7 +11,7 @@ module Capistrano
 
           # Returns the SCM's checkout command for the revision to deploy.
           def commands
-            @commands ||= source.checkout(revision, configuration[:current_release])
+            @commands ||= source.checkout(revision, configuration[:deploy_release])
           end
       end
 

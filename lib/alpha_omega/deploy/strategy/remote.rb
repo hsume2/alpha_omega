@@ -35,7 +35,7 @@ module Capistrano
           # Returns the command which will write the identifier of the
           # revision being deployed to the REVISION file on each host.
           def mark
-            "echo #{revision} > #{configuration[:current_release]}/REVISION"
+            "echo #{revision} > #{configuration[:deploy_release]}/REVISION"
           end
       end
 
