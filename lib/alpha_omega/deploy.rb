@@ -583,7 +583,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :ruby do
     task :bundle do
       run_script = <<-SCRIPT
-        set -e; cd #{current_release};
+        set -e; cd #{deploy_release};
       SCRIPT
 
       run_script += <<-SCRIPT
@@ -599,7 +599,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :node do
     task :bundle do
       run_script = <<-SCRIPT
-        set -e; cd #{current_release};
+        set -e; cd #{deploy_release};
       SCRIPT
 
       run_script += <<-SCRIPT
