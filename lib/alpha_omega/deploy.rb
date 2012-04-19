@@ -283,7 +283,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :symlink_next, :except => { :no_release => true } do
       if releases.length >= 2
-          run "ln -vsnf #{current_release} #{next_path}"
+          run "ln -vnfs #{current_release} #{next_path}"
       end
     end
 
@@ -301,21 +301,21 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         on_rollback do
           if rollback_release
             run "rm -fv #{previous_path} #{next_path}; true"
-            run "ln -vsnf #{rollback_release} #{current_path}; true"
+            run "ln -vnfs #{rollback_release} #{current_path}; true"
           else
             logger.important "no previous release to rollback to, rollback of symlink skipped"
           end
         end
 
         if releases.length == 1
-          run "ln -vsnf #{current_release} #{current_path}"
+          run "ln -vnfs #{current_release} #{current_path}"
         else
           run "rm -fv #{previous_path} #{next_path}"
-          run "ln -vsnf #{current_release} #{current_path}"
+          run "ln -vnfs #{current_release} #{current_path}"
           if current_path != external_path
-            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vsnf #{current_path} #{external_path}"
+            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vnfs #{current_path} #{external_path}"
           end
-          run "ln -vsnf #{rollback_release} #{previous_path}"
+          run "ln -vnfs #{rollback_release} #{previous_path}"
         end
 
         system "#{figlet} -w 200 #{current_release_name} activated"
@@ -399,10 +399,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       DESC
       task :revision, :except => { :no_release => true } do
         if previous_release
-          system "#{figlet} -w 200 on #{previous_release}"
+          system "#{figlet} -w 200 on #{previous_release_name}"
           run "rm -fv #{previous_path} #{next_path}"
 
-          run "ln -vsnf #{previous_release} #{current_path}"
+          run "ln -vnfs #{previous_release} #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
         end
