@@ -189,6 +189,9 @@ case "$(basename $0)" in
         ;;
 
       bump)
+        if [[ -z $1 ]]; then
+          set patch
+        fi
         bump_version "$@"
         ;;
 
