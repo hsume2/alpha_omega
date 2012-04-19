@@ -130,13 +130,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:migrate_path)      { File.join(deploy_to, migrate_dir) }
   _cset(:deploy_path)       { File.join(deploy_to, deploy_dir) }
 
-  _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION", :except => { :no_release => true }).strip }
-  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION", :except => { :no_release => true }).strip }
-  _cset(:current_revision)  { capture("cat #{current_release}/REVISION",  :except => { :no_release => true }).strip }
-  _cset(:next_revision)     { capture("cat #{next_release}/REVISION",     :except => { :no_release => true }).strip }
-  _cset(:compare_revision)  { capture("cat #{compare_release}/REVISION",  :except => { :no_release => true }).strip }
-  _cset(:migrate_revision)  { capture("cat #{migrate_release}/REVISION",  :except => { :no_release => true }).strip }
-  _cset(:deploy_revision)   { capture("cat #{deploy_release}/REVISION",   :except => { :no_release => true }).strip }
+  _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION").strip }
+  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION").strip }
+  _cset(:current_revision)  { capture("cat #{current_release}/REVISION").strip }
+  _cset(:next_revision)     { capture("cat #{next_release}/REVISION").strip }
+  _cset(:compare_revision)  { capture("cat #{compare_release}/REVISION").strip }
+  _cset(:migrate_revision)  { capture("cat #{migrate_release}/REVISION").strip }
+  _cset(:deploy_revision)   { capture("cat #{deploy_release}/REVISION").strip }
 
   # formerly:
   #
@@ -271,7 +271,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
-    task :bootstrap_code, :except => { :no_release => true } do
+    task :bootstrap_code do
       if releases.length < 2 # without services and run as root
         run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
         run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
@@ -290,14 +290,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       should call the `deploy' task (to do a complete deploy) or the `update' \
       task (if you want to perform the `restart' task separately).
     DESC
-    task :update_code, :except => { :no_release => true } do
+    task :update_code do
       bootstrap_code
       strategy.deploy!
       bundle
       cook
     end
 
-    task :symlink_next, :except => { :no_release => true } do
+    task :symlink_next do
       if releases.length >= 2
           run "ln -vnfs #{current_release} #{next_path}"
       end
@@ -312,7 +312,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       deploy, including `restart') or the 'update' task (which does everything \
       except `restart').
     DESC
-    task :symlink, :except => { :no_release => true } do
+    task :symlink do
       if releases.length > 0
         on_rollback do
           if rollback_release
@@ -356,7 +356,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
         $ cap deploy:upload FILES='config/apache/*.conf'
     DESC
-    task :upload, :except => { :no_release => true } do
+    task :upload do
       files = (ENV["FILES"] || "").split(",").map { |f| Dir[f.strip] }.flatten
       abort "Please specify at least one file or directory to update (via the FILES environment variable)" if files.empty?
 
@@ -366,38 +366,38 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     desc <<-DESC
       Restarts your application.
     DESC
-    task :restart, :roles => :app, :except => { :no_release => true } do
+    task :restart do
     end
 
     desc <<-DESC
       Builds binaries (like assets, jars, format conversions for distribution
       by deploy:dist.
     DESC
-    task :build, :roles => :build, :except => { :no_release => true } do
+    task :build do
     end
 
     desc <<-DESC
       Distribute binaries built in deploy:build.
     DESC
-    task :dist, :roles => :app, :except => { :no_release => true } do
+    task :dist do
     end
 
     desc <<-DESC
       Checkpoint for various language bundlers
     DESC
-    task :bundle, :roles => :app, :except => { :no_release => true } do
+    task :bundle do
     end
 
     desc <<-DESC
       Apply microwave tvdinners to a release directory.
     DESC
-    task :cook, :roles => :app, :except => { :no_release => true } do
+    task :cook do
     end
 
     desc <<-DESC
       Compares your application.
     DESC
-    task :compare, :roles => :app, :except => { :no_release => true } do
+    task :compare do
       set :deploy_dir, "compare"
       set :deploy_release_name, "compare"
       update_code
@@ -410,7 +410,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         This is called by the rollback sequence, and should rarely (if
         ever) need to be called directly.
       DESC
-      task :revision, :except => { :no_release => true } do
+      task :revision do
         if previous_release
           system "#{figlet} -w 200 on #{previous_release_name}"
           run "rm -fv #{previous_path} #{next_path}"
@@ -426,7 +426,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         This is called by the rollback sequence, and should rarely
         (if ever) need to be called directly.
       DESC
-      task :cleanup, :except => { :no_release => true } do
+      task :cleanup do
       end
 
       desc <<-DESC
@@ -435,7 +435,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         current release will be removed from the servers. You'll generally want \
         to call `rollback' instead, as it performs a `restart' as well.
       DESC
-      task :code, :except => { :no_release => true } do
+      task :code do
         revision
         cleanup
       end
@@ -455,7 +455,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     desc <<-DESC
       Override in deploy recipes.  Formerly a railsy rake db:migrate.
     DESC
-    task :migrate, :roles => :db, :only => { :primary => true } do
+    task :migrate  do
       set :deploy_dir, "migrate"
       set :deploy_release_name, "migrate"
       update_code
@@ -474,7 +474,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         depend :local, :command, "svn"
         depend :remote, :directory, "/u/depot/files"
     DESC
-    task :check, :except => { :no_release => true } do
+    task :check do
       dependencies = strategy.check!
 
       other = fetch(:dependencies, {})
@@ -504,13 +504,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     desc <<-DESC
       Start the application servers.
     DESC
-    task :start, :roles => :app do
+    task :start do
     end
 
     desc <<-DESC
       Stop the application servers.
     DESC
-    task :stop, :roles => :app do
+    task :stop do
     end
 
     namespace :pending do
@@ -519,7 +519,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         to examine what changes are about to be deployed. Note that this might \
         not be supported on all SCM's.
       DESC
-      task :diff, :except => { :no_release => true } do
+      task :diff do
         system(source.local.diff(current_revision))
       end
 
@@ -528,7 +528,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         of the changes that have occurred since the last deploy. Note that this \
         might not be supported on all SCM's.
       DESC
-      task :default, :except => { :no_release => true } do
+      task :default do
         from = source.next_revision(current_revision)
         system(source.local.log(from))
       end
