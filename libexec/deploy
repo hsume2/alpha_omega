@@ -295,7 +295,8 @@ case "$(basename $0)" in
             elif [[ -n $want_list ]]; then
               echo "listing migrations"
             fi
-            #bundle exec cap "$@" deploy:migrate
+
+            bundle exec cap "$@" deploy:migrate
             ;;
 
           *)
