@@ -61,7 +61,7 @@ function bump_version {
   ensure_git_tag_available $ver_bumped
 
   if [[ -n $local_file ]]; then
-    echo $ver_bumped > VERSION
+    echo ${ver_bumped#v} > VERSION
     git add VERSION
     if [[ -f Gemfile ]]; then
       bundle check 2>&1 >/dev/null || { bundle --quiet install --local --path vendor/bundle || bundle check > /dev/null; }
