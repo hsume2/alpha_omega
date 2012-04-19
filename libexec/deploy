@@ -48,6 +48,7 @@ function bump_version_file {
   ver_bumped=$(cat VERSION)
   git commit -m "bump: $ver_bumped"
   git_tag "v$ver_bumped"
+  git push
   echo $ver_bumped
 }
 
@@ -107,6 +108,12 @@ function git_tag {
 
   git tag $version
   git push origin tag $version
+  remote_sha=$(git ls-remote origin $version | awk '{print $1}')
+  local_sha=$(git show-ref $version | awk '{print $1}')
+  if [[ $remote_sha != $local_sha ]]; then
+    echo "ERROR: remote tag $version does not match local SHA" 1>&2
+    exit 1
+  fi
 }
 
 case "$(basename $0)" in
