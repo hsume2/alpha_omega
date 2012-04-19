@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 function bump_version {
-  set -x
   ensure_clean_git_status
 
   local_file=
@@ -71,7 +70,6 @@ function bump_version {
 
   git_tag "v$ver_bumped"
   echo $ver_bumped
-  exit 0
 }
 
 function ensure_git_tag_available {
