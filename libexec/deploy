@@ -106,6 +106,12 @@ function git_tag {
     exit 1
   fi
 
+  local_sha=$(git show-ref $version | awk '{print $1}')
+  if [[ -n $local_sha ]]; then
+    echo "ERROR: already a local tag $version" 1>&2
+    exit 1
+  fi
+
   git tag $version
   git push origin tag $version
   remote_sha=$(git ls-remote origin $version | awk '{print $1}')
