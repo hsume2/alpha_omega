@@ -1,5 +1,114 @@
 #!/bin/bash -e
 
+function bump_version_file {
+  case "$1" in
+    patch|minor|major)
+      bump=$1; shift
+      set $(cat VERSION | sed 's#\.# #g')
+      case "$bump" in
+        patch)
+          echo "$1.$2.$(($3 + 1))"
+          ;;
+        minor)
+          echo "$1.$(($2 + 1)).0"
+          ;;
+        major)
+          echo "$(($1 + 1)).0.0"
+          ;;
+      esac > VERSION
+      ;;
+    *)
+      ver_new=$1; shift
+      set $(echo "$ver_new" | sed 's#\.# #g') 0
+      M=$1; shift
+      m=$1; shift
+      p=$1; shift
+
+      tmp_version=$(mktemp -t XXXXXXXXX)
+      (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
+      ver_new_same=$(cat $tmp_version)
+      rm -f $tmp_version
+
+      if [[ $ver_new = $ver_new_same ]]; then
+        echo "$ver_new" > VERSION
+      else
+        echo "ERROR: invalid version: $ver_new" 1>&2
+        exit 1
+      fi
+      ;;
+  esac
+
+  if [[ -f Gemfile ]]; then
+    bundle check 2>&1 >/dev/null || { bundle --quiet install --local --path vendor/bundle || bundle check > /dev/null; }
+    git add Gemfile.lock
+  fi
+
+  git add VERSION
+
+  ver_bumped=$(cat VERSION)
+  git commit -m "bump: $ver_bumped"
+  git_tag "v$ver_bumped"
+  echo $ver_bumped
+}
+
+function bump_version_tag {
+  tmp_version=$(mktemp -t XXXXXXXXX)
+  case "$1" in
+    patch|minor|major)
+      bump=$1; shift
+      set $(cat tmp_version| sed 's#\.# #g')
+      case "$bump" in
+        patch)
+          echo "$1.$2.$(($3 + 1))"
+          ;;
+        minor)
+          echo "$1.$(($2 + 1)).0"
+          ;;
+        major)
+          echo "$(($1 + 1)).0.0"
+          ;;
+      esac > $tmp_version
+      ;;
+    *)
+      ver_new=$1; shift
+      set $(echo "$ver_new" | sed 's#\.# #g') 0
+      M=$1; shift
+      m=$1; shift
+      p=$1; shift
+
+      tmp_version=$(mktemp -t XXXXXXXXX)
+      (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
+      ver_new_same=$(cat $tmp_version)
+      rm -f $tmp_version
+
+      if [[ $ver_new = $ver_new_same ]]; then
+        echo "$ver_new" > $tmp_version
+      else
+        echo "ERROR: invalid version: $ver_new" 1>&2
+        exit 1
+      fi
+      ;;
+  esac
+
+  ver_bumped=$(cat $tmp_version)
+  git_tag "v$ver_bumped"
+  echo $ver_bumped
+}
+
+function git_tag {
+  local version=$1; shift
+
+  git fetch --tags
+  remote_sha=$(git ls-remote origin $version | awk '{print $1}')
+  if [[ -n $remote_sha ]]; then
+    echo "ERROR: already a remote tag $version, bump again" 1>&2
+    exit 1
+  fi
+
+  git tag $version
+  git push origin tag $version
+}
+
 case "$(basename $0)" in
   bump)
     true
@@ -73,54 +182,16 @@ case "$(basename $0)" in
         ;;
 
       bump)
-        case "$1" in
-          patch|minor|major)
-            bump=$1; shift
-            set $(cat VERSION | sed 's#\.# #g')
-            case "$bump" in
-              patch)
-                echo "$1.$2.$(($3 + 1))"
-                ;;
-              minor)
-                echo "$1.$(($2 + 1)).0"
-                ;;
-              major)
-                echo "$(($1 + 1)).0.0"
-                ;;
-            esac > VERSION
-            ;;
-          *)
-            ver_new=$1; shift
-            set $(echo "$ver_new" | sed 's#\.# #g') 0
-            M=$1; shift
-            m=$1; shift
-            p=$1; shift
-
-            tmp_version=$(mktemp -t XXXXXXXXX)
-            (echo "$(($M+0)).$(($m+0)).$(($p+0))" > $tmp_version) 2>&-
-            ver_new_same=$(cat $tmp_version)
-            rm -f $tmp_version
-
-            if [[ $ver_new = $ver_new_same ]]; then
-              echo "$ver_new" > VERSION
-            else
-              echo "ERROR: invalid version: $ver_new" 1>&2
-              exit 1
-            fi
-            ;;
-        esac
-
-        if [[ -f Gemfile ]]; then
-          bundle check 2>&1 >/dev/null || { bundle --quiet install --local --path vendor/bundle || bundle check > /dev/null; }
-          git add Gemfile.lock
+        if [[ -f VERSION || -L VERSION ]]; then
+          if [[ -e VERSION ]]; then
+            bump_version_file "$@"
+          else
+            echo "ERROR: cannot write to VERSION file" 1>&2
+            exit 1
+          fi
+        else
+          bump_version_tag
         fi
-
-        git add VERSION
-
-        ver_bumped=$(cat VERSION)
-        git commit -m "bump: $ver_bumped"
-        git tag "v$ver_bumped"
-        echo $ver_bumped
         ;;
 
       *)
