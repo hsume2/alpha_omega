@@ -63,7 +63,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:strategy)          { Capistrano::Deploy::Strategy.new(deploy_via, self) }
   _cset(:real_revision)     { source.local.query_revision(revision) { |cmd| with_env("LC_ALL", "C") { run_locally(cmd) } } }
 
-  _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] }
+  _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] || releases[0] }
   _cset(:rollback_release_name) { 
     if releases.length > 0
       w = current_workarea
@@ -90,7 +90,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset (:release_name) { current_release_name } # compact
   _cset(:next_release_name) { 
     if releases.length > 0
       w = current_workarea
@@ -615,4 +614,3 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   end
 
 end # Capistrano::Configuration
-
