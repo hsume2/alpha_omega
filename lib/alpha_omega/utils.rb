@@ -9,7 +9,6 @@ module AlphaOmega
   end
 
   def self.node_defaults(node, pods_config, opsdb, env_pod, this_pod, node_name)
-    env_pod = this_pod if env_pod == "default" # TODO get rid of default
     node_name = node_name.split(".").first
 
     node["node_name"] = node_name
@@ -36,7 +35,7 @@ module AlphaOmega
     node["p_name"] = "#{node["node_name"]}.#{node["env_pod"]}"
 
     # check if managed
-    if this_pod != env_pod # TODO get rid of default, use this_pod
+    if this_pod != env_pod
       node["q_name"] = "#{node["node_name"]}.#{node["env_pod"]}"
       node["managed"] = true
     else
@@ -111,9 +110,7 @@ module AlphaOmega
         if task_name == "all"
           # simulate all podXX all
           %w(app echo yaml).each do |tsuffix|
-            unless pod_name == "default"
-              config.after "world.#{tsuffix}", "#{pod_name}.#{tsuffix}" # podXX, hence the guard for default
-            end
+            config.after "world.#{tsuffix}", "#{pod_name}.#{tsuffix}" # podXX
             config.after "world.#{tsuffix}", "#{task_name}.#{tsuffix}" # all
           end
         end
@@ -174,11 +171,11 @@ module AlphaOmega
     n = File.exists?("#{node_home}/pods/#{this_pod}/#{this_host}.yaml") ? YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml")) : JSON.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.json"))
     this_node = AlphaOmega.node_defaults(n, pods_config, opsdb, this_pod, this_pod, this_host)
 
-    pods["default"] = {
+    pods[this_pod] = {
       "nodes_specs" => [ "#{node_home}/pods/#{this_pod}/*.yaml", "#{node_home}/pods/#{this_pod}/*.json" ],
       "node_suffix" => ""
     }
-    yield config, "default", pods["default"], pods_config, opsdb, this_pod, this_node # TODO get rid of default and use this_pod
+    yield config, this_pod, pods[this_pod], pods_config, opsdb, this_pod, this_node
 
     (this_node["pods"] || []).each do |pod_name|
       pods[pod_name] = { 

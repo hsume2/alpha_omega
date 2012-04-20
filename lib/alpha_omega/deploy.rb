@@ -49,7 +49,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
-  _cset :current_pod, "default"
   _cset :last_pod, nil
   _cset :local_only, ENV['LOCAL_ONLY'] ? true : false
 
