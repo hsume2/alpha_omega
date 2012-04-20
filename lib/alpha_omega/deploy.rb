@@ -316,7 +316,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         on_rollback do
           if rollback_release
             run "rm -fv #{previous_path} #{next_path}; true"
-            run "ln -vnfs #{rollback_release} #{current_path}; true"
+            run "ln -vnfs #{rollback_release} #{current_path}.new; true"
+            run "mv -T #{current_path}.new #{current_path}; true"
           else
             logger.important "no previous release to rollback to, rollback of symlink skipped"
           end
@@ -326,9 +327,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           run "ln -vnfs #{current_release} #{current_path}"
         else
           run "rm -fv #{previous_path} #{next_path}"
-          run "ln -vnfs #{current_release} #{current_path}"
+          run "ln -vnfs #{current_release} #{current_path}.new"
+          run "mv -T #{current_path}.new #{current_path}"
           if current_path != external_path
-            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vnfs #{current_path} #{external_path}"
+            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vnfs #{current_path} #{external_path}.new"
+            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} mv -T #{external_path}.new #{external_path}"
           end
           run "ln -vnfs #{rollback_release} #{previous_path}"
         end
@@ -414,7 +417,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           system "#{figlet} -w 200 on #{previous_release_name}"
           run "rm -fv #{previous_path} #{next_path}"
 
-          run "ln -vnfs #{previous_release} #{current_path}"
+          run "ln -vnfs #{previous_release} #{current_path}.new"
+          run "mv -T #{curent_path}.new #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
         end
