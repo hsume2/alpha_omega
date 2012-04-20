@@ -418,7 +418,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           run "rm -fv #{previous_path} #{next_path}"
 
           run "ln -vnfs #{previous_release} #{current_path}.new"
-          run "mv -T #{curent_path}.new #{current_path}"
+          run "mv -T #{current_path}.new #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
         end
