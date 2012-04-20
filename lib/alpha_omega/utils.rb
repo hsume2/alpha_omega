@@ -166,21 +166,16 @@ module AlphaOmega
     pods = { }
 
     this_pod = File.read("/etc/podname").strip
+    config.set :current_pod, this_pod
     
     this_host = Socket.gethostname.chomp.split(".")[0]
     n = File.exists?("#{node_home}/pods/#{this_pod}/#{this_host}.yaml") ? YAML.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.yaml")) : JSON.load(File.read("#{node_home}/pods/#{this_pod}/#{this_host}.json"))
     this_node = AlphaOmega.node_defaults(n, pods_config, opsdb, this_pod, this_pod, this_host)
 
-    pods[this_pod] = {
-      "nodes_specs" => [ "#{node_home}/pods/#{this_pod}/*.yaml", "#{node_home}/pods/#{this_pod}/*.json" ],
-      "node_suffix" => ""
-    }
-    yield config, this_pod, pods[this_pod], pods_config, opsdb, this_pod, this_node
-
-    (this_node["pods"] || []).each do |pod_name|
+    ((this_node["pods"] || []) + [this_pod]).each do |pod_name|
       pods[pod_name] = { 
         "nodes_specs" => [ "#{node_home}/pods/#{pod_name}/*.yaml", "#{node_home}/pods/#{pod_name}/*.json" ],
-        "node_suffix" => ".#{pod_name}"
+        "node_suffix" => (pod_name == this_pod ? "" : ".#{pod_name}")
       }
       yield config, pod_name, pods[pod_name], pods_config, opsdb, this_pod, this_node
     end
