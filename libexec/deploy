@@ -22,7 +22,7 @@ function bump_version {
   case "$1" in
     patch|minor|major)
       bump=$1; shift
-      set $(cat $tmp_version | sed 's#\.# #g')
+      set -- $(cat $tmp_version | sed 's#\.# #g')
       case "$bump" in
         patch)
           echo "$1.$2.$(($3 + 1))"
@@ -43,7 +43,7 @@ function bump_version {
   esac
 
   ver_new=$(cat $tmp_version)
-  set $(echo "$ver_new" | sed 's#\.# #g') 0
+  set -- $(echo "$ver_new" | sed 's#\.# #g') 0
   M=$1; shift
   m=$1; shift
   p=$1; shift
@@ -140,7 +140,7 @@ case "$(basename $0)" in
     export COMMAND="$1"; shift
 
     if [[ -n $1 ]]; then
-      set $(for a in "$@"; do echo $a.app; done)
+      set -- $(for a in "$@"; do echo $a.app; done)
     fi
 
     LOCAL_ONLY=
@@ -155,7 +155,7 @@ case "$(basename $0)" in
     ;;
   *)
     if [[ -n $1 ]]; then
-      set $(for a in "$@"; do echo $a; done)
+      set -- $(for a in "$@"; do echo $a; done)
     fi
 
     case "$(basename $0)" in
@@ -196,7 +196,7 @@ case "$(basename $0)" in
       *)
         LOCAL_ONLY=
         if [[ -n $1 ]]; then
-          set $(for a in "$@"; do echo $a.app; done)
+          set -- $(for a in "$@"; do echo $a.app; done)
         fi
         case "$(basename $0)" in
           deploy)
