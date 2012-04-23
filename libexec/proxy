@@ -19,4 +19,7 @@ if [[ -z $git_head ]]; then
   exit 1
 fi
 
-ssh -q -t $hst_proxy alpha_omega_proxy_helper2 "$USER" "$git_url" "$git_branch:$git_head" "$@"
+if ! ssh -q -t $hst_proxy alpha_omega_proxy_helper2 "$USER" "$git_url" "$git_branch:$git_head" "$@"; then
+  echo "ERROR: could not proxy '$@' to $hst_proxy" 1>&2
+  exit 1
+fi
