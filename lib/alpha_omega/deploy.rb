@@ -55,6 +55,16 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
   # =========================================================================
+  # services, logs
+  # =========================================================================
+  _cset :service_dir,         "service"
+  _cset :log_dir,             "log"
+
+  _cset(:service_path)       { File.join(deploy_to, service_dir) }
+  _cset(:service_drop)       { File.join(deploy_to, ".#{service_dir}.d") }
+  _cset(:log_path)           { File.join(deploy_to, log_dir) }
+
+  # =========================================================================
   # These variables should NOT be changed unless you are very confident in
   # what you are doing. Make sure you understand all the implications of your
   # changes if you do decide to muck with these!
@@ -66,21 +76,26 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :releases,          [ "alpha", "beta", "omega" ]
   _cset(:releases_dir)      { releases.length > 0 ? "releases" : "" }
+  _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
   _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] || releases[0] }
 
-  _cset :previous_dir,        "previous"
-  _cset :current_dir,         "current"
-  _cset :next_dir,            "next"
-  _cset :compare_dir,         "compare"
-  _cset :migrate_dir,         "migrate"
-  _cset(:deploy_dir)        { current_dir }
+  # =========================================================================
+  # releases, paths, names
+  # =========================================================================
+  _cset :previous_path_name,      "previous"
+  _cset :current_path_name,       "current"
+  _cset :next_path_name,          "next"
+  _cset :compare_path_name,       "compare"
+  _cset :migrate_path_name,       "migrate"
+  _cset(:deploy_path_name)      { current_path_name }
 
-  _cset :service_dir,         "service"
-  _cset :log_dir,             "log"
-
-  _cset(:service_path)      { File.join(deploy_to, service_dir) }
-  _cset(:service_drop)      { File.join(deploy_to, ".#{service_dir}.d") }
-  _cset(:log_path)          { File.join(deploy_to, log_dir) }
+  _cset(:previous_path)         { File.join(deploy_to, previous_path_name) }
+  _cset(:current_path)          { File.join(deploy_to, current_path_name) }
+  _cset(:external_path)         { current_path }
+  _cset(:next_path)             { File.join(deploy_to, next_path_name) }
+  _cset(:compare_path)          { File.join(deploy_to, compare_path_name) }
+  _cset(:migrate_path)          { File.join(deploy_to, migrate_path_name) }
+  _cset(:deploy_path)           { File.join(deploy_to, deploy_path_name) }
 
   _cset(:rollback_release_name) { 
     if releases.length > 0
@@ -98,7 +113,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset(:current_release_name) { 
+  _cset(:current_release_name)  { 
     if releases.length > 0
       w = current_workarea
       stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
@@ -108,7 +123,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset(:next_release_name) { 
+  _cset(:next_release_name)     { 
     if releases.length > 0
       w = current_workarea
       releases.index(w) && releases[(releases.index(w)+1)%releases.length]
@@ -116,45 +131,26 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
-  _cset :compare_release_name, compare_dir
-  _cset :migrate_release_name, migrate_dir
-  _cset(:deploy_release_name) { current_release_name }
+  _cset :compare_release_name,    compare_path_name
+  _cset :migrate_release_name,    migrate_path_name
+  _cset(:deploy_release_name)   { current_release_name }
 
-  _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
-  _cset(:previous_path)     { File.join(deploy_to, previous_dir) }
-  _cset(:current_path)      { File.join(deploy_to, current_dir) }
-  _cset(:external_path)     { current_path }
-  _cset(:next_path)         { File.join(deploy_to, next_dir) }
-  _cset(:compare_path)      { File.join(deploy_to, compare_dir) }
-  _cset(:migrate_path)      { File.join(deploy_to, migrate_dir) }
-  _cset(:deploy_path)       { File.join(deploy_to, deploy_dir) }
+  _cset(:rollback_release)      { File.join(releases_path, rollback_release_name) }
+  _cset(:previous_release)      { File.join(releases_path, previous_release_name) }
+  _cset(:current_release)       { File.join(releases_path, current_release_name) }
+  _cset(:next_release)          { File.join(releases_path, next_release_name) }
+  _cset(:compare_release)       { File.join(releases_path, compare_release_name) }
+  _cset(:migrate_release)       { File.join(releases_path, migrate_release_name) }
+  _cset(:deploy_release)        { File.join(releases_path, deploy_release_name) }
 
-  _cset(:rollback_revision) { capture("cat #{rollback_release}/REVISION").strip }
-  _cset(:previous_revision) { capture("cat #{previous_release}/REVISION").strip }
-  _cset(:current_revision)  { capture("cat #{current_release}/REVISION").strip }
-  _cset(:next_revision)     { capture("cat #{next_release}/REVISION").strip }
-  _cset(:compare_revision)  { capture("cat #{compare_release}/REVISION").strip }
-  _cset(:migrate_revision)  { capture("cat #{migrate_release}/REVISION").strip }
-  _cset(:deploy_revision)   { capture("cat #{deploy_release}/REVISION").strip }
-
-  # formerly:
-  #
-  # some tasks, like symlink, need to always point at the latest release, but
-  # they can also (occassionally) be called standalone. In the standalone case,
-  # the timestamped release_path will be inaccurate, since the directory won't
-  # actually exist. This variable lets tasks like symlink work either in the
-  # standalone case, or during deployment.
-  #
-  # with persistent releases, the latest release is always the current release
-
-  _cset(:rollback_release)  { File.join(releases_path, rollback_release_name) }
-  _cset(:previous_release)  { File.join(releases_path, previous_release_name) }
-  _cset(:current_release)   { File.join(releases_path, current_release_name) }
-  _cset(:next_release)      { File.join(releases_path, next_release_name) }
-  _cset(:compare_release)   { File.join(releases_path, compare_release_name) }
-  _cset(:migrate_release)   { File.join(releases_path, migrate_release_name) }
-  _cset(:deploy_release)    { File.join(releases_path, deploy_release_name) }
-
+  _cset(:rollback_revision)     { capture("cat #{rollback_release}/REVISION").strip }
+  _cset(:previous_revision)     { capture("cat #{previous_release}/REVISION").strip }
+  _cset(:current_revision)      { capture("cat #{current_release}/REVISION").strip }
+  _cset(:next_revision)         { capture("cat #{next_release}/REVISION").strip }
+  _cset(:compare_revision)      { capture("cat #{compare_release}/REVISION").strip }
+  _cset(:migrate_revision)      { capture("cat #{migrate_release}/REVISION").strip }
+  _cset(:deploy_revision)       { capture("cat #{deploy_release}/REVISION").strip }
+ 
   # =========================================================================
   # deploy:lock defaults
   # =========================================================================
@@ -400,7 +396,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Compares your application.
     DESC
     task :compare do
-      set :deploy_dir, "compare"
+      set :deploy_path_name, "compare"
       set :deploy_release_name, "compare"
       update_code
       run "ln -vnfs #{deploy_release} #{deploy_path}"
@@ -459,7 +455,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Override in deploy recipes.  Formerly a railsy rake db:migrate.
     DESC
     task :migrate  do
-      set :deploy_dir, "migrate"
+      set :deploy_path_name, "migrate"
       set :deploy_release_name, "migrate"
       update_code
       run "ln -vnfs #{deploy_release} #{deploy_path}"
