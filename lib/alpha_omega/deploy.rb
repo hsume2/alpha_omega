@@ -538,6 +538,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     task :lock do
+      bootstrap_code
+
       epoch = Time.now.to_i
       locker = ''
 
