@@ -72,7 +72,7 @@ module AlphaOmega
         end
 
         # each pod task sets the pod context for host/group tasks
-        config.task "#{pod_name}.#{tsuffix}" do # task default, pod1
+        config.task "#{pod_name}.#{tsuffix}" do # task pod1
           set :current_pod, pod_name
         end
       end
@@ -84,30 +84,31 @@ module AlphaOmega
           node_dna[remote_name] = {}
           node_dna[remote_name].deep_merge!(n)
 
-          if node_filter.nil? || node_filter.call(this_node, n)
-            config.task "#{task_name}.#{pod_name}.app" do # task host.default.app, host.pod1.app
-              role :app, remote_name
-              set :dna, node_dna[remote_name]
-            end
-          
-            config.task "#{task_name}.#{pod_name}.echo" do # task host.default.echo, host.pod1.echo
-              puts "#{AlphaOmega.magic_prefix} #{remote_name}"
-            end
-          
-            config.task "#{task_name}.#{pod_name}.yaml" do # task host.default.yaml, host.pod1..yaml
-              StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
-            end
-          
-            %w(app echo yaml).each do |tsuffix|
-              config.task "#{task_name}.#{tsuffix}" do # task host -> host.current_pod
-                config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
-              end
-            end
+          cap_roles = node_filter.call(this_node, n)
+          return nil unless cap_roles
 
-            n
-          else
-            nil
+          config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
+            cap_roles.each do |cap_role, cap_preds|
+              role cap_role, remote_name, cap_preds
+            end
+            set :dna, node_dna[remote_name]
           end
+        
+          config.task "#{task_name}.#{pod_name}.echo" do # task host.pod1.echo
+            puts "#{AlphaOmega.magic_prefix} #{remote_name}"
+          end
+        
+          config.task "#{task_name}.#{pod_name}.yaml" do # task host.pod1.yaml
+            StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
+          end
+        
+          %w(app echo yaml).each do |tsuffix|
+            config.task "#{task_name}.#{tsuffix}" do # task host -> host.current_pod
+              config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
+            end
+          end
+
+          n
         end
 
       AlphaOmega.what_groups hosts do |task_name, nodes|
