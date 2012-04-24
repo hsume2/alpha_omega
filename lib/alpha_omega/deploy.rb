@@ -294,7 +294,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :symlink_next do
       if releases.length >= 2
-          run "ln -vnfs #{current_release} #{next_path}"
+        run "ln -vnfs #{current_release} #{next_path}.new"
+        run "mv -T #{next_path}.new #{next_path}"
       end
     end
 
@@ -311,16 +312,17 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       if releases.length > 0
         on_rollback do
           if rollback_release
-            run "rm -fv #{previous_path} #{next_path}; true"
-            run "ln -vnfs #{rollback_release} #{current_path}.new; true"
-            run "mv -T #{current_path}.new #{current_path}; true"
+            run "rm -fv #{previous_path} #{next_path}"
+            run "ln -vnfs #{rollback_release} #{current_path}.new"
+            run "mv -T #{current_path}.new #{current_path}"
           else
             logger.important "no previous release to rollback to, rollback of symlink skipped"
           end
         end
 
         if releases.length == 1
-          run "ln -vnfs #{current_release} #{current_path}"
+          run "ln -vnfs #{current_release} #{current_path}.new"
+          run "mv -T #{current_path}.new #{current_path}"
         else
           run "rm -fv #{previous_path} #{next_path}"
           run "ln -vnfs #{current_release} #{current_path}.new"
@@ -329,7 +331,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
             run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vnfs #{current_path} #{external_path}.new"
             run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} mv -T #{external_path}.new #{external_path}"
           end
-          run "ln -vnfs #{rollback_release} #{previous_path}"
+          run "ln -vnfs #{rollback_release} #{previous_path}.new"
+          run "mv -T #{previous_path}.new #{previous_path}"
         end
 
         system "#{figlet} -w 200 #{current_release_name} activated"
@@ -399,7 +402,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       set :deploy_path_name, "compare"
       set :deploy_release_name, "compare"
       update_code
-      run "ln -vnfs #{deploy_release} #{deploy_path}"
+      run "ln -vnfs #{deploy_release} #{deploy_path}.new"
+      run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
     namespace :rollback do
@@ -458,7 +462,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       set :deploy_path_name, "migrate"
       set :deploy_release_name, "migrate"
       update_code
-      run "ln -vnfs #{deploy_release} #{deploy_path}"
+      run "ln -vnfs #{deploy_release} #{deploy_path}.new"
+      run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
     desc <<-DESC
