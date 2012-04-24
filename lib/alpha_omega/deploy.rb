@@ -268,13 +268,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :bootstrap_code do
       if releases.length < 2 # without services and run as root
-        run "[[ -d #{deploy_to} ]] || #{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
-        run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
+        run "[[ -d #{deploy_to} ]] || #{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
+        run "#{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
       else
         dirs = [ releases_path, service_path, service_drop, log_path ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-        run "#{try_sudo} install -v -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
-        run "cd #{deploy_to} && install -v -d -m #{dir_perms} #{dir_args}"
+        run "#{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
+        run "cd #{deploy_to} && install -d -m #{dir_perms} #{dir_args}"
       end
     end
 
@@ -294,7 +294,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
     task :symlink_next do
       if releases.length >= 2
-        run "ln -vnfs #{current_release} #{next_path}.new"
+        run "ln -nfs #{current_release} #{next_path}.new"
         run "mv -T #{next_path}.new #{next_path}"
       end
     end
@@ -312,8 +312,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       if releases.length > 0
         on_rollback do
           if rollback_release
-            run "rm -fv #{previous_path} #{next_path}"
-            run "ln -vnfs #{rollback_release} #{current_path}.new"
+            run "rm -f #{previous_path} #{next_path}"
+            run "ln -nfs #{rollback_release} #{current_path}.new"
             run "mv -T #{current_path}.new #{current_path}"
           else
             logger.important "no previous release to rollback to, rollback of symlink skipped"
@@ -321,17 +321,17 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         end
 
         if releases.length == 1
-          run "ln -vnfs #{current_release} #{current_path}.new"
+          run "ln -nfs #{current_release} #{current_path}.new"
           run "mv -T #{current_path}.new #{current_path}"
         else
-          run "rm -fv #{previous_path} #{next_path}"
-          run "ln -vnfs #{current_release} #{current_path}.new"
+          run "rm -f #{previous_path} #{next_path}"
+          run "ln -nfs #{current_release} #{current_path}.new"
           run "mv -T #{current_path}.new #{current_path}"
           if current_path != external_path
-            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -vnfs #{current_path} #{external_path}.new"
+            run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} ln -nfs #{current_path} #{external_path}.new"
             run "#{File.dirname(external_path).index(deploy_to) == 0 ? "" : try_sudo} mv -T #{external_path}.new #{external_path}"
           end
-          run "ln -vnfs #{rollback_release} #{previous_path}.new"
+          run "ln -nfs #{rollback_release} #{previous_path}.new"
           run "mv -T #{previous_path}.new #{previous_path}"
         end
 
@@ -402,7 +402,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       set :deploy_path_name, "compare"
       set :deploy_release_name, "compare"
       update_code
-      run "ln -vnfs #{deploy_release} #{deploy_path}.new"
+      run "ln -nfs #{deploy_release} #{deploy_path}.new"
       run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
@@ -415,9 +415,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task :revision do
         if previous_release
           system "#{figlet} -w 200 on #{previous_release_name}"
-          run "rm -fv #{previous_path} #{next_path}"
-
-          run "ln -vnfs #{previous_release} #{current_path}.new"
+          run "rm -f #{previous_path} #{next_path}"
+          run "ln -nfs #{previous_release} #{current_path}.new"
           run "mv -T #{current_path}.new #{current_path}"
         else
           abort "could not rollback the code because there is no prior release"
@@ -462,7 +461,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       set :deploy_path_name, "migrate"
       set :deploy_release_name, "migrate"
       update_code
-      run "ln -vnfs #{deploy_release} #{deploy_path}.new"
+      run "ln -nfs #{deploy_release} #{deploy_path}.new"
       run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
