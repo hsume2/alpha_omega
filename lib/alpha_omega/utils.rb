@@ -175,7 +175,7 @@ module AlphaOmega
     dna = File.exists?("#{dna_base}.yaml") ? YAML.load(File.read("#{dna_base}.yaml")) : JSON.load(File.read("#{dna_base}.json"))
     this_node = AlphaOmega.node_defaults(dna, $this_pod, this_host)
 
-    ((this_node["pods"] || []) + [$this_pod]).inject{}) do |pods, pod_name|
+    ((this_node["pods"] || []) + [$this_pod]).inject({}) do |pods, pod_name|
       pods[pod_name] = { 
         "nodes_specs" => [ "#{node_home}/pods/#{pod_name}/*.yaml", "#{node_home}/pods/#{pod_name}/*.json" ],
         "node_suffix" => (pod_name == $this_pod ? "" : ".#{pod_name}")
