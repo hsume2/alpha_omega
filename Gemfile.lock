@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     alpha_omega (0.0.174)
-      HeSYINUvSBZfxqA-capistrano (= 2.5.21)
+      HeSYINUvSBZfxqA-capistrano
       HeSYINUvSBZfxqA-capistrano_colors
       HeSYINUvSBZfxqA-capistrano_log
       deep_merge
@@ -12,7 +12,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    HeSYINUvSBZfxqA-capistrano (2.5.21)
+    HeSYINUvSBZfxqA-capistrano (2.5.24)
       highline
       net-scp (>= 1.0.0)
       net-sftp (>= 2.0.0)
