@@ -18,13 +18,13 @@ module Capistrano
         @callbacks = {}
       end
 
-      def invoke_task_directly_with_callbacks(task, meh=nil) #:nodoc:
+      def invoke_task_directly_with_callbacks(task) #:nodoc:
         before = find_hook(task, :before)
         execute_task(before) if before
 
         trigger :before, task
 
-        result = invoke_task_directly_without_callbacks(task, meh)
+        result = invoke_task_directly_without_callbacks(task)
 
         trigger :after, task
 
