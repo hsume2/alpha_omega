@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    HeSYINUvSBZfxqA-capistrano (2.5.27)
+    HeSYINUvSBZfxqA-capistrano (2.5.28)
       highline
       net-scp (>= 1.0.0)
       net-sftp (>= 2.0.0)
