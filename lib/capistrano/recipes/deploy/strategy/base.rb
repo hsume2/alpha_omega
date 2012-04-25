@@ -55,12 +55,12 @@ module Capistrano
 							cmd = cmd.split(/\s+/).collect {|w| w.match(/^[\w+]+:\/\//) ? w : w.gsub('/', '\\') }.join(' ') # Split command by spaces, change / by \\ unless element is a some+thing:// 
               cmd.gsub!(/^cd /,'cd /D ') # Replace cd with cd /D
               cmd.gsub!(/&& cd /,'&& cd /D ') # Replace cd with cd /D
-              logger.trace "executing locally: #{cmd}"
+              logger.debug "executing locally: #{cmd}"
               elapsed = Benchmark.realtime do
                 result = super(cmd)
               end
             else
-              logger.trace "executing locally: #{cmd}"
+              logger.debug "executing locally: #{cmd}"
               elapsed = Benchmark.realtime do
                 result = super
               end
