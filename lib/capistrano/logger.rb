@@ -5,10 +5,11 @@ module Capistrano
 
     IMPORTANT = 0
     INFO      = 1
-    DEBUG     = 2
-    TRACE     = 3
+    DEBUG1    = 2
+    DEBUG     = 3
+    TRACE     = 4
     
-    MAX_LEVEL = 3
+    MAX_LEVEL = 4
 
     def initialize(options={})
       output = options[:output] || $stderr
@@ -49,6 +50,10 @@ module Capistrano
     end
 
     def debug(message, line_prefix=nil)
+      log(DEBUG1, message, line_prefix)
+    end
+
+    def debugx(message, line_prefix=nil)
       log(DEBUG, message, line_prefix)
     end
 
