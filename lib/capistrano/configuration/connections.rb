@@ -151,7 +151,7 @@ module Capistrano
         end
 
         servers = [servers.first] if options[:once]
-        logger.debug "servers: #{servers.map { |s| s.host }.inspect}"
+        logger.debug "       on #{servers.map { |s| s.host }.join(", ")}"
 
         max_hosts = (options[:max_hosts] || (task && task.max_hosts) || servers.size).to_i
         is_subset = max_hosts < servers.size
