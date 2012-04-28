@@ -90,7 +90,7 @@ module AlphaOmega
 
           config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
             cap_roles.each do |cap_role, cap_preds|
-              if $this.node["local_pods"] && $this.node["local_pods"].member? this_host["env_pod"]
+              if $this_host["local_pods"] && $this_host["local_pods"].member?(this_node["env_pod"])
                 role cap_role, task_name, cap_preds
               else
                 role cap_role, remote_name, cap_preds
