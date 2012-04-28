@@ -90,8 +90,8 @@ module AlphaOmega
 
           config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
             cap_roles.each do |cap_role, cap_preds|
-              if $this_host["local_pods"] && $this_host["local_pods"].member?(this_node["env_pod"])
-                role cap_role, task_name, cap_preds
+              if $this_host["local_pods"] && $this_host["local_pods"].member?(node["env_pod"])
+                role cap_role, node["node_name"], cap_preds
               else
                 role cap_role, remote_name, cap_preds
               end
@@ -176,10 +176,11 @@ module AlphaOmega
     $this_pod = File.read("/etc/podname").strip
     config.set :current_pod, $this_pod
     
-    $this_host = Socket.gethostname.chomp.split(".")[0]
-    dna_base = "#{node_home}/pods/#{$this_pod}/#{$this_host}"
+    this_host = Socket.gethostname.chomp.split(".")[0]
+    dna_base = "#{node_home}/pods/#{$this_pod}/#{this_host}"
     dna = File.exists?("#{dna_base}.yaml") ? YAML.load(File.read("#{dna_base}.yaml")) : JSON.load(File.read("#{dna_base}.json"))
-    this_node = AlphaOmega.node_defaults(dna, $this_pod, $this_host)
+    this_node = AlphaOmega.node_defaults(dna, $this_pod, this_host)
+    $this_host = this_node
 
     ((this_node["pods"] || []) + [$this_pod]).inject({}) do |pods, pod_name|
       pods[pod_name] = { 
