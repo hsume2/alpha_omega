@@ -86,7 +86,7 @@ module AlphaOmega
           node_dna[remote_name].deep_merge!(n)
 
           cap_roles = node_filter.call(this_node, n)
-          return nil unless cap_roles
+          break nil unless cap_roles
 
           config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
             cap_roles.each do |cap_role, cap_preds|
