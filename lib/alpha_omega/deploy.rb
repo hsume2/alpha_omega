@@ -419,6 +419,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           run "ln -nfs #{previous_release} #{current_path}.new"
           run "mv -T #{current_path}.new #{current_path}"
         else
+          system "#{figlet} -w 200 failed to rollback"
           abort "could not rollback the code because there is no prior release"
         end
       end
@@ -557,6 +558,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           true # don't do anything if locks timeout, jus advise unlock
         end
 
+        system "#{figlet} failed to lock"
         puts "deploy locked by #{lock_user} #{epoch-lock_epoch} seconds ago"
         puts "use bin/unlock to remove this lock"
         abort
