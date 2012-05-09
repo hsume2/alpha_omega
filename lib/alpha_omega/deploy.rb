@@ -412,7 +412,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       Runs a repl in the compare release
     DESC
     task :repl do
-      compare
+      set :deploy_path_name, "compare"
+      set :deploy_release_name, "compare"
+      update_code
+      run "ln -nfs #{deploy_release} #{deploy_path}.new"
+      run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
     namespace :rollback do
