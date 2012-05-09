@@ -154,8 +154,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # =========================================================================
   # deploy:lock defaults
   # =========================================================================
-  _cset(:want_unlock) { true }
+  _cset(:want_unlock)  { true }
   _cset(:lock_timeout) { 86400 }
+  _cset(:lock_name)    { application }
+  _cset(:lock_path)    { "#{log_path}/.#{lock_name}_deploy_lock" }
 
   # =========================================================================
   # These are helper methods that will be available to your recipes.
@@ -544,7 +546,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       epoch = Time.now.to_i
       locker = ''
 
-      run "cat #{log_path}/.#{application}_deploy_lock 2>&- || true" do |ch, stream, data|
+      run "cat #{lock_path} 2>&- || true" do |ch, stream, data|
         locker << data
       end
 
@@ -555,7 +557,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         lock_elasped = epoch-lock_epoch
 
         if lock_elasped < lock_timeout
-          true # don't do anything if locks timeout, jus advise unlock
+          true # don't do anything if lock times out, just advise unlock
         end
 
         system "#{figlet} failed to lock"
@@ -565,7 +567,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       run_script = <<-SCRIPT
-        echo #{epoch} #{ENV['AO_USER']} > #{log_path}/.#{application}_deploy_lock;
+        echo #{epoch} #{ENV['AO_USER']} > #{lock_path};
       SCRIPT
 
       if want_unlock
@@ -575,13 +577,23 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       run run_script.gsub(/[\n\r]+[ \t]+/, " ")
     end
 
+    task :lock_compare do
+      set :lock_name, :compare
+      lock
+    end
+
+    task :lock_migrate do
+      set :lock_name, :migrate
+      lock
+    end
+
     task :dont_unlock  do
       set :want_unlock, false
     end
 
     task :unlock do
       if want_unlock
-        run "rm -f #{log_path}/.#{application}_deploy_lock"
+        run "rm -f #{lock_path}"
       end
     end
 

@@ -126,7 +126,11 @@ case "$(basename $0)" in
             ;;
 
           compare)
-            bundle exec cap "$@" deploy:compare
+            bundle exec cap "$@" deploy:lock_compare deploy:compare
+            ;;
+
+          repl)
+            bundle exec cap "$@" deploy:lock_compare deploy:repl
             ;;
 
           migrate)
@@ -167,7 +171,7 @@ case "$(basename $0)" in
               echo "listing migrations"
             fi
 
-            bundle exec cap "$@" deploy:migrate
+            bundle exec cap "$@" deploy:lock_migrate deploy:migrate
             ;;
 
           *)
