@@ -115,7 +115,7 @@ case "$(basename $0)" in
 
           lock)
             case "$1" in
-              compare|migrate)
+              compare.app|migrate.app)
                 nm_lock="$1"; shift
                 bundle exec cap "$@" deploy:dont_unlock "deploy:lock_${nm_lock}"
                 ;;
@@ -127,7 +127,7 @@ case "$(basename $0)" in
 
           unlock)
             case "$1" in
-              compare|migrate)
+              compare.app|migrate.app)
                 nm_lock="$1"; shift
                 bundle exec cap "$@" "deploy:unlock_${nm_lock}"
                 ;;
