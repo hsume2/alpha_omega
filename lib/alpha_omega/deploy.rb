@@ -408,6 +408,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
+    desc <<-DESC
+      Runs a repl in the compare release
+    DESC
+    task :repl do
+      compare
+    end
+
     namespace :rollback do
       desc <<-DESC
         [internal] Points the current symlink at the previous revision.
