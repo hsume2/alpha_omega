@@ -114,9 +114,9 @@ case "$(basename $0)" in
             ;;
 
           lock)
-            case "$1" in
-              compare.app|migrate.app)
-                nm_lock="$1"; shift
+            case "${1%.app}" in
+              compare|migrate)
+                nm_lock="${1%.app}"; shift
                 bundle exec cap "$@" deploy:dont_unlock "deploy:lock_${nm_lock}"
                 ;;
               *)
@@ -126,9 +126,9 @@ case "$(basename $0)" in
             ;;
 
           unlock)
-            case "$1" in
-              compare.app|migrate.app)
-                nm_lock="$1"; shift
+            case "${1%.app}" in
+              compare|migrate)
+                nm_lock="${1%.app}"; shift
                 bundle exec cap "$@" "deploy:unlock_${nm_lock}"
                 ;;
               *)
@@ -151,27 +151,27 @@ case "$(basename $0)" in
 
           migrate)
             want_list=
-            if [[ $1 = "list" ]]; then
+            if [[ "${1%.app}" = "list" ]]; then
               want_list=1; shift
             fi
 
             change_group=
             migration=
-            case $1 in
+            case "${1%.app}" in
               data)
-                change_group=$1; shift
+                change_group=${1%.app}; shift
                 ;;
               pre)
-                change_group=$1; shift
+                change_group=${1%.app}; shift
                 ;;
               during)
-                change_group=$1; shift
+                change_group=${1%.app} shift
                 ;;
               post)
-                change_group=$1; shift
+                change_group=${1%.app}; shift
                 ;;
               [0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789][0123456789])
-                migration=$1; shift
+                migration=${1%.app}; shift
                 ;;
             esac
 
