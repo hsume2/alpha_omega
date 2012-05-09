@@ -591,6 +591,16 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       set :want_unlock, false
     end
 
+    task :unlock_compare do
+      set :lock_name, :compare
+      unlock
+    end
+
+    task :unlock_migrate do
+      set :lock_name, :migrate
+      unlock
+    end
+
     task :unlock do
       if want_unlock
         run "rm -f #{lock_path}"

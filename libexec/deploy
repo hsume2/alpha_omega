@@ -114,11 +114,27 @@ case "$(basename $0)" in
             ;;
 
           lock)
-            bundle exec cap "$@" deploy:dont_unlock deploy:lock
+            case "$1" in
+              compare|migrate)
+                nm_lock="$1"; shift
+                bundle exec cap "$@" deploy:dont_unlock "deploy:lock_${nm_lock}"
+                ;;
+              *)
+                bundle exec cap "$@" deploy:dont_unlock deploy:lock
+                ;;
+            esac
             ;;
 
           unlock)
-            bundle exec cap "$@" deploy:unlock
+            case "$1" in
+              compare|migrate)
+                nm_lock="$1"; shift
+                bundle exec cap "$@" "deploy:unlock_${nm_lock}"
+                ;;
+              *)
+                bundle exec cap "$@" deploy:unlock
+                ;;
+            esac
             ;;
 
           shell)
