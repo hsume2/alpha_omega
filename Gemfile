@@ -1,5 +1,5 @@
 source :rubygems
 
-gem "json"
 gemspec
-
+gem "json"
+gem "jekyll"
