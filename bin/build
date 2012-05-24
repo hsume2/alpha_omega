@@ -39,7 +39,11 @@ function build_gem {
     exit 1
   fi
 
+  cd "$shome"
   gem build "$pth_gemspec"
+  for gem in $(find . -name "$FLAGS_name-*.gem"); do
+    mv "$gem" ../
+  done
 }
 
 # build the site with jekyll
@@ -55,6 +59,11 @@ DEFINE_string 'name' "$(basename "$shome")" 'name of gem' 'n'
 # parse the command-line
 parse_command_line "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
+
+if [[ "$#" < 1 ]]; then
+  logger_fatal "missing component"
+  exit 1
+fi
 
 # pass arguments to entry point
 main "$@"
