@@ -63,6 +63,15 @@ case "$(basename $0)" in
         } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
         ;;
 
+      task) 
+        LOCAL_ONLY=
+        if [[ -n $1 ]]; then
+          nm_task=$1; shift
+          set -- $(for a in "$@"; do echo $a.app; done)
+        fi
+        bundle exec cap "$@" deploy:lock_migrate deploy:migrate "$nm_task"
+        ;;
+
       *)
         LOCAL_ONLY=
         if [[ -n $1 ]]; then
