@@ -86,7 +86,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :previous_path_name,      "previous"
   _cset :current_path_name,       "current"
   _cset :next_path_name,          "next"
-  _cset (:active_path_name),    { current_path_name }
+  _cset (:active_path_name)     { current_path_name }
   _cset :compare_path_name,       "compare"
   _cset :migrate_path_name,       "migrate"
   _cset(:deploy_path_name)      { current_path_name }
