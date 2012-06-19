@@ -59,10 +59,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # =========================================================================
   _cset :service_dir,         "service"
   _cset :log_dir,             "log"
+  _cset :cache_dir,           "cache"
 
   _cset(:service_path)       { File.join(deploy_to, service_dir) }
-  _cset(:service_drop)       { File.join(deploy_to, ".#{service_dir}.d") }
   _cset(:log_path)           { File.join(deploy_to, log_dir) }
+  _cset(:cache_path)         { File.join(deploy_to, cache_dir) }
 
   # =========================================================================
   # These variables should NOT be changed unless you are very confident in
@@ -85,6 +86,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :previous_path_name,      "previous"
   _cset :current_path_name,       "current"
   _cset :next_path_name,          "next"
+  _cset :active_path_name,      { current_path_name }
   _cset :compare_path_name,       "compare"
   _cset :migrate_path_name,       "migrate"
   _cset(:deploy_path_name)      { current_path_name }
@@ -131,6 +133,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       ""
     end
   }
+  _cset(:active_release_name)   { current_workarea }
   _cset :compare_release_name,    compare_path_name
   _cset :migrate_release_name,    migrate_path_name
   _cset(:deploy_release_name)   { current_release_name }
@@ -139,6 +142,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:previous_release)      { File.join(releases_path, previous_release_name) }
   _cset(:current_release)       { File.join(releases_path, current_release_name) }
   _cset(:next_release)          { File.join(releases_path, next_release_name) }
+  _cset(:active_release)        { File.join(releases_path, active_release_name) }
   _cset(:compare_release)       { File.join(releases_path, compare_release_name) }
   _cset(:migrate_release)       { File.join(releases_path, migrate_release_name) }
   _cset(:deploy_release)        { File.join(releases_path, deploy_release_name) }
@@ -147,6 +151,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:previous_revision)     { capture("cat #{previous_release}/REVISION").strip }
   _cset(:current_revision)      { capture("cat #{current_release}/REVISION").strip }
   _cset(:next_revision)         { capture("cat #{next_release}/REVISION").strip }
+  _cset(:active_revision)       { capture("cat #{active_release}/REVISION").strip }
   _cset(:compare_revision)      { capture("cat #{compare_release}/REVISION").strip }
   _cset(:migrate_revision)      { capture("cat #{migrate_release}/REVISION").strip }
   _cset(:deploy_revision)       { capture("cat #{deploy_release}/REVISION").strip }
@@ -273,7 +278,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         run "[[ -d #{deploy_to} ]] || #{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
         run "#{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
       else
-        dirs = [ releases_path, service_path, service_drop, log_path ]
+        dirs = [ releases_path, service_path, log_path, cache_path ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
         run "#{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
         run "cd #{deploy_to} && install -d -m #{dir_perms} #{dir_args}"
