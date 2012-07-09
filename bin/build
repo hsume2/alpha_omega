@@ -1,7 +1,8 @@
 #!/bin/bash
 
 #/ NAME
-#/     build -- upload the latest (timestamp) rubygem to rubygems.org, builds static site using jekyll
+#/     build -- upload the latest (timestamp) rubygem to rubygems.org
+#/     build -- builds static site using jekyll
 #/
 #/ SYNOPSIS
 #/     build gem [ -n gem_name ]
@@ -15,7 +16,12 @@ source "$shome/bin/_prime" "$@"
 
 # entry point
 function main {
-  nm_component="$1"; shift
+  if [[ "$#" < 1 ]]; then
+    logger_fatal "missing component(s)"
+    exit 1
+  fi
+
+  local nm_component="$1"; shift
 
   case "$nm_component" in 
     site)
@@ -33,7 +39,7 @@ function main {
 
 # build a gem
 function build_gem {
-  pth_gemspec="$shome/$FLAGS_name.gemspec"
+  local pth_gemspec="$shome/$FLAGS_name.gemspec"
   if [[ ! -e "$pth_gemspec" ]]; then
     logger_fatal "could not find gemspec $pth_gemspec"
     exit 1
@@ -44,7 +50,7 @@ function build_gem {
 }
 
 # build the site with jekyll
-function build_jekyll {
+function build_site {
   export BUNDLE_GEMFILE="$shome/.doc/Gemfile"
 
   cd $shome/site
@@ -59,11 +65,6 @@ DEFINE_string 'name' "$(basename "$shome")" 'name of gem' 'n'
 # parse the command-line
 parse_command_line "$@" || exit $?
 eval set -- "${FLAGS_ARGV}"
-
-if [[ "$#" < 1 ]]; then
-  logger_fatal "missing component"
-  exit 1
-fi
 
 # pass arguments to entry point
 main "$@"
