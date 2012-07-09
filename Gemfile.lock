@@ -28,7 +28,6 @@ GEM
       mime-types (~> 1.15)
       posix-spawn (~> 0.3.6)
     highline (1.6.11)
-    json (1.6.6)
     marathon (0.0.3)
     mime-types (1.18)
     net-scp (1.0.4)
@@ -47,4 +46,3 @@ PLATFORMS
 
 DEPENDENCIES
   alpha_omega!
-  json
