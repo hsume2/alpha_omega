@@ -17,11 +17,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.files = %w(LICENSE VERSION README.mkd) + Dir.glob("libexec/**/*") +Dir.glob("lib/**/*")
 
+  s.add_runtime_dependency(%q<json>)
   s.add_runtime_dependency(%q<grit>)
   s.add_runtime_dependency(%q<surface>)
   s.add_runtime_dependency(%q<deep_merge>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
-end
-
