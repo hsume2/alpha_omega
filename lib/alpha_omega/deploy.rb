@@ -627,15 +627,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   namespace :ruby do
     task :bundle do
-      run_script = <<-SCRIPT
-        set -e; cd #{deploy_release};
-      SCRIPT
-
-      run_script += <<-SCRIPT
-        #{ruby_loader} bundle check 2>&1 > /dev/null || { #{ruby_loader} bundle install --quiet --local #{bundler_options} && #{ruby_loader} bundle check > /dev/null; };
-      SCRIPT
-
-      run run_script.gsub(/[\n\r]+[ \t]+/, " ")
+      run "cd #{deploy_release} && bin/bundle-ruby #{ruby_loader} #{bundler_options}"
     end
   end
 
@@ -643,15 +635,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   namespace :node do
     task :bundle do
-      run_script = <<-SCRIPT
-        set -e; cd #{deploy_release};
-      SCRIPT
-
-      run_script += <<-SCRIPT
-        npm install;
-      SCRIPT
-
-      run run_script.gsub(/[\n\r]+[ \t]+/, " ")
+      run "cd #{deploy_release} && bin/bundle-node"
     end
   end
 
