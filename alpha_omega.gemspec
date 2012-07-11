@@ -24,3 +24,4 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
+end
