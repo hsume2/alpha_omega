@@ -639,6 +639,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   end
 
+  after "deploy:bundle", "node:bundle"
+
   on :exit do
     unless local_only
       put full_log, "#{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
