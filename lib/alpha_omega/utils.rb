@@ -247,7 +247,8 @@ module AlphaOmega
   end
 end
 
-def Deploy(config, deploy_yaml, &node_filter)
+def Deploy(config, __file__, &node_filter)
+  deploy_yaml = File.join(File.expand_path('..', __file__), "config", "deploy.yml") 
   deploy = YAML.load_file(deploy_yaml)
   AlphaOmega.interesting(config, deploy, node_filter)
 end
