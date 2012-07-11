@@ -627,7 +627,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   namespace :ruby do
     task :bundle do
-      run "cd #{deploy_release} && bin/bundle-ruby #{ruby_loader} #{bundler_options}"
+      run "cd #{deploy_release} && bin/bundle-ruby #{ruby_loader} -- #{bundler_options}"
     end
   end
 
