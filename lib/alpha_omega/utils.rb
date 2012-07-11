@@ -228,7 +228,7 @@ module AlphaOmega
     cap_groups
   end
 
-  def self.interesting (config, deploy, &node_filter)
+  def self.interesting (config, deploy, node_filter)
     config._cset :repository, deploy["repository"]
     config._cset :application, deploy["application"]
 
@@ -241,7 +241,9 @@ module AlphaOmega
     config._cset :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
 
     # pods, hosts, groups
-    self.setup_pods config, (ENV['CHEF_PATH'] || deploy["chef_path"]), node_filter
+    self.setup_pods config, (ENV['CHEF_PATH'] || deploy["chef_path"]) do |admin, node|
+      node_filter.call(admin, node)
+    end
   end
 end
 
