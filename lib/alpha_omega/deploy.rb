@@ -2,6 +2,7 @@ $:.unshift File.expand_path(File.join(File.dirname(__FILE__),'..','..','lib'))
 
 require 'benchmark'
 require 'yaml'
+require 'json'
 require 'alpha_omega/deploy/scm'
 require 'alpha_omega/deploy/strategy'
 require 'alpha_omega/utils'
@@ -37,7 +38,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:revision) { source.head }
 
   _cset :default_shell, "/bin/bash"
-  _cset(:deploy_to) { "/u/apps/#{application}" }
+  _cset(:deploy_to) { "/data/#{application}" }
 
   _cset :root_user, "root"
   _cset :root_group, "root"

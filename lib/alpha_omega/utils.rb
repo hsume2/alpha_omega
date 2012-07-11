@@ -80,8 +80,8 @@ module AlphaOmega
 
       node_dna = { }
       hosts =
-        AlphaOmega.what_hosts pod do |task_name, remote_name, node|
-          n = AlphaOmega.node_defaults(node, pod_name, remote_name)
+        self.what_hosts pod do |task_name, remote_name, node|
+          n = self.node_defaults(node, pod_name, remote_name)
           node_dna[remote_name] = {}
           node_dna[remote_name].deep_merge!(n)
 
@@ -100,11 +100,11 @@ module AlphaOmega
           end
         
           config.task "#{task_name}.#{pod_name}.echo" do # task host.pod1.echo
-            puts "#{AlphaOmega.magic_prefix} #{remote_name}"
+            puts "#{self.magic_prefix} #{remote_name}"
           end
         
           config.task "#{task_name}.#{pod_name}.yaml" do # task host.pod1.yaml
-            StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{AlphaOmega.magic_prefix} #{l}" }
+            StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{self.magic_prefix} #{l}" }
           end
         
           %w(app echo yaml).each do |tsuffix|
@@ -116,7 +116,7 @@ module AlphaOmega
           n
         end
 
-      AlphaOmega.what_groups hosts do |task_name, nodes|
+      self.what_groups hosts do |task_name, nodes|
         if task_name == "all"
           # simulate all podXX all
           %w(app echo yaml).each do |tsuffix|
@@ -179,7 +179,7 @@ module AlphaOmega
     this_host = Socket.gethostname.chomp.split(".")[0]
     dna_base = "#{node_home}/pods/#{$this_pod}/#{this_host}"
     dna = File.exists?("#{dna_base}.yaml") ? YAML.load(File.read("#{dna_base}.yaml")) : JSON.load(File.read("#{dna_base}.json"))
-    this_node = AlphaOmega.node_defaults(dna, $this_pod, this_host)
+    this_node = self.node_defaults(dna, $this_pod, this_host)
     $this_host = this_node
 
     ((this_node["pods"] || []) + [$this_pod]).inject({}) do |pods, pod_name|
@@ -227,4 +227,25 @@ module AlphaOmega
 
     cap_groups
   end
+
+  def self.interesting (config, deploy, &node_filter)
+    config._cset :repository, deploy["repository"]
+    config._cset :application, deploy["application"]
+
+    config._cset :user, deploy["user"]
+    config._cset :group, deploy["group"]
+
+    config._cset :ruby_loader, "#{deploy["ruby_loader"]} #{deploy["app_ruby"]}"
+
+    # branches
+    config._cset :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
+
+    # pods, hosts, groups
+    self.setup_pods config, (ENV['CHEF_PATH'] || deploy["chef_path"]), node_filter
+  end
+end
+
+def Deploy(config, deploy_yaml, &node_filter)
+  deploy = YAML.load_file(deploy_yaml)
+  AlphaOmega.interesting(config, deploy, node_filter)
 end
