@@ -25,7 +25,7 @@ function main {
 
   case "$nm_component" in 
     site)
-      build_jekyll "$@"
+      build_site "$@"
       ;;
     gem)
       build_gem "$@"
