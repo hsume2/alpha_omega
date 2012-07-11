@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    alpha_omega (0.0.204)
+    alpha_omega (0.0.205)
       HeSYINUvSBZfxqA-capistrano
       HeSYINUvSBZfxqA-capistrano_colors
       HeSYINUvSBZfxqA-capistrano_log
@@ -13,7 +13,7 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    HeSYINUvSBZfxqA-capistrano (2.5.28)
+    HeSYINUvSBZfxqA-capistrano (2.5.24)
       highline
       net-scp (>= 1.0.0)
       net-sftp (>= 2.0.0)
@@ -28,15 +28,15 @@ GEM
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
       posix-spawn (~> 0.3.6)
-    highline (1.6.13)
-    json (1.7.3)
+    highline (1.6.11)
+    json (1.6.6)
     marathon (0.0.3)
-    mime-types (1.19)
+    mime-types (1.18)
     net-scp (1.0.4)
       net-ssh (>= 1.99.1)
     net-sftp (2.0.5)
       net-ssh (>= 2.0.9)
-    net-ssh (2.5.2)
+    net-ssh (2.3.0)
     net-ssh-gateway (1.1.0)
       net-ssh (>= 1.99.1)
     posix-spawn (0.3.6)
