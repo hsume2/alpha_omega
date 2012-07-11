@@ -229,16 +229,16 @@ module AlphaOmega
   end
 
   def self.interesting (config, deploy, node_filter)
-    config._cset :repository, deploy["repository"]
-    config._cset :application, deploy["application"]
+    config.set :repository, deploy["repository"]
+    config.set :application, deploy["application"]
 
-    config._cset :user, deploy["user"]
-    config._cset :group, deploy["group"]
+    config.set :user, deploy["user"]
+    config.set :group, deploy["group"]
 
-    config._cset :ruby_loader, "#{deploy["ruby_loader"]} #{deploy["app_ruby"]}"
+    config.set :ruby_loader, "#{deploy["ruby_loader"]} #{deploy["app_ruby"]}"
 
     # branches
-    config._cset :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
+    config.set :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
 
     # pods, hosts, groups
     self.setup_pods config, (ENV['CHEF_PATH'] || deploy["chef_path"]) do |admin, node|
