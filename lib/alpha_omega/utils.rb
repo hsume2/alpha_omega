@@ -6,13 +6,9 @@ $this_pod = nil
 $this_host = nil
 $opsdb = nil
 $pods_config = nil
+$magic_prefix = "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
 
 module AlphaOmega
-
-  def self.magic_prefix
-    "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
-  end
-
   def self.node_defaults(node, env_pod, node_name)
     node_name = node_name.split(".").first
 
@@ -100,11 +96,11 @@ module AlphaOmega
           end
         
           config.task "#{task_name}.#{pod_name}.echo" do # task host.pod1.echo
-            puts "#{self.magic_prefix} #{remote_name}"
+            puts "#{$magic_prefix} #{remote_name}"
           end
         
           config.task "#{task_name}.#{pod_name}.yaml" do # task host.pod1.yaml
-            StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{self.magic_prefix} #{l}" }
+            StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{$magic_prefix} #{l}" }
           end
         
           %w(app echo yaml).each do |tsuffix|
