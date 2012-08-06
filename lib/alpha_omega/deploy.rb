@@ -148,14 +148,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:migrate_release)       { File.join(releases_path, migrate_release_name) }
   _cset(:deploy_release)        { File.join(releases_path, deploy_release_name) }
 
-  _cset(:rollback_revision)     { capture("cat #{rollback_release}/REVISION").strip }
-  _cset(:previous_revision)     { capture("cat #{previous_release}/REVISION").strip }
-  _cset(:current_revision)      { capture("cat #{current_release}/REVISION").strip }
-  _cset(:next_revision)         { capture("cat #{next_release}/REVISION").strip }
-  _cset(:active_revision)       { capture("cat #{active_release}/REVISION").strip }
-  _cset(:compare_revision)      { capture("cat #{compare_release}/REVISION").strip }
-  _cset(:migrate_revision)      { capture("cat #{migrate_release}/REVISION").strip }
-  _cset(:deploy_revision)       { capture("cat #{deploy_release}/REVISION").strip }
+  _cset(:rollback_revision)     { capture("cat #{rollback_release}/REVISION 2>&- || true").strip }
+  _cset(:previous_revision)     { capture("cat #{previous_release}/REVISION 2>&- || true").strip }
+  _cset(:current_revision)      { capture("cat #{current_release}/REVISION 2>&- || true").strip }
+  _cset(:next_revision)         { capture("cat #{next_release}/REVISION 2>&- || true").strip }
+  _cset(:active_revision)       { capture("cat #{active_release}/REVISION 2>&- || true").strip }
+  _cset(:compare_revision)      { capture("cat #{compare_release}/REVISION 2>&- || true").strip }
+  _cset(:migrate_revision)      { capture("cat #{migrate_release}/REVISION 2>&- || true").strip }
+  _cset(:deploy_revision)       { capture("cat #{deploy_release}/REVISION 2>&- || true").strip }
  
   # =========================================================================
   # deploy:lock defaults
