@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-export LOCAL_ONLY=true
+export LOCAL_ONLY=
 
 case "$(basename $0)" in
   invoke)
@@ -10,7 +10,6 @@ case "$(basename $0)" in
       set -- $(for a in "$@"; do echo $a.app; done)
     fi
 
-    LOCAL_ONLY=
     tmp_invoke=$(mktemp -t XXXXXXXXX)
     bundle exec cap "$@" invoke 2>&1 | perl -pe 's{.\[\d+m}{}g' | perl -ne 'm{^\s*\*+\s*\[(out|err)\s*::\s*([^]]+)\] ?(.*)} && print "$1 $2 $3\n"' > $tmp_invoke 2>&1
 
@@ -27,6 +26,7 @@ case "$(basename $0)" in
 
     case "$(basename $0)" in
       debug)
+        LOCAL_ONLY=true
         if [[ -z $1 ]]; then
           set "world"
         fi
@@ -37,6 +37,7 @@ case "$(basename $0)" in
         ;;
 
       hosts)
+        LOCAL_ONLY=true
         {
           if [[ -n $1 ]]; then
             cap $(for a in "$@"; do echo $a.echo; done)
@@ -45,6 +46,7 @@ case "$(basename $0)" in
         ;;
 
       dna)
+        LOCAL_ONLY=true
         {
           echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
           if [[ -n $1 ]]; then
@@ -54,7 +56,6 @@ case "$(basename $0)" in
         ;;
 
       task) 
-        LOCAL_ONLY=
         if [[ -n $1 ]]; then
           nm_task=$1; shift
           set -- $(for a in "$@"; do echo $a.app; done)
@@ -63,7 +64,6 @@ case "$(basename $0)" in
         ;;
 
       *)
-        LOCAL_ONLY=
         if [[ -n $1 ]]; then
           set -- $(for a in "$@"; do echo $a.app; done)
         fi
