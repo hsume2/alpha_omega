@@ -26,6 +26,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset(:application) { abort "Please specify the name of your application, set :application, 'foo'" }
   _cset(:repository)  { abort "Please specify the repository that houses your application's code, set :repository, 'foo'" }
+  _cset(:local_repository) { "file://#{ENV['PWD']}" }
 
   # =========================================================================
   # These variables may be set in the client capfile if their default values
