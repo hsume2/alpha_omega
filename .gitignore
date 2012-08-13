@@ -6,4 +6,5 @@
 /.bundle/
 /vendor/bundle/
 /*.gem
-/site/_site
+/tmp/site
+*.orig
