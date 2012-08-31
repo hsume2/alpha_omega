@@ -172,7 +172,7 @@ module AlphaOmega
     $this_pod = File.read("/etc/podname").strip
     config.set :current_pod, $this_pod
     
-    this_host = Socket.gethostname.chomp.split(".")[0]
+    this_host = ENV['_AO_THIS_HOST'] || Socket.gethostname.chomp.split(".")[0]
     dna_base = "#{node_home}/pods/#{$this_pod}/#{this_host}"
     dna = File.exists?("#{dna_base}.yaml") ? YAML.load(File.read("#{dna_base}.yaml")) : JSON.load(File.read("#{dna_base}.json"))
     this_node = self.node_defaults(dna, $this_pod, this_host)
@@ -245,6 +245,6 @@ end
 
 def Deploy(config, __file__, &node_filter)
   deploy_yaml = File.join(File.expand_path('..', __file__), "config", "deploy.yml") 
-  deploy = YAML.load_file(deploy_yaml)
-  AlphaOmega.interesting(config, deploy, node_filter)
+  $deploy = YAML.load_file(deploy_yaml)
+  AlphaOmega.interesting(config, $deploy, node_filter)
 end
