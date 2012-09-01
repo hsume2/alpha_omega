@@ -169,7 +169,7 @@ module AlphaOmega
       acc
     end
 
-    $this_pod = File.read("/etc/podname").strip
+    $this_pod = ENV['_AO_THIS_POD'] || File.read("/etc/podname").strip
     config.set :current_pod, $this_pod
     
     this_host = ENV['_AO_THIS_HOST'] || Socket.gethostname.chomp.split(".")[0]
