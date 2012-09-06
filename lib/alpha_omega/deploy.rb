@@ -643,6 +643,16 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   after "deploy:bundle", "node:bundle"
 
+  namespace :assets do
+    task :build do
+      unless deploy_path_name == migrate_path_name
+        run "cd #{deploy_release} && bin/bundle-assets"
+      end
+    end
+  end
+
+  after "deploy:build", "assets:build"
+
   on :exit do
     unless local_only
       logger.important "uploading deploy logs: #{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
