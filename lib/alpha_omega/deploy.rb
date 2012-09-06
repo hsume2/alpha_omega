@@ -386,11 +386,15 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :build do
     end
 
+    after "deploy:update_code", "deploy:build"
+
     desc <<-DESC
       Distribute binaries built in deploy:build.
     DESC
     task :dist do
     end
+
+    after "deploy:build", "deploy:dist"
 
     desc <<-DESC
       Checkpoint for various language bundlers
