@@ -299,6 +299,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       strategy.deploy!
       bundle
       cook
+      unless deploy_path_name == migrate_path_name 
+        build
+        dist
+      end
     end
 
     task :symlink_next do
@@ -386,15 +390,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :build do
     end
 
-    after "deploy:update_code", "deploy:build"
-
     desc <<-DESC
       Distribute binaries built in deploy:build.
     DESC
     task :dist do
     end
 
-    after "deploy:build", "deploy:dist"
 
     desc <<-DESC
       Checkpoint for various language bundlers
