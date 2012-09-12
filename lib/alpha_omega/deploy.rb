@@ -81,7 +81,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :releases,          [ "alpha", "beta", "omega" ]
   _cset(:releases_dir)      { releases.length > 0 ? "releases" : "" }
   _cset(:releases_path)     { File.join(deploy_to, releases_dir) }
-  _cset(:current_workarea)  { capture("readlink #{current_path} || true").strip.split("/")[-1] || releases[0] }
+  _cset(:current_workarea)  { 
+    unless releases.empty? 
+      capture("readlink #{current_path} || true").strip.split("/")[-1] || releases[0]
+    else
+      ""
+    end
+  }
 
   # =========================================================================
   # releases, paths, names
@@ -103,7 +109,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:deploy_path)           { File.join(deploy_to, deploy_path_name) }
 
   _cset(:rollback_release_name) { 
-    if releases.length > 0
+    unless releases.empty?
       w = current_workarea
       releases.index(w) && releases[(releases.index(w))%releases.length]
     else
@@ -111,7 +117,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   }
   _cset(:previous_release_name) { 
-    if releases.length > 0
+    unless releases.empty?
       w = current_workarea
       releases.index(w) && releases[(releases.index(w)-1)%releases.length]
     else
@@ -119,17 +125,17 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   }
   _cset(:current_release_name)  { 
-    if releases.length > 0
+    unless releases.empty?
       w = current_workarea
-      stage = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
-      system "#{figlet} -w 200 on #{stage}"
-      stage
+      workarea = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
+      system "#{figlet} -w 200 on #{workarea}"
+      workarea
     else
       ""
     end
   }
   _cset(:next_release_name)     { 
-    if releases.length > 0
+    unless releases.empty?
       w = current_workarea
       releases.index(w) && releases[(releases.index(w)+1)%releases.length]
     else
