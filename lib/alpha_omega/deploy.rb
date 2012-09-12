@@ -33,6 +33,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # are not sufficient.
   # =========================================================================
 
+  _cset :skip_scm, false
   _cset :scm, :git
   _cset :deploy_via, :checkout
   _cset(:branch) { AlphaOmega.what_branch }
@@ -278,11 +279,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :bootstrap_code do
       if releases.length < 2 # without services and run as root
         run "[[ -d #{deploy_to} ]] || #{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
-        run "#{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{releases_path} #{deploy_to}/log"
+        run "#{try_sudo} install -d -m #{dir_perms}#{try_sudo.empty? ? '' : " -o #{user} -g #{group}"} #{releases_path} #{deploy_to}/#{log_dir} #{deploy_to}/#{cache_dir} #{deploy_to}/#{service_dir}"
       else
         dirs = [ releases_path, service_path, log_path, cache_path ]
         dir_args = dirs.map {|d| d.sub("#{deploy_to}/", "") }.join(' ')
-        run "#{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{user} -g #{group}"} #{deploy_to}"
+        run "#{try_sudo} install -d -m #{dir_perms}#{try_sudo.empty? ? '' : " -o #{user} -g #{group}"} #{deploy_to}"
         run "cd #{deploy_to} && install -d -m #{dir_perms} #{dir_args}"
       end
     end
@@ -295,8 +296,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task (if you want to perform the `restart' task separately).
     DESC
     task :update_code do
-      bootstrap_code
-      strategy.deploy!
+      strategy.deploy! unless skip_scm
       bundle
       cook
       unless deploy_path_name == migrate_path_name 
