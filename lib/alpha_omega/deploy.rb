@@ -589,15 +589,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         abort
       end
 
-      run_script = <<-SCRIPT
-        echo #{epoch} #{ENV['AO_USER']} > #{lock_path};
-      SCRIPT
-
       if want_unlock
         at_exit { self.unlock; }
       end
 
-      run run_script.gsub(/[\n\r]+[ \t]+/, " ")
+      run "echo #{epoch} #{ENV['AO_USER']} > #{lock_path}"
     end
 
     task :lock_compare do
