@@ -54,8 +54,6 @@ module AlphaOmega
 
     node["run_list"].concat $pods_config[env_pod]["run_list"] if $pods_config[env_pod].key? "run_list"
 
-    node["cap_group"] << "all"
-
     node["cap_group"].concat $pods_config[env_pod]["cap_group"] if $pods_config[env_pod].key? "cap_group"
 
     node
@@ -64,10 +62,6 @@ module AlphaOmega
   def self.default_pods_tasks
     Proc.new do |config, pod_name, pod, this_node, &node_filter|
       %w(app echo yaml).each do |tsuffix|
-         # world task accumulates all.* after tasks
-        config.task "world.#{tsuffix}" do # task world
-        end
-
         # each pod task sets the pod context for host/group tasks
         config.task "#{pod_name}.#{tsuffix}" do # task pod1
           set :current_pod, pod_name
@@ -113,14 +107,6 @@ module AlphaOmega
         end
 
       self.what_groups hosts do |task_name, nodes|
-        if task_name == "all"
-          # simulate all podXX all
-          %w(app echo yaml).each do |tsuffix|
-            config.after "world.#{tsuffix}", "#{pod_name}.#{tsuffix}" # podXX
-            config.after "world.#{tsuffix}", "#{task_name}.#{tsuffix}" # all
-          end
-        end
-
         %w(app echo yaml).each do |tsuffix|
           config.task "#{task_name}.#{pod_name}.#{tsuffix}" do
           end
@@ -164,7 +150,7 @@ module AlphaOmega
 
     # opsdb config
     $opsdb = Dir["#{node_home}/config/pod/*.yaml"].inject({}) do |acc, fname|
-      env_pod = File.basename(File.basename(fname, ".yaml"), ".json")
+      env_pod = File.basename(fname, ".yaml")
       acc[env_pod] = YAML.load(File.read(fname))
       acc
     end
@@ -174,13 +160,13 @@ module AlphaOmega
     
     this_host = ENV['_AO_THIS_HOST'] || Socket.gethostname.chomp.split(".")[0]
     dna_base = "#{node_home}/pods/#{$this_pod}/#{this_host}"
-    dna = File.exists?("#{dna_base}.yaml") ? YAML.load(File.read("#{dna_base}.yaml")) : JSON.load(File.read("#{dna_base}.json"))
+    dna = YAML.load(File.read("#{dna_base}.yaml"))
     this_node = self.node_defaults(dna, $this_pod, this_host)
     $this_host = this_node
 
     ((this_node["pods"] || []) + [$this_pod]).inject({}) do |pods, pod_name|
       pods[pod_name] = { 
-        "nodes_specs" => [ "#{node_home}/pods/#{pod_name}/*.yaml", "#{node_home}/pods/#{pod_name}/*.json" ],
+        "nodes_specs" => [ "#{node_home}/pods/#{pod_name}/*.yaml" ],
         "node_suffix" => (pod_name == $this_pod ? "" : ".#{pod_name}")
       }
       yield config, pod_name, pods[pod_name], this_node
@@ -192,7 +178,7 @@ module AlphaOmega
     # load all the nodes and define cap tasks
     pod["nodes_specs"].inject({}) do |hosts, spec|
       Dir[spec].inject(hosts) do |acc, fname|
-        node_name = File.basename(File.basename(fname, ".yaml"), ".json")
+        node_name = File.basename(fname, ".yaml")
 
         node = YAML.load(IO.read(fname))
         node["node_name"] = node_name
