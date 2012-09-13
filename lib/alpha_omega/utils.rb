@@ -77,6 +77,7 @@ module AlphaOmega
 
           cap_roles = node_filter.call(this_node, n)
           next nil unless cap_roles
+          set :dna, node_dna[remote_name]
 
           config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
             cap_roles.each do |cap_role, cap_preds|
@@ -86,7 +87,6 @@ module AlphaOmega
                 role cap_role, remote_name, cap_preds
               end
             end
-            set :dna, node_dna[remote_name]
           end
         
           config.task "#{task_name}.#{pod_name}.echo" do # task host.pod1.echo
