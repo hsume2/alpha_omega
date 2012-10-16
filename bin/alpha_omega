@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
 
 shome=File.expand_path('../..', File.realpath(__FILE__))
-system("#{shome}/libexec/ao", *ARGV[1..-1])
+require 'pp'
+pp [shome,ARGV]
+system("#{shome}/libexec/ao", *ARGV)
