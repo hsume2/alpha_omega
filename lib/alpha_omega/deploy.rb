@@ -641,7 +641,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :assets do
     task :build do
       unless deploy_path_name == migrate_path_name
-        run "cd #{deploy_release} && bin/bundle-assets"
+        run "cd #{deploy_release} && RAILS_ENV=#{dna["app_env"]} bin/bundle-assets"
       end
     end
   end
