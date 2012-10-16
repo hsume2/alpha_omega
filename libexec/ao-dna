@@ -1,0 +1,29 @@
+#!/bin/bash
+
+#/ NAME
+#/     ao-dna -- dumps opsdb yaml
+#/
+#/ SYNOPSIS
+#/     ao dna [deploy_set...]
+
+# figure out the project root under which bin, lib live
+shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
+
+# load a jason bourne library
+source "$shome/sbin/_treadstone"
+
+# parse the command-line
+
+# entry point
+function main {
+  export LOCAL_ONLY=true
+  {
+    echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
+    if [[ -n $1 ]]; then
+      set -- $(for a in "$@"; do echo $a.yaml; done)
+      cap "$@"
+    fi
+  } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
+}
+
+require 'sub' "$BASH_SOURCE" "$@"

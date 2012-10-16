@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #/ NAME
-#/     ao-restart -- restart all services
+#/     ao-debug -- same as ao-hosts with debugging left on
 #/
 #/ SYNOPSIS
-#/     ao restart [deploy_set...]
+#/     ao debug [deploy_set...]
 
 # figure out the project root under which bin, lib live
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
@@ -16,8 +16,13 @@ source "$shome/sbin/_treadstone"
 
 # entry point
 function main {
-  set -- $(for a in "$@"; do echo $a.app; done)
-  bundle exec cap "$@" deploy:lock deploy:restart
+  export LOCAL_ONLY=true
+  {
+    if [[ -n $1 ]]; then
+      set -- $(for a in "$@"; do echo $a.echo; done)
+      cap "$@"
+    fi
+  } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u
 }
 
 require 'sub' "$BASH_SOURCE" "$@"

@@ -16,6 +16,7 @@ source "$shome/sbin/_treadstone"
 
 # entry point
 function main {
+  set -- $(for a in "$@"; do echo $a.app; done)
   bundle exec cap "$@" deploy:lock deploy:cook
 }
 

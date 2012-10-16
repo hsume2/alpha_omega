@@ -17,6 +17,7 @@ source "$shome/sbin/_treadstone"
 # entry point
 function main {
   local nm_task=$1; shift
+  set -- $(for a in "$@"; do echo $a.app; done)
   bundle exec cap "$@" deploy:lock_migrate deploy:migrate "$nm_task"
 }
 
