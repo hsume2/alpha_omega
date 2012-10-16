@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 
-shome=File.expand_path('../..', File.realpath(__FILE__))
+shome=File.expand_path('../..', __FILE__)
 system("#{shome}/libexec/ao", *ARGV)
