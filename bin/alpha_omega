@@ -1,12 +1,4 @@
 #!/usr/bin/env ruby
 
-search = $:.inject([]) {|acc,d| acc.concat(["#{d}/libexec", "#{File.dirname(d)}/libexec" ].select {|libexec| libexec if File.directory? libexec }) }
-
-script = search.collect {|f| "#{f}/#{File.basename(ARGV[0])}" }.find {|f| File.exists? f }
-
-unless script
-  puts "ERROR: can't find script #{File.basename(ARGV[0])}"
-  exit 1
-end
-
-system(script, *ARGV[1..-1])
+shome=File.expand_path('../..', File.realpath(__FILE__))
+system("#{shome}/bin/ao, *ARGV[1..-1])

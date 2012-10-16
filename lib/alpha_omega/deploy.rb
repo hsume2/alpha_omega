@@ -53,7 +53,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
   _cset :last_pod, nil
-  _cset :local_only, ENV['LOCAL_ONLY'] ? true : false
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
@@ -426,17 +425,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       run "mv -T #{deploy_path}.new #{deploy_path}"
     end
 
-    desc <<-DESC
-      Runs a repl in the compare release
-    DESC
-    task :repl do
-      set :deploy_path_name, "compare"
-      set :deploy_release_name, "compare"
-      update_code
-      run "ln -nfs #{deploy_release} #{deploy_path}.new"
-      run "mv -T #{deploy_path}.new #{deploy_path}"
-    end
-
     namespace :rollback do
       desc <<-DESC
         [internal] Points the current symlink at the previous revision.
@@ -661,10 +649,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   after "deploy:build", "assets:build"
 
   on :exit do
-    unless local_only
-      logger.important "uploading deploy logs: #{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
-      put full_log, "#{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
-    end
+    logger.important "uploading deploy logs: #{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+    put full_log, "#{log_path}/#{application}-#{ENV["AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
   end
 
 end # Capistrano::Configuratioy
