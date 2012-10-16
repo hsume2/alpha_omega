@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    alpha_omega (1.1.7)
+    alpha_omega (1.1.8)
       HeSYINUvSBZfxqA-capistrano
       HeSYINUvSBZfxqA-capistrano_colors
       HeSYINUvSBZfxqA-capistrano_log
