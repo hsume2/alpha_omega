@@ -15,11 +15,9 @@ Gem::Specification.new do |s|
   s.date        = %q{2011-08-31}
   s.executables   = ["alpha_omega"]
   s.require_paths = ["lib"]
-  s.files = %w(LICENSE VERSION README.mkd) + Dir.glob("libexec/**/*") +Dir.glob("lib/**/*")
+  s.files = %w(LICENSE VERSION README.mkd) + Dir.glob("libexec/**/*") + Dir.glob("lib/**/*") + Dir.glob("sbin/**/*")
 
   s.add_runtime_dependency(%q<json>)
-  s.add_runtime_dependency(%q<grit>)
-  s.add_runtime_dependency(%q<surface>)
   s.add_runtime_dependency(%q<deep_merge>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
   s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
