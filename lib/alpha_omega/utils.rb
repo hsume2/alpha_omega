@@ -6,6 +6,7 @@ $this_pod = nil
 $this_host = nil
 $opsdb = nil
 $pods_config = nil
+$magic_prefix = "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
 
 module AlphaOmega
   def self.node_defaults(node, env_pod, node_name)
@@ -60,8 +61,11 @@ module AlphaOmega
 
   def self.default_pods_tasks
     Proc.new do |config, pod_name, pod, this_node, &node_filter|
-      config.task "#{pod_name}" do # task pod1
-        set :current_pod, pod_name
+      %w(app echo yaml).each do |tsuffix|
+        # each pod task sets the pod context for host/group tasks
+        config.task "#{pod_name}.#{tsuffix}" do # task pod1
+          set :current_pod, pod_name
+        end
       end
 
       node_dna = { }
@@ -75,7 +79,7 @@ module AlphaOmega
           next nil unless cap_roles
           config.set :dna, node_dna[remote_name]
 
-          config.task "#{task_name}.#{pod_name}" do # task host.pod1
+          config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
             cap_roles.each do |cap_role, cap_preds|
               if $this_host["local_pods"] && $this_host["local_pods"].member?(node["env_pod"])
                 role cap_role, node["node_name"], cap_preds
@@ -85,20 +89,35 @@ module AlphaOmega
             end
           end
         
-          config.task "#{task_name}" do # task host -> host.current_pod
-            config.after "#{task_name}", "#{task_name}.#{current_pod}"
+          config.task "#{task_name}.#{pod_name}.echo" do # task host.pod1.echo
+            puts "#{$magic_prefix} #{remote_name}"
+          end
+        
+          config.task "#{task_name}.#{pod_name}.yaml" do # task host.pod1.yaml
+            StringIO.new({ remote_name => n }.to_yaml).lines.to_a[1..-1].each {|l| puts "#{$magic_prefix} #{l}" }
+          end
+        
+          %w(app echo yaml).each do |tsuffix|
+            config.task "#{task_name}.#{tsuffix}" do # task host -> host.current_pod
+              config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
+            end
           end
 
           n
         end
 
       self.what_groups hosts do |task_name, nodes|
-        nodes.keys.sort.each do |remote_name|
-          config.after "#{task_name}.#{pod_name}", "#{remote_name}"
-        end
+        %w(app echo yaml).each do |tsuffix|
+          config.task "#{task_name}.#{pod_name}.#{tsuffix}" do
+          end
 
-        config.task "#{task_name}" do
-          config.after "#{task_name}", "#{task_name}.#{current_pod}"
+          nodes.keys.sort.each do |remote_name|
+            config.after "#{task_name}.#{pod_name}.#{tsuffix}", "#{remote_name}.#{tsuffix}"
+          end
+
+          config.task "#{task_name}.#{tsuffix}" do
+            config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
+          end
         end
       end
     end
