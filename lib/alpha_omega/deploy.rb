@@ -624,7 +624,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   namespace :ruby do
     task :bundle do
-      run "cd #{deploy_release} && bin/bundle-ruby #{ruby_loader} -- #{bundler_options}"
+      run "cd #{deploy_release} && bin/build ruby #{ruby_loader} -- #{bundler_options}"
     end
   end
 
@@ -632,7 +632,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   namespace :node do
     task :bundle do
-      run "cd #{deploy_release} && bin/bundle-node"
+      run "cd #{deploy_release} && bin/build node"
     end
   end
 
@@ -641,7 +641,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :assets do
     task :build do
       unless deploy_path_name == migrate_path_name
-        run "cd #{deploy_release} && RAILS_ENV=#{dna["app_env"]} bin/bundle-assets"
+        run "cd #{deploy_release} && RAILS_ENV=#{dna["app_env"]} bin/build assets"
       end
     end
   end
