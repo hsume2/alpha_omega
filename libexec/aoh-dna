@@ -114,9 +114,8 @@ function main {
         fi
 
         bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
-        exec bundle exec alpha_omega $(deploy_basename $0) "$nm_component" "$@"
-        logger_fatal "could not run the alpha_omega command, this is an esoteric error"
-        exit 1
+        aomain "$nm_component" "$@"
+        exit
       fi
      
       if [[ "$#" > 0 ]]; then
@@ -148,33 +147,13 @@ function main {
   esac
 }
 
-require sub "$BASH_SOURCE" "$@"
-#!/bin/bash
-
-#/ NAME
-#/     ao-dna -- dumps opsdb yaml
-#/
-#/ SYNOPSIS
-#/     ao dna [deploy_set...]
-
-# figure out the project root under which bin, lib live
-shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
-
-# load a jason bourne library
-source "$shome/sbin/_treadstone"
-
-# parse the command-line
-
-# entry point
-function main {
+function aomain {
   export LOCAL_ONLY=true
   {
+    set -- $(for a in "$@"; do echo $a.yaml; done)
     echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
-    if [[ -n $1 ]]; then
-      set -- $(for a in "$@"; do echo $a.yaml; done)
-      cap "$@"
-    fi
+    bundle exec cap "$@"
   } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
 }
 
-require 'sub' "$BASH_SOURCE" "$@"
+require sub "$BASH_SOURCE" "$@"

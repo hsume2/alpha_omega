@@ -154,4 +154,3 @@ function aomain {
 }
 
 require sub "$BASH_SOURCE" "$@"
-
