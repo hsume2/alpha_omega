@@ -655,4 +655,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   end
 
-end # Capistrano::Configuratioy
+end # Capistrano::Configuration
+
+load 'config/deploy'
