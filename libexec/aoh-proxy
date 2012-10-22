@@ -43,7 +43,7 @@ function clone_proxy {
   cd $shome/.tmp/deploy
   local git_spec="$(git_branch_head "$ver_repo")"
   git checkout -q "${git_head##*:}"
-  exec $shome/.tmp/deploy/bin/proxy "$git_url" "$git_spec" "$@"
+  exec $shome/.tmp/deploy/sbin/proxy "$git_url" "$git_spec" "$@"
 }
 
 : ${_AO_PROXIED:=}
