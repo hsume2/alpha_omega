@@ -69,6 +69,7 @@ function main {
 
   crumb "executing ao $cmd_deploy $@"
   export _AO_USER="$nm_deployer"
+  bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
   bundle exec ao $cmd_deploy "$@"
   crumb "end remote-helper"
 }
