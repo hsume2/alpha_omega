@@ -32,7 +32,7 @@ function main {
     fl_debug=1
   fi
 
-  crumb "start $shome/sbin/remote-helper with args: $nm_deployer, $git_url, $git_spec, $cmd_deploy"
+  crumb "start remote-helper with args: $nm_deployer, $git_url, $git_spec, $cmd_deploy"
   crumb "additional args: $@"
 
   git_branch="${git_spec%%:*}"
@@ -67,10 +67,10 @@ function main {
   crumb "git submodule"
   git submodule -q update --init --recursive
 
-  crumb "executing bin/$cmd_deploy $@"
+  crumb "executing ao $cmd_deploy $@"
   export _AO_USER="$nm_deployer"
-  bin/$cmd_deploy "$@"
-  crumb "end bin/remote-helper"
+  bundle exec ao $cmd_deploy "$@"
+  crumb "end remote-helper"
 }
 
 # setup

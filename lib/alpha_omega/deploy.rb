@@ -572,7 +572,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
         system "#{figlet} failed to lock"
         puts "deploy locked by #{lock_user} #{epoch-lock_epoch} seconds ago"
-        puts "use bin/unlock to remove this lock"
+        puts "use 'ao unlock' to remove this lock"
         abort
       end
 
