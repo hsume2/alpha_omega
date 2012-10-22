@@ -632,14 +632,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   after "deploy:bundle", "node:bundle"
 
   namespace :assets do
-    task :build do
+    task :bundle do
       unless deploy_path_name == migrate_path_name
         run "cd #{deploy_release} && RAILS_ENV=#{dna["app_env"]} bin/build assets"
       end
     end
   end
 
-  after "deploy:build", "assets:build"
+  after "deploy:build", "assets:bundle"
 
   on :exit do
     unless ENV['LOCAL_ONLY'] && !ENV['LOCAL_ONLY'].empty?
