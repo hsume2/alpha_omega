@@ -303,7 +303,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :update_code do
       strategy.deploy! unless skip_scm
       bundle
-      cook
       unless deploy_path_name == migrate_path_name 
         build
         dist
