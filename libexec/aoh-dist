@@ -15,7 +15,7 @@
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
 # load a jason bourne library
-source "$shome/bin/_treadstone"
+source "$shome/sbin/_treadstone"
 require 'ao'
 enforce_rvm "$@"
 
@@ -143,7 +143,7 @@ function main {
         esac
       fi
 
-      exec $shome/bin/proxy "$FLAGS_gateway" "$FLAGS_tag" $(deploy_basename $0) "$nm_component" "$@"
+      exec $shome/sbin/proxy "$FLAGS_gateway" "$FLAGS_tag" $(deploy_basename $0) "$nm_component" "$@"
       logger_fatal "could not run the proxy command, this is an esoteric error"
       exit 1
       ;;
