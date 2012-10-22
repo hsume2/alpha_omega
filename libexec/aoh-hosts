@@ -114,9 +114,8 @@ function main {
         fi
 
         bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
-        exec bundle exec alpha_omega $(deploy_basename $0) "$nm_component" "$@"
-        logger_fatal "could not run the alpha_omega command, this is an esoteric error"
-        exit 1
+        aomain "$nm_component" "$@"
+        exit
       fi
      
       if [[ "$#" > 0 ]]; then
@@ -148,4 +147,11 @@ function main {
   esac
 }
 
+function aomain {
+  export LOCAL_ONLY=true
+  set -- $(for a in "$@"; do echo $a.echo; done)
+  bundle exec cap "$@" 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | awk '{print $NF}' | sort -u 2>&1
+}
+
 require sub "$BASH_SOURCE" "$@"
+

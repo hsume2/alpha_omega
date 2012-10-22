@@ -150,3 +150,36 @@ function main {
 }
 
 require sub "$BASH_SOURCE" "$@"
+#!/bin/bash
+
+#/ NAME
+#/     ao-unlock -- unlock a deploy
+#/
+#/ SYNOPSIS
+#/     ao unlock [deploy_set...]
+#/     ao unlock migrate|compare [deploy_set...]
+
+# figure out the project root under which bin, lib live
+shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
+
+# load a jason bourne library
+source "$shome/sbin/_treadstone"
+
+# parse the command-line
+
+# entry point
+function main {
+  case "${1}" in
+    compare|migrate)
+      nm_lock="${1}"; shift
+      set -- $(for a in "$@"; do echo $a.app; done)
+      bundle exec cap "$@" "deploy:unlock_${nm_lock}"
+      ;;
+    *)
+      set -- $(for a in "$@"; do echo $a.app; done)
+      bundle exec cap "$@" deploy:unlock
+      ;;
+  esac
+}
+
+require 'sub' "$BASH_SOURCE" "$@"

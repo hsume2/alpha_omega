@@ -149,3 +149,26 @@ function main {
 }
 
 require sub "$BASH_SOURCE" "$@"
+#!/bin/bash
+
+#/ NAME
+#/     ao-release -- deploy a major release
+#/
+#/ SYNOPSIS
+#/     ao release [deploy_set...]
+
+# figure out the project root under which bin, lib live
+shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
+
+# load a jason bourne library
+source "$shome/sbin/_treadstone"
+
+# parse the command-line
+
+# entry point
+function main {
+  set -- $(for a in "$@"; do echo $a.app; done)
+  bundle exec cap "$@" deploy:lock deploy
+}
+
+require 'sub' "$BASH_SOURCE" "$@"
