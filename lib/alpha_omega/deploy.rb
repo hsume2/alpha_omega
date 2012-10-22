@@ -409,12 +409,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     desc <<-DESC
-      Apply microwave tvdinners to a release directory.
-    DESC
-    task :cook do
-    end
-
-    desc <<-DESC
       Compares your application.
     DESC
     task :compare do
