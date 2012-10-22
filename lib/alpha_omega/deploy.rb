@@ -651,4 +651,4 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
 end # Capistrano::Configuration
 
-load 'config/deploy'
+require 'alpha_omega/config/deploy'

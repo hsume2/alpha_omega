@@ -1,17 +1,19 @@
-set :reviewed, nil
+Capistrano::Configuration.instance(:must_exist).load do |config|
+  set :reviewed, nil
 
-namespace :deploy do
-  task :challenge do
-    if dna["app_env"] == "production"
-      who = Capistrano::CLI.ui.ask(" -- Who has reviewed this deploy to #{dna["app_env"]}? ")
-      if who.empty?
-        abort
-      else
-        set :reviewed, who
-        sleep 3
-      end
-    end if reviewed.nil?
+  namespace :deploy do
+    task :challenge do
+      if dna["app_env"] == "production"
+        who = Capistrano::CLI.ui.ask(" -- Who has reviewed this deploy to #{dna["app_env"]}? ")
+        if who.empty?
+          abort
+        else
+          set :reviewed, who
+          sleep 3
+        end
+      end if reviewed.nil?
+    end
   end
-end
 
-before "deploy:bootstrap_code", "deploy:challenge"
+  before "deploy:bootstrap_code", "deploy:challenge"
+end
