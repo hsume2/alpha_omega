@@ -214,8 +214,8 @@ module AlphaOmega
     config.set :repository, deploy["repository"]
     config.set :application, deploy["application"]
 
-    config.set :user, deploy["user"]
-    config.set :group, deploy["group"]
+    config.set :user, (ENV['_AO_USER'] || deploy["user"])
+    config.set :group, (ENV['_AO_GROUP'] || deploy["group"])
 
     config.set :ruby_loader, "#{deploy["ruby_loader"]} #{deploy["app_ruby"]}"
 
