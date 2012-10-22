@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["David Nghiem", "Tom Bombadil"]
   s.email       = ["nghidav@gmail.com", "amanibhavam@destructuring.org"]
-  s.homepage    = "https://github.com/HeSYINUvSBZfxqA/alpha_omega"
+  s.homepage    = "https://github.com/destructuring/alpha_omega"
   s.summary     = %q{alpha_omega capistrano recipes}
   s.description = %q{Common reciples for persistent capistrano releases}
   s.date        = %q{2011-08-31}
