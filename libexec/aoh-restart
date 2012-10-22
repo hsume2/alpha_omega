@@ -102,8 +102,6 @@ function main {
 
       if [[ "$FLAGS_proxy" = "$FLAGS_FALSE" || "$FLAGS_direct" = "$FLAGS_TRUE" || -z "$FLAGS_gateway" ]]; then
         export _AO_DEPLOY=1
-        export BUNDLE_GEMFILE="$shome/.deploy/Gemfile"
-        unset GEM_HOME RUBYOPT 
 
         local _AO_THIS_HOST="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component this_host)"
         if [[ -n "$_AO_THIS_HOST" ]]; then
