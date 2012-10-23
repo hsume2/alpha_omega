@@ -10,7 +10,7 @@
 shome="$(cd -P -- "$(dirname -- "$0")/.." && pwd -P)"
 
 # load a jason bourne library
-source "$shome/sbin/_treadstone" "$@"
+source "$shome/libexec/_treadstone" "$@"
 get_started
 
 # entry point

@@ -10,11 +10,11 @@
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
 # load a jason bourne library
-source "$shome/sbin/_treadstone"
+source "$shome/libexec/_treadstone"
 
 # entry point
 function main {
-  exec "$shome/sbin/aoh" "$(basename "$0")" "$@"
+  exec "$shome/libexec/aoh" "$(basename "$0")" "$@"
 }
 
 require 'sub' "$BASH_SOURCE" "$@"
