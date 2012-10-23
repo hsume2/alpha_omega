@@ -615,32 +615,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   end # :deploy
 
-  namespace :ruby do
-    task :bundle do
-      run "cd #{deploy_release} && bin/build ruby #{ruby_loader} -- #{bundler_options}"
-    end
-  end
-
-  after "deploy:bundle", "ruby:bundle"
-
-  namespace :node do
-    task :bundle do
-      run "cd #{deploy_release} && bin/build node"
-    end
-  end
-
-  after "deploy:bundle", "node:bundle"
-
-  namespace :assets do
-    task :bundle do
-      unless deploy_path_name == migrate_path_name
-        run "cd #{deploy_release} && RAILS_ENV=#{dna["app_env"]} bin/build assets"
-      end
-    end
-  end
-
-  after "deploy:build", "assets:bundle"
-
   on :exit do
     unless ENV['LOCAL_ONLY'] && !ENV['LOCAL_ONLY'].empty?
       logger.important "uploading deploy logs: #{log_path}/#{application}-#{ENV["_AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
