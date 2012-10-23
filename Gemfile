@@ -12,4 +12,6 @@ gem 'airbrake', "~> 3.1.1"
 gem "newrelic_rpm", "~> 3.3.4"
 gem "flowdock"
 
+gem "microwave"
+
 # vim: set ft=ruby:
