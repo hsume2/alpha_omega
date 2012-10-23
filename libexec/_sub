@@ -1,7 +1,6 @@
 #!/bin/bash
 
 : ${_JASON_RUBY:=}
-: ${_JASON_WHICH_RUBY:=deploy_ruby}
 
 function sub {
   local bsource="$1"; shift
@@ -41,7 +40,7 @@ function sub {
 }
 
 if [[ "$shome/config/deploy.yml" ]]; then
-  export _JASON_RUBY="$(ryaml "$shome/config/deploy.yml" "$_JASON_WHICH_RUBY")"
+  export _JASON_RUBY="$(ryaml "$shome/config/deploy.yml" "app_ruby")"
 fi
 
 if [[ ! -x "$(which rvm-exec 2>&1 || true)" ]]; then

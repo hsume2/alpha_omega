@@ -3,7 +3,6 @@ repository: https://github.com/destructuring/alpha_omega
 application: alpha_omega
 
 ruby_loader: rvm-exec
-deploy_ruby: ree
 app_ruby: ree
 
 branches: [ master ]
