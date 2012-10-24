@@ -30,9 +30,15 @@ function enforce_rvm {
 }
 
 FLAGS_proxy_default="$FLAGS_FALSE"
-if [[ ! -d "$(ryaml $shome/config/deploy.yml chef_path)" ]]; then
+if [[ -n "${CHEF_PATH:-}" ]]; then
   FLAGS_proxy_default="$FLAGS_TRUE"
+else
+  if [[ ! -d "$(ryaml $shome/config/deploy.yml chef_path)" ]]; then
+    FLAGS_proxy_default="$FLAGS_TRUE"
+  fi
+fi
 
+if [[ "$FLAGS_proxy_default" = "$FLAGS_TRUE" ]]; then
   if [[ ! -d "$HOME/.getting-started" ]]; then
     git clone git@github.com:zendesk/getting-started "$HOME/.getting-started"
     pushd $HOME/.getting-started > /dev/null
