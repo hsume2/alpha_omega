@@ -30,12 +30,8 @@ function enforce_rvm {
 }
 
 FLAGS_proxy_default="$FLAGS_FALSE"
-if [[ -n "${CHEF_PATH:-}" ]]; then
+if [[ ! -d "$(ryaml $shome/config/deploy.yml chef_path)" ]]; then
   FLAGS_proxy_default="$FLAGS_TRUE"
-else
-  if [[ ! -d "$(ryaml $shome/config/deploy.yml chef_path)" ]]; then
-    FLAGS_proxy_default="$FLAGS_TRUE"
-  fi
 fi
 
 if [[ "$FLAGS_proxy_default" = "$FLAGS_TRUE" ]]; then
