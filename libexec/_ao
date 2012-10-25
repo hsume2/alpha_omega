@@ -33,6 +33,7 @@ function enforce_rvm {
 FLAGS_proxy_default="$FLAGS_FALSE"
 if [[ ! -d "$(ryaml $shome/config/deploy.yml chef_path)" ]]; then
   FLAGS_proxy_default="$FLAGS_TRUE"
+  export _AO_CHEF="$HOME/.getting-started"
 fi
 
 if [[ "$FLAGS_proxy_default" = "$FLAGS_TRUE" ]]; then
