@@ -2,12 +2,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :deploy do
     namespace :notify do
       task :default do
-        unless dna["app_env"] == "development"
-          airbrake if $deploy["notify"].member? "airbrake"
-          newrelic if $deploy["notify"].member? "newrelic"
-          email if $deploy["notify"].member? "email"
-          campfire if $deploy["notify"].member? "campfire"
-          flowdock if $deploy["notify"].member? "flowdock"
+        if $deploy["notify"]
+          unless dna["app_env"] == "development"
+            airbrake if $deploy["notify"].member? "airbrake"
+            newrelic if $deploy["notify"].member? "newrelic"
+            email if $deploy["notify"].member? "email"
+            campfire if $deploy["notify"].member? "campfire"
+            flowdock if $deploy["notify"].member? "flowdock"
+          end
         end
       end
 
