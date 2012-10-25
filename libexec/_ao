@@ -15,7 +15,8 @@ function enforce_rvm {
 
   export _AO_RVM=1
 
-  local pth_ruby_loader="$(ryaml $shome/config/deploy.yml ruby_loader)"
+  local pth_ruby_loader="${_AO_RUBY_LOADER}"
+  : ${pth_ruby_loader:=$(ryaml $shome/config/deploy.yml ruby_loader)}
   local ruby_deploy="$(ryaml $shome/config/deploy.yml app_ruby)"
 
   if [[ -z $pth_ruby_loader || -z $ruby_deploy ]]; then

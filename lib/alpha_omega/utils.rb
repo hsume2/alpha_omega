@@ -217,7 +217,7 @@ module AlphaOmega
     config.set :user, (ENV['_AO_USER'] || deploy["user"])
     config.set :group, (ENV['_AO_GROUP'] || deploy["group"])
 
-    config.set :ruby_loader, "#{deploy["ruby_loader"]} #{deploy["app_ruby"]}"
+    config.set :ruby_loader, "#{ENV['_AO_RUBY_LOADER'] || deploy["ruby_loader"]} #{deploy["app_ruby"]}"
 
     # branches
     config.set :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
