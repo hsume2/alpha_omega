@@ -144,15 +144,16 @@ function main {
     export _AO_SSH_LOGIN="$FLAGS_ssh_login"
   fi
 
+  if [[ -n "$FLAGS_chef" ]]; then
+    export _AO_CHEF="$(cd -P -- "$FLAGS_chef" && pwd -P)"
+  fi
+
+  if [[ -n "$FLAGS_gateway" ]]; then
+    export GATEWAY="$FLAGS_gateway"
+  fi
+
   case "$nm_component" in 
     *)
-      if [[ -n "$FLAGS_gateway" ]]; then
-        export GATEWAY="$FLAGS_gateway"
-      fi
-
-      if [[ -n "$FLAGS_chef" ]]; then
-        export CHEF_PATH="$(cd -P -- "$FLAGS_chef" && pwd -P)"
-      fi
 
       if [[ "$FLAGS_proxy" = "$FLAGS_FALSE" || "$FLAGS_direct" = "$FLAGS_TRUE" || -z "$FLAGS_gateway" ]]; then
         export _AO_DEPLOY=1
