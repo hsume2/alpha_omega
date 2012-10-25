@@ -1,6 +1,7 @@
 require 'capistrano'
 require 'yaml'
 require 'deep_merge'
+require 'etc'
 
 $this_pod = nil
 $this_host = nil
@@ -214,8 +215,8 @@ module AlphaOmega
     config.set :repository, deploy["repository"]
     config.set :application, deploy["application"]
 
-    config.set :user, (ENV['_AO_USER'] || deploy["user"])
-    config.set :group, (ENV['_AO_GROUP'] || deploy["group"])
+    config.set :user, (ENV['_AO_USER'] || deploy["user"] || Etc.getpwuid.name)
+    config.set :group, (ENV['_AO_GROUP'] || deploy["group"] || Etc.getgrgid(Etc.getpwuid.gid).name)
 
     config.set :ruby_loader, "#{ENV['_AO_RUBY_LOADER'] || deploy["ruby_loader"]} #{deploy["app_ruby"]}"
 
