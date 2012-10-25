@@ -182,7 +182,7 @@ function main {
           remote_chef="-c $FLAGS_chef "
         fi
 
-        $shome/sbin/proxy "$FLAGS_gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_component" "$@"
+        $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_component" "$@"
       fi
       ;;
   esac
