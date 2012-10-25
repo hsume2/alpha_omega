@@ -114,7 +114,9 @@ function main {
       fi
       FLAGS_proxy="$FLAGS_TRUE"
     else
-      FLAGS_chef="$HOME/.getting-started"
+      if [[ -z "$FLAGS_chef" ]]; then
+        FLAGS_chef="$HOME/.getting-started"
+      fi
       export _AO_ENV="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component ao_env)"
       export RAILS_ENV="$_AO_ENV"
       if [[ -z "$_AO_ENV" ]]; then
@@ -145,7 +147,7 @@ function main {
   fi
 
   if [[ -n "$FLAGS_chef" ]]; then
-    export _AO_CHEF="$(cd -P -- "$FLAGS_chef" && pwd -P)"
+    export _AO_CHEF="$FLAGS_chef"
   fi
 
   if [[ -n "$FLAGS_gateway" ]]; then
