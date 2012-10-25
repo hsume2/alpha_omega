@@ -172,6 +172,7 @@ function main {
           esac
         fi
 
+        set -x
         local gateway="$FLAGS_gateway"
         if [[ -n "$FLAGS_ssh_login" ]]; then
           gateway="${FLAGS_ssh_login}@${gateway}"
@@ -183,6 +184,7 @@ function main {
         fi
 
         $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_component" "$@"
+        set +x
       fi
       ;;
   esac
