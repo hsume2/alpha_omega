@@ -223,7 +223,7 @@ module AlphaOmega
     config.set :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
 
     # pods, hosts, groups
-    self.setup_pods config, deploy["chef_path"] do |admin, node|
+    self.setup_pods config, (ENV['_AO_CHEF'] || deploy["chef_path"]) do |admin, node|
       node_filter.call(admin, node)
     end
   end
