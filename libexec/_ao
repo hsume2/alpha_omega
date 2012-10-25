@@ -197,6 +197,11 @@ function main {
         esac
       fi
 
+      local gateway="$FLAGS_gateway"
+      if [[ -n "$FLAGS_ssh_login" ]]; then
+        gateway="${FLAGS_ssh_login}@${gateway}"
+      fi
+
       exec $shome/sbin/proxy "$FLAGS_gateway" "$FLAGS_tag" $(deploy_basename $0) "$nm_component" "$@"
       logger_fatal "could not run the proxy command, this is an esoteric error"
       exit 1
