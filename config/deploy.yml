@@ -8,7 +8,7 @@ app_ruby: ree
 branches: [ master ]
 branch_regex: /
 
-chef_path: /data/zendesk_chef
+chef_path: .
 
 notify:
   nothing:
