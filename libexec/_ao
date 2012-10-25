@@ -66,6 +66,9 @@ DEFINE_boolean "proxy" "$FLAGS_proxy_default" "use a gateway to proxy deploys" "
 DEFINE_boolean "direct" "$FLAGS_FALSE" "override proxy" "d"
 DEFINE_string "chef" "" "location to chef repo with opsdb" "c"
 DEFINE_string "tag" "HEAD" "tag to deploy in production" "t"
+DEFINE_string "user" "" "app user override" "u"
+DEFINE_string "group" "" "app group override" "g"
+DEFINE_string "ssh_login" "" "ssh login override" "l"
 
 # entry point
 function main {
@@ -127,6 +130,18 @@ function main {
 
   if [[ "$FLAGS_autoconf" = "$FLAGS_TRUE" ]]; then
     PATH="$shome/.deploy/ssh/bin:$PATH"
+  fi
+
+  if [[ -n "$FLAGS_user" ]]; then
+    export _AO_USER="$FLAGS_user"
+  fi
+
+  if [[ -n "$FLAGS_group" ]]; then
+    export _AO_GROUP="$FLAGS_group"
+  fi
+
+  if [[ -n "$FLAGS_ssh_login" ]]; then
+    export _AO_SSH_LOGIN="$FLAGS_ssh_login"
   fi
 
   case "$nm_component" in 
