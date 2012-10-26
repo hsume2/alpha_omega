@@ -21,11 +21,11 @@ function aomain {
     compare|migrate)
       nm_lock="${1}"; shift
       set -- $(for a in "$@"; do echo $a.app; done)
-      bundle exec cap "$@" deploy:dont_unlock "deploy:lock_${nm_lock}"
+      bundle exec cap "$@" deploy:start deploy:dont_unlock "deploy:lock_${nm_lock}" deploy:finished
       ;;
     *)
       set -- $(for a in "$@"; do echo $a.app; done)
-      bundle exec cap "$@" deploy:dont_unlock deploy:lock
+      bundle exec cap "$@" deploy:start deploy:dont_unlock deploy:lock deploy:finished
       ;;
   esac
 }
