@@ -613,6 +613,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
+    task :start do
+    end
+
+    task :finished do
+    end
+
   end # :deploy
 
   on :exit do
