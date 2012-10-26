@@ -281,6 +281,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
+    task :start do
+      bootstrap_code
+    end
+
     task :bootstrap_code do
       if releases.length < 2 # without services and run as root
         run "[[ -d #{deploy_to} ]] || #{try_sudo} install -d -m #{dir_perms} #{try_sudo.empty? ? '' : "-o #{root_user} -g #{root_group}"} #{deploy_to}"
@@ -551,8 +555,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     task :lock do
-      bootstrap_code
-
       epoch = Time.now.to_i
       locker = ''
 
@@ -611,9 +613,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       if want_unlock
         run "rm -f #{lock_path}"
       end
-    end
-
-    task :start do
     end
 
     task :finished do
