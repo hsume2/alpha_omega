@@ -8,6 +8,7 @@ $this_host = nil
 $opsdb = nil
 $pods_config = nil
 $magic_prefix = "eea914aaa8dde6fdae29242b1084a2b0415eefaf"
+$node_filter = nil
 
 module AlphaOmega
   def self.node_defaults(node, env_pod, node_name)
@@ -61,7 +62,7 @@ module AlphaOmega
   end
 
   def self.default_pods_tasks
-    Proc.new do |config, pod_name, pod, this_node, &node_filter|
+    Proc.new do |config, pod_name, pod, this_node|
       %w(app echo yaml).each do |tsuffix|
         # each pod task sets the pod context for host/group tasks
         config.task "#{pod_name}.#{tsuffix}" do # task pod1
@@ -76,7 +77,7 @@ module AlphaOmega
           node_dna[remote_name] = {}
           node_dna[remote_name].deep_merge!(n)
 
-          cap_roles = node_filter.call(this_node, n)
+          cap_roles = $node_filter.call(this_node, n)
           next nil unless cap_roles
 
           config.task "#{task_name}.#{pod_name}.app" do # task host.pod1.app
@@ -124,9 +125,9 @@ module AlphaOmega
     end
   end
 
-  def self.setup_pods (config, node_home, &node_filter)
+  def self.setup_pods (config, node_home)
     self.what_pods(config, node_home) do |config, pod_name, pod, this_node| 
-      self.default_pods_tasks.call(config, pod_name, pod, this_node, &node_filter) 
+      self.default_pods_tasks.call(config, pod_name, pod, this_node)
     end
   end
 
@@ -211,27 +212,26 @@ module AlphaOmega
     cap_groups
   end
 
-  def self.interesting (config, deploy, node_filter)
-    config.set :repository, deploy["repository"]
-    config.set :application, deploy["application"]
+  def self.interesting (config)
+    config.set :repository, $deploy["repository"]
+    config.set :application, $deploy["application"]
 
-    config.set :user, (ENV['_AO_USER'] || deploy["user"] || Etc.getpwuid.name)
-    config.set :group, (ENV['_AO_GROUP'] || deploy["group"] || Etc.getgrgid(Etc.getpwuid.gid).name)
+    config.set :user, (ENV['_AO_USER'] || $deploy["user"] || Etc.getpwuid.name)
+    config.set :group, (ENV['_AO_GROUP'] || $deploy["group"] || Etc.getgrgid(Etc.getpwuid.gid).name)
 
-    config.set :ruby_loader, "#{ENV['_AO_RUBY_LOADER'] || deploy["ruby_loader"]} #{deploy["app_ruby"]}"
+    config.set :ruby_loader, "#{ENV['_AO_RUBY_LOADER'] || $deploy["ruby_loader"]} #{$deploy["app_ruby"]}"
 
     # branches
-    config.set :branch, self.what_branch(deploy["branches"] + [%r(#{deploy["branch_regex"]})])
+    config.set :branch, self.what_branch($deploy["branches"] + [%r(#{$deploy["branch_regex"]})])
 
     # pods, hosts, groups
-    self.setup_pods config, (ENV['_AO_CHEF'] || deploy["chef_path"]) do |admin, node|
-      node_filter.call(admin, node)
-    end
+    self.setup_pods config, (ENV['_AO_CHEF'] || $deploy["chef_path"])
   end
 end
 
 def Deploy(config, __file__, &node_filter)
+  $node_filter = node_filter
   deploy_yaml = File.join(File.expand_path('..', __file__), "config", "deploy.yml") 
   $deploy = YAML.load_file(deploy_yaml)
-  AlphaOmega.interesting(config, $deploy, node_filter)
+  AlphaOmega.interesting(config)
 end
