@@ -281,7 +281,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
-    task :start do
+    task :began do
       bootstrap_code
     end
 
