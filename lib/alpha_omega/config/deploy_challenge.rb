@@ -15,5 +15,5 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
   end
 
-  before "deploy:bootstrap_code", "deploy:challenge"
+  before "deploy:start", "deploy:challenge"
 end
