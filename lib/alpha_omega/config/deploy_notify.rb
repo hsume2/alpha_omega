@@ -3,7 +3,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     namespace :notify do
       task :default do
         if $deploy["notify"]
-          unless dna["app_env"] == "development"
+          unless dna["app_env"] == "development" || dna["env_pod"] == "dev"
             airbrake if $deploy["notify"].member? "airbrake"
             newrelic if $deploy["notify"].member? "newrelic"
             email if $deploy["notify"].member? "email"
