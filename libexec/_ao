@@ -113,7 +113,12 @@ function main {
 
   if [[ -n "$FLAGS_user" ]]; then
     export _AO_USER="$FLAGS_user"
+  else
+    export _AO_USER="$LOGNAME"
   fi
+
+  : ${_AO_DEPLOYER:=$_AO_USER}
+  export _AO_DEPLOYER
 
   if [[ -n "$FLAGS_group" ]]; then
     export _AO_GROUP="$FLAGS_group"
@@ -172,7 +177,6 @@ function main {
           esac
         fi
 
-        set -x
         local gateway="$FLAGS_gateway"
         if [[ -n "$FLAGS_ssh_login" ]]; then
           gateway="${FLAGS_ssh_login}@${gateway}"
@@ -184,7 +188,6 @@ function main {
         fi
 
         $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_component" "$@"
-        set +x
       fi
       ;;
   esac

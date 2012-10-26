@@ -9,7 +9,7 @@ require 'alpha_omega/utils'
 require 'capistrano_colors'
 require 'capistrano/log_with_awesome'
 
-ENV["_AO_USER"] ||= ENV["USER"]
+ENV['_AO_DEPLOYER'] ||= ENV['_AO_USER']
 
 Capistrano::Configuration.instance(:must_exist).load do |config|
 
@@ -580,7 +580,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         at_exit { self.unlock; }
       end
 
-      run "echo #{epoch} #{ENV['_AO_USER']} > #{lock_path}"
+      run "echo #{epoch} #{ENV['_AO_DEPLOYER']} > #{lock_path}"
     end
 
     task :lock_compare do
@@ -617,8 +617,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   on :exit do
     unless ENV['LOCAL_ONLY'] && !ENV['LOCAL_ONLY'].empty?
-      logger.important "uploading deploy logs: #{log_path}/#{application}-#{ENV["_AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
-      put full_log, "#{log_path}/#{application}-#{ENV["_AO_USER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+      logger.important "uploading deploy logs: #{log_path}/#{application}-#{ENV["_AO_DEPLOYER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
+      put full_log, "#{log_path}/#{application}-#{ENV["_AO_DEPLOYER"]}.log-#{Time.now.strftime('%Y%m%d-%H%M')}"
     end
   end
 
