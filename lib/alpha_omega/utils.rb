@@ -100,7 +100,8 @@ module AlphaOmega
           end
         
           %w(app echo yaml).each do |tsuffix|
-            config.task "#{task_name}.#{tsuffix}" do # task host -> host.current_pod
+            config.task "#{task_name}.#{tsuffix}" do # task host.app
+              # host.app -> host.current_pod.app
               config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
             end
           end
@@ -110,14 +111,16 @@ module AlphaOmega
 
       self.what_groups hosts do |task_name, nodes|
         %w(app echo yaml).each do |tsuffix|
-          config.task "#{task_name}.#{pod_name}.#{tsuffix}" do
+          config.task "#{task_name}.#{pod_name}.#{tsuffix}" do # task group.pod1.app
           end
 
           nodes.keys.sort.each do |remote_name|
+            # group.pod1.app => hosts
             config.after "#{task_name}.#{pod_name}.#{tsuffix}", "#{remote_name}.#{tsuffix}"
           end
 
-          config.task "#{task_name}.#{tsuffix}" do
+          config.task "#{task_name}.#{tsuffix}" do # task group.app
+            # group.app -> group.current_pod.app
             config.after "#{task_name}.#{tsuffix}", "#{task_name}.#{current_pod}.#{tsuffix}"
           end
         end
