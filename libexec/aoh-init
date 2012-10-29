@@ -39,7 +39,7 @@ end
 # overrides
 namespace :deploy do
   task :bundle do
-    alpha_omega.bundle.ruby
+    ${nm_app}.bundle.ruby
   end
 end
 
