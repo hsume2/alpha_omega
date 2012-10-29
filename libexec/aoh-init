@@ -45,7 +45,7 @@ end
 
 # interesting hosts
 Deploy self, __FILE__ do |admin, node| 
-  if node["roles"].include("something_something")
+  if node["run_list"].include?("role[something_something]")
     { :deploy => { } }
   end
 end
@@ -54,7 +54,7 @@ EOF
   mkdir -p "config"
   cat > "config/deploy.yml" <<EOF
 --- 
-repository: https://github.com/something_something
+repository: git@github.com:someone/something_something
 application: ${nm_app}
 
 ruby_loader: rvm-exec
