@@ -39,8 +39,8 @@ function sub {
   fi
 }
 
-if [[ "$shome/config/deploy.yml" ]]; then
-  export _JASON_RUBY="$(ryaml "$shome/config/deploy.yml" "app_ruby")"
+if [[ "$_AO_HOME/config/deploy.yml" ]]; then
+  export _JASON_RUBY="$(ryaml "$_AO_HOME/config/deploy.yml" "app_ruby")"
 fi
 
 if [[ ! -x "$(which rvm-exec 2>&1 || true)" ]]; then

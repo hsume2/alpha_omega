@@ -19,8 +19,8 @@ function enforce_rvm {
   export _AO_RVM=1
 
   local pth_ruby_loader="${_AO_RUBY_LOADER:-}"
-  : ${pth_ruby_loader:=$(ryaml $shome/config/deploy.yml ruby_loader)}
-  local ruby_deploy="$(ryaml $shome/config/deploy.yml app_ruby)"
+  : ${pth_ruby_loader:=$(ryaml $_AO_HOME/config/deploy.yml ruby_loader)}
+  local ruby_deploy="$(ryaml $_AO_HOME/config/deploy.yml app_ruby)"
 
   if [[ -z $pth_ruby_loader || -z $ruby_deploy ]]; then
     return
@@ -38,7 +38,6 @@ enforce_rvm "$@"
 # define command line options:
 #   var name, default, description, short option
 DEFINE_string "gateway" "" "deploy gateway host" "G"
-DEFINE_boolean "autoconf" "$FLAGS_TRUE" "use config/ssh to configure remote access" "z"
 DEFINE_boolean "proxy" "$FLAGS_FALSE" "use a gateway to proxy deploys" "p"
 DEFINE_boolean "direct" "$FLAGS_FALSE" "override proxy" "d"
 DEFINE_string "chef" "" "location to chef repo with opsdb" "c"
@@ -58,7 +57,7 @@ function main {
 
   local nm_component="$1" # will shift later since this could be an integration environment
   if [[ "$#" = 1 ]]; then
-    local deploy_base="$(ryaml $shome/config/deploy.yml deploy_base)"
+    local deploy_base="$(ryaml $_AO_HOME/config/deploy.yml deploy_base)"
     if [[ -n "$deploy_base" ]]; then
       local pod_shortcut="$(ryaml $HOME/.getting-started/config/pods.yml pods ${deploy_base}${nm_component} pod)"
       if [[ -n "$pod_shortcut" ]]; then
@@ -105,10 +104,6 @@ function main {
     if [[ -z "$FLAGS_gateway" ]]; then
       FLAGS_gateway="$hst_gateway"
     fi
-  fi
-
-  if [[ "$FLAGS_autoconf" = "$FLAGS_TRUE" ]]; then
-    PATH="$shome/.deploy/ssh/bin:$PATH"
   fi
 
   if [[ -n "$FLAGS_user" ]]; then

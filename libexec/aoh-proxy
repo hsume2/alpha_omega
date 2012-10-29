@@ -60,8 +60,8 @@ function main {
   case "$hst_gateway" in 
     *)
       local pth_rvmrun="${_AO_RUBY_LOADER:-}"
-      : ${pth_rvmrun:=$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $shome/config/deploy.yml ruby_loader)}
-      local nm_ruby="$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $shome/config/deploy.yml app_ruby)"
+      : ${pth_rvmrun:=$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $_AO_HOME/config/deploy.yml ruby_loader)}
+      local nm_ruby="$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $_AO_HOME/config/deploy.yml app_ruby)"
 
       local tmp_remote="$(ssh $hst_gateway mktemp -t XXXXXXXXX)"
       scp -q $shome/sbin/remote-helper $hst_gateway:$tmp_remote
