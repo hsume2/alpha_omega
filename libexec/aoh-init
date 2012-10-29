@@ -22,7 +22,7 @@ function main {
   local nm_app="$1"; shift
   local dollar='$'
 
-  cat > "$shome/Capfile" <<EOF
+  cat > "Capfile" <<EOF
 #!/usr/bin/env ruby
 
 require 'alpha_omega/deploy'
@@ -51,8 +51,8 @@ Deploy self, __FILE__ do |admin, node|
 end
 EOF
 
-  mkdir -p "$shome/config"
-  cat > "$shome/config/deploy.yml" <<EOF
+  mkdir -p "config"
+  cat > "config/deploy.yml" <<EOF
 --- 
 repository: https://github.com/something_something
 application: ${nm_app}
