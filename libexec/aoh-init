@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#/ NAME
+#/     init -- 
+#/
+#/ SYNOPSIS
+#/     
+#/     init
+
+# figure out the project root under which bin, lib live
+shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
+
+# load a jason bourne library
+source "$shome/libexec/_treadstone"
+
+function main {
+  if [[ "$#" < 1 ]]; then
+    logger_fatal "missing application name"
+    exit 1
+  fi
+
+  local nm_app="$1"; shift
+  local dollar='$'
+
+  cat > "$shome/Capfile" <<EOF
+#!/usr/bin/env ruby
+
+require 'alpha_omega/deploy'
+
+# application deploy
+namespace :${nm_app} do
+  namespace :bundle do
+    task :ruby do
+      run "PATH=${dollar}PATH:/usr/local/rvm/bin:${dollar}HOME/.rvm/bin; { cd #{deploy_release} && #{ruby_loader} bundle check 2>&1 >/dev/null; } || #{ruby_loader} bundle --local --path vendor/bundle >/dev/null"
+    end
+  end
+end
+
+# overrides
+namespace :deploy do
+  task :bundle do
+    alpha_omega.bundle.ruby
+  end
+end
+
+# interesting hosts
+Deploy self, __FILE__ do |admin, node| 
+  if node["roles"].include("something_something")
+    { :deploy => { } }
+  end
+end
+EOF
+
+  mkdir -p "$shome/config"
+  cat > "$shome/config/deploy.yml" <<EOF
+--- 
+repository: https://github.com/something_something
+application: ${nm_app}
+
+ruby_loader: rvm-exec
+app_ruby: ree
+
+branches: [ production staging master ]
+branch_regex: /
+EOF
+}
+
+require sub "$BASH_SOURCE" "$@"
