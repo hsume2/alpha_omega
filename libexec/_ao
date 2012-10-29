@@ -108,11 +108,9 @@ function main {
 
   if [[ -n "$FLAGS_user" ]]; then
     export _AO_USER="$FLAGS_user"
-  else
-    export _AO_USER="$LOGNAME"
   fi
 
-  : ${_AO_DEPLOYER:=$_AO_USER}
+  : ${_AO_DEPLOYER:=$LOGNAME}
   export _AO_DEPLOYER
 
   if [[ -n "$FLAGS_group" ]]; then
