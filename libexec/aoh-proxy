@@ -34,41 +34,23 @@ function git_branch_head {
   echo "$git_branch:$git_head"
 }
 
-function clone_proxy {
-  local ver_repo=$2
-  export _AO_PROXIED=1
-  rm -rf $shome/.tmp/deploy
-  local git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
-  git clone -q $shome $shome/.tmp/deploy
-  cd $shome/.tmp/deploy
-  local git_spec="$(git_branch_head "$ver_repo")"
-  git checkout -q "${git_head##*:}"
-  exec $shome/.tmp/deploy/sbin/proxy "$git_url" "$git_spec" "$@"
-}
-
-: ${_AO_PROXIED:=}
-if [[ -z "$_AO_PROXIED" ]]; then
-  clone_proxy "$@"
-fi
-
 # entry point
 function main {
-  local git_url="$1"; shift
-  local git_spec="$1"; shift
   local hst_gateway="$1"; shift
   local ver_repo="$1"; shift
-  case "$hst_gateway" in 
-    *)
-      local pth_rvmrun="${_AO_RUBY_LOADER:-}"
-      : ${pth_rvmrun:=$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $_AO_HOME/config/deploy.yml ruby_loader)}
-      local nm_ruby="$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $_AO_HOME/config/deploy.yml app_ruby)"
 
-      local tmp_remote="$(ssh $hst_gateway mktemp -t XXXXXXXXX)"
-      scp -q $shome/sbin/remote-helper $hst_gateway:$tmp_remote
-      ssh -t $hst_gateway "$pth_rvmrun" "$nm_ruby" bash "$tmp_remote" "$USER" "$git_url" "$git_spec" "$@"
-      ssh $hst_gateway rm -f $tmp_remote
-      ;;
-  esac
+  cd $_AO_HOME
+  local git_url="$(git config --list | grep remote.origin.url | cut -d= -f2-)"
+  local git_spec="$(git_branch_head "$ver_repo")"
+
+  local pth_rvmrun="${_AO_RUBY_LOADER:-}"
+  : ${pth_rvmrun:=$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $_AO_HOME/config/deploy.yml ruby_loader)}
+  local nm_ruby="$(ruby -ryaml -e 'puts YAML.load(File.read(ARGV[0]))[ARGV[1]]' $_AO_HOME/config/deploy.yml app_ruby)"
+
+  local tmp_remote="$(ssh $hst_gateway mktemp -t XXXXXXXXX)"
+  scp -q $shome/sbin/remote-helper $hst_gateway:$tmp_remote
+  ssh -t $hst_gateway "$pth_rvmrun" "$nm_ruby" bash "$tmp_remote" "$USER" "$git_url" "$git_spec" "$@"
+  ssh $hst_gateway rm -f $tmp_remote
 }
 
 require sub "$BASH_SOURCE" "$@"
