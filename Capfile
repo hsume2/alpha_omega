@@ -6,7 +6,7 @@ require 'alpha_omega/deploy'
 namespace :alpha_omega do
   namespace :bundle do
     task :ruby do
-      run "PATH=$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin; { cd #{deploy_release} && #{ruby_loader} bundle check 2>&1 >/dev/null; } || #{ruby_loader} bundle --local --path vendor/bundle >/dev/null"
+      run "PATH=$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin; { cd #{deploy_release} && #{ruby_loader} bundle check 2>&1 >/dev/null; } || #{ruby_loader} bundle #{bundler_options} >/dev/null"
     end
   end
 end
