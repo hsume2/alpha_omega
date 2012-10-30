@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    alpha_omega (1.4.0)
-      capistrano (= 2.5.21)
+    alpha_omega (1.4.1)
+      capistrano
       capistrano-log_with_awesome
       capistrano_colors
       deep_merge
