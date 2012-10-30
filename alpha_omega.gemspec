@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency(%q<json>)
   s.add_runtime_dependency(%q<deep_merge>)
-  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano>)
-  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_colors>)
-  s.add_runtime_dependency(%q<HeSYINUvSBZfxqA-capistrano_log>)
+  s.add_runtime_dependency("capistrano", "2.5.21")
+  s.add_runtime_dependency(%q<capistrano_colors>)
+  s.add_runtime_dependency(%q<capistrano-log_with_awesome>)
 end
