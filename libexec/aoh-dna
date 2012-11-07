@@ -20,7 +20,7 @@ function aomain {
   {
     set -- $(for a in "$@"; do echo $a.yaml; done)
     echo "eea914aaa8dde6fdae29242b1084a2b0415eefaf ---"
-    bundle exec cap "$@" deploy:began deploy:finished
+    bundle exec cap "$@"
   } 2>&1 | grep eea914aaa8dde6fdae29242b1084a2b0415eefaf | sed 's#eea914aaa8dde6fdae29242b1084a2b0415eefaf ##'
 }
 
