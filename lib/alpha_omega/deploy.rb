@@ -305,7 +305,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task (if you want to perform the `restart' task separately).
     DESC
     task :update_code do
-      strategy.deploy! unless skip_scm
+      scm
       bundle
       build
       dist
@@ -402,6 +402,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :dist do
     end
 
+    task :scm do
+      strategy.deploy! unless skip_scm
+    end
 
     desc <<-DESC
       Checkpoint for various language bundlers
