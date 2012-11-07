@@ -307,10 +307,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :update_code do
       strategy.deploy! unless skip_scm
       bundle
-      unless deploy_path_name == migrate_path_name 
-        build
-        dist
-      end
+      build
+      dist
     end
 
     task :symlink_next do
