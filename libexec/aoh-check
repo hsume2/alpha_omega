@@ -17,7 +17,7 @@ require 'ao'
 
 function aomain {
   set -- $(for a in "$@"; do echo $a.app; done)
-  bundle exec cap "$@" deploy:began deploy:lock deploy:check deploy:finished
+  cap "$@" deploy:began deploy:lock deploy:check deploy:finished
 }
 
 require sub "$BASH_SOURCE" "$@"
