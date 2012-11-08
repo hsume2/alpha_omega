@@ -27,37 +27,37 @@ function main {
     exit 1
   fi
 
-  local nm_component="$1" # will shift later since this could be an integration environment
+  local nm_pod="$1" # will shift later since this could be an integration environment
   if [[ "$#" = 1 ]]; then
     local deploy_base="$(ryaml $_AO_HOME/config/deploy.yml deploy_base)"
     if [[ -n "$deploy_base" ]]; then
-      local pod_shortcut="$(ryaml $HOME/.getting-started/config/pods.yml pods ${deploy_base}${nm_component} pod)"
+      local pod_shortcut="$(ryaml $HOME/.getting-started/config/pods.yml pods ${deploy_base}${nm_pod} pod)"
       if [[ -n "$pod_shortcut" ]]; then
-        nm_component="${deploy_base}${nm_component}"
-        set -- "$nm_component"
+        nm_pod="${deploy_base}${nm_pod}"
+        set -- "$nm_pod"
       fi
       unset pod_shortcut
     fi
   fi
 
   if [[ -r "$HOME/.getting-started/config/pods.yml" ]]; then
-    local pod_shortcut="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component pod)"
+    local pod_shortcut="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod pod)"
     if [[ -n "$pod_shortcut" ]]; then
-      nm_component="$pod_shortcut"
+      nm_pod="$pod_shortcut"
     else
       shift # treat as a pod name
     fi
 
-    local pod_alias="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component alias)"
+    local pod_alias="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod alias)"
     if [[ -n "$pod_alias" ]]; then
-      nm_component="$pod_alias"
+      nm_pod="$pod_alias"
     fi
 
-    local is_local="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component local)"
-    local hst_gateway="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component gateway)"
+    local is_local="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod local)"
+    local hst_gateway="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod gateway)"
     if [[ -z "$is_local" ]]; then
       if [[ -z "$hst_gateway" ]]; then
-        logger_fatal "$nm_component is not a pod name"
+        logger_fatal "$nm_pod is not a pod name"
         exit 1
       fi
       FLAGS_proxy="$FLAGS_TRUE"
@@ -65,10 +65,10 @@ function main {
       if [[ -z "$FLAGS_chef" ]]; then
         FLAGS_chef="$HOME/.getting-started"
       fi
-      export _AO_ENV="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component ao_env)"
+      export _AO_ENV="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod ao_env)"
       export RAILS_ENV="$_AO_ENV"
       if [[ -z "$_AO_ENV" ]]; then
-        _AO_ENV="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component env)"
+        _AO_ENV="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod env)"
       fi
       export _AO_SSH="$HOME/.getting-started/ssh/config"
     fi
@@ -101,59 +101,59 @@ function main {
     export GATEWAY="$FLAGS_gateway"
   fi
 
-  case "$nm_component" in 
-    *)
+  if [[ "$FLAGS_proxy" = "$FLAGS_FALSE" || "$FLAGS_direct" = "$FLAGS_TRUE" || -z "$FLAGS_gateway" ]]; then
+    export _AO_DEPLOY=1
 
-      if [[ "$FLAGS_proxy" = "$FLAGS_FALSE" || "$FLAGS_direct" = "$FLAGS_TRUE" || -z "$FLAGS_gateway" ]]; then
-        export _AO_DEPLOY=1
+    local _AO_THIS_HOST="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod this_host)"
+    if [[ -n "$_AO_THIS_HOST" ]]; then
+      export _AO_THIS_HOST
+    fi
 
-        local _AO_THIS_HOST="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component this_host)"
-        if [[ -n "$_AO_THIS_HOST" ]]; then
-          export _AO_THIS_HOST
-        fi
+    local _AO_THIS_POD="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_pod this_pod)"
+    if [[ -n "$_AO_THIS_POD" ]]; then
+      export _AO_THIS_POD
+    fi
 
-        local _AO_THIS_POD="$(ryaml $HOME/.getting-started/config/pods.yml pods $nm_component this_pod)"
-        if [[ -n "$_AO_THIS_POD" ]]; then
-          export _AO_THIS_POD
-        fi
+    bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
 
-        bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
-        aomain "$nm_component" "$@"
-      else 
-        if [[ "$#" > 0 ]]; then
-          case "$1" in
-            all|world)
-              logger_fatal "cannot use all or world, these are dangerous"
-              exit 1
-              ;;
-            production)
-              if [[ -z "$FLAGS_tag" || "$FLAGS_tag" = "HEAD" ]]; then
-                case "$(deploy_basename $0)" in
-                  hosts|debug)
-                    true
-                    ;;
-                  *)
-                    logger_fatal "must specify a version using --tag"
-                    exit 1
-                    ;;
-                esac
-              fi
-              ;;
-          esac
-        fi
+    if [[ "$#" > 0 && "$1" == "production" ]]; then
+      aomain "$nm_pod" admin "$@"
+    else
+      aomain "$nm_pod" "$@"
+    fi
+  else 
+    if [[ "$#" > 0 ]]; then
+      case "$1" in
+        all|world)
+          logger_fatal "cannot use all or world, these are dangerous"
+          exit 1
+          ;;
+        production)
+          if [[ -z "$FLAGS_tag" || "$FLAGS_tag" = "HEAD" ]]; then
+            case "$(deploy_basename $0)" in
+              hosts|debug|dna)
+                true
+                ;;
+              *)
+                logger_fatal "must specify a version using --tag|-t"
+                exit 1
+                ;;
+            esac
+          fi
+          ;;
+      esac
+    fi
 
-        local gateway="$FLAGS_gateway"
-        if [[ -n "$FLAGS_ssh_login" ]]; then
-          gateway="${FLAGS_ssh_login}@${gateway}"
-        fi
+    local gateway="$FLAGS_gateway"
+    if [[ -n "$FLAGS_ssh_login" ]]; then
+      gateway="${FLAGS_ssh_login}@${gateway}"
+    fi
 
-        local remote_chef=""
-        if [[ -n "$FLAGS_chef" ]]; then
-          remote_chef="-c $FLAGS_chef "
-        fi
+    local remote_chef=""
+    if [[ -n "$FLAGS_chef" ]]; then
+      remote_chef="-c $FLAGS_chef "
+    fi
 
-        $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_component" "$@"
-      fi
-      ;;
-  esac
+    $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_pod" "$@"
+  fi
 }
