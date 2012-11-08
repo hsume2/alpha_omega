@@ -122,8 +122,16 @@ function main {
       nm_pod="sys"
     fi
 
-    if [[ "$#" > 0 && "${1%.*}" = "production" ]]; then
-      set -- "admin" "$@"
+    if [[ "$#" > 0 ]]; then
+      if [[ "${1%.*}" = "production" ]]; then
+        set -- "admin" "$@"
+      elif [[ "${1%.*}" = "master" ]]; then
+        set -- "master00" "$@"
+      elif [[ "${1%.*}" = "qa" ]]; then
+        set -- "qa00" "$@"
+      elif [[ "${1%.*}" = "staging" ]]; then
+        set -- "staging00" "$@"
+      fi
     fi
 
     aomain "$nm_pod" "$@"
