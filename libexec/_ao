@@ -76,6 +76,8 @@ function main {
     if [[ -z "$FLAGS_gateway" ]]; then
       FLAGS_gateway="$hst_gateway"
     fi
+  else
+    shift # not proxied, so expect full names here
   fi
 
   if [[ -n "$FLAGS_user" ]]; then
@@ -116,11 +118,15 @@ function main {
 
     bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
 
-    if [[ "$#" > 0 && "$1" = "production" ]]; then
-      aomain "$nm_pod" admin "$@"
-    else
-      aomain "$nm_pod" "$@"
+    if [[ "$nm_pod" = "pod1" ]]; then
+      nm_pod="sys"
     fi
+
+    if [[ "$#" > 0 && "${1%.*}" = "production" ]]; then
+      set -- "admin" "$@"
+    fi
+
+    aomain "$nm_pod" "$@"
   else 
     if [[ "$#" > 0 ]]; then
       case "$1" in
