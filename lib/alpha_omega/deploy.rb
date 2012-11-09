@@ -53,6 +53,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
   _cset :last_pod, nil
+  _cset :success, false
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
@@ -617,6 +618,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
 
     task :finished do
+      run "#{figlet} success | perl -pe 's{( +)}{chr(46) x length($1)}e'"
+      set :success, true
     end
 
   end # :deploy
