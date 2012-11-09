@@ -122,7 +122,7 @@ function main {
       nm_pod="sys"
     fi
 
-    if [[ "$#" > 0 ]]; then
+    if [[ "$nm_pod" = "sys" && "$#" > 0 ]]; then
       if [[ "${1%.*}" = "production" ]]; then
         set -- "admin" "$@"
       elif [[ "${1%.*}" = "master" ]]; then
