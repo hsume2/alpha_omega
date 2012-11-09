@@ -17,7 +17,7 @@ DEFINE_string "tag" "HEAD" "tag to deploy in production" "t"
 DEFINE_string "user" "" "app user override" "u"
 DEFINE_string "group" "" "app group override" "g"
 DEFINE_string "ssh_login" "" "ssh login override" "l"
-DEFINE_boolean "migrations" "" "run development migrations" "M"
+DEFINE_boolean "migrations" "$FLAGS_FALSE" "run development migrations" "M"
 
 # entry point
 function main {
