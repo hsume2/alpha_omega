@@ -138,6 +138,11 @@ function main {
     if [[ "$FLAGS_migrations" = "$FLAGS_TRUE" ]]; then
       export FLAGS_migrations
     fi
+
+    if [[ -n "$FLAGS_tag" ]]; then
+      export FLAGS_tag
+    fi
+
     aomain "$nm_pod" "$@"
   else 
     if [[ "$#" > 0 ]]; then
