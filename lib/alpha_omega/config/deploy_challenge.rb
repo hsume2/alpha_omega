@@ -11,7 +11,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           set :reviewed, who
           sleep 3
         end
-      end if reviewed.nil?
+
+        unless ENV['FLAGS_tag'] && !ENV['FLAGS_tag'].empty?
+          puts "Did not specify a tag for production"
+          abort
+        end
+      end
     end
   end
 
