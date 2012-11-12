@@ -6,7 +6,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           unless dna["app_env"] == "development" || dna["env_pod"] == "dev"
             email if $deploy["notify"].member? "email"
 
-            unless skip_notificationsj
+            unless skip_notifications
               airbrake if $deploy["notify"].member? "airbrake"
               newrelic if $deploy["notify"].member? "newrelic"
               campfire if $deploy["notify"].member? "campfire"
