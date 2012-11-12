@@ -53,6 +53,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
   end
+
+  after "deploy:began", "deploy:enable:performance"
 end
 
-after "deploy:began", "deploy:enable:performance"
