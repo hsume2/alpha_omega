@@ -35,6 +35,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   _cset :skip_scm, false
   _cset :skip_notifications, false
+  _cset :skip_performance, true
   _cset :scm, :git
   _cset :deploy_via, :checkout
   _cset(:branch) { AlphaOmega.what_branch }

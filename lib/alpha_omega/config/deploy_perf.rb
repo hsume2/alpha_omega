@@ -5,13 +5,17 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   order = []
 
   on :before do 
-    order << [:start, current_task]
-    start_times[current_task] = Time.now    
+    unless skip_performance
+      order << [:start, current_task]
+      start_times[current_task] = Time.now    
+    end
   end
 
   on :after do 
-    order << [:end, current_task]
-    end_times[current_task] = Time.now    
+    unless skip_performance
+      order << [:end, current_task]
+      end_times[current_task] = Time.now    
+    end
   end
 
   config.on :exit do
@@ -41,4 +45,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     end
     l "=========================================================="
   end
+
+  namespace :deploy do
+    namespace :enable do
+      task :performance do
+        set :skip_performance, false
+      end
+    end
+  end
 end
+
+after "deploy:began", "deploy:enable:performance"
