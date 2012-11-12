@@ -3,21 +3,19 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     namespace :notify do
       task :default do
         if $deploy["notify"]
-          unless dna["app_env"] == "development" || dna["env_pod"] == "dev"
-            email if $deploy["notify"].member? "email"
+          email if $deploy["notify"].member? "email"
 
-            unless skip_notifications
-              airbrake if $deploy["notify"].member? "airbrake"
-              newrelic if $deploy["notify"].member? "newrelic"
-              campfire if $deploy["notify"].member? "campfire"
-              flowdock if $deploy["notify"].member? "flowdock"
-            end
+          unless skip_notifications
+            airbrake if $deploy["notify"].member? "airbrake"
+            newrelic if $deploy["notify"].member? "newrelic"
+            campfire if $deploy["notify"].member? "campfire"
+            flowdock if $deploy["notify"].member? "flowdock"
           end
         end
       end
 
       task :email do
-        run_locally "echo '#{notify_message}' | mail -s '#{notify_message}' #{$deploy["notify"]["email"]["recipients"].join(" ")}"
+        run_locally "echo '#{notify_message}' | mail -s '#{notify_message_abbr}' #{$deploy["notify"]["email"]["recipients"].join(" ")}"
       end
 
       task :campfire do
@@ -79,7 +77,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       def notify_message
-        "#{ENV['_AO_USER']} deployed #{application} (#{current_revision}@#{repository}) to #{dna['app_env']}"
+        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{repository}: #{current_revision}"
+      end 
+
+      def notify_message_abbr
+        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{current_revision}"
       end 
     end
   end
