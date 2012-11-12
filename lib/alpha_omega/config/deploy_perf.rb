@@ -13,7 +13,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   on :after do 
     unless skip_performance
-      unless skip_performance_task == curren_task
+      unless skip_performance_task == current_task
         order << [:end, current_task]
         end_times[current_task] = Time.now    
       end
