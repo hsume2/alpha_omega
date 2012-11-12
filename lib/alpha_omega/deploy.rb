@@ -619,11 +619,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
-    task :finished do
-      run "#{figlet} success | perl -pe 's{( +)}{chr(46) x length($1)}e'"
+    task :successful, :only => { :primary => true } do
       set :success, true
+      run_locally"#{figlet} success | perl -pe 's{( +)}{chr(46) x length($1)}e'"
     end
 
+    task :finished do
+      successful
+    end
   end # :deploy
 end # Capistrano::Configuration
 
