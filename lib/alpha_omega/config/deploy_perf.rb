@@ -34,7 +34,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     l " Performance Report"
     l "=========================================================="
     
-    indent = 0 
+    indent = 1
     (order + [nil]).each_cons(2) do |payload1, payload2|
       action, task = payload1
       if action == :start
