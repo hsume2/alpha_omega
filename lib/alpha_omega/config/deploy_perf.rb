@@ -42,7 +42,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         indent += 1
       else
         indent -= 1
-        if indent >= 0
+        if end_times[task] && start_times[task]
           l "#{".." * indent}#{task.fully_qualified_name} #{(end_times[task] - start_times[task]).to_i}s"
         end
       end
