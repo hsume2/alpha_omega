@@ -40,7 +40,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :scm, :git
   _cset :deploy_via, :checkout
   _cset(:branch) { AlphaOmega.what_branch }
-  _cset(:revision) { source.head }
+  _cset(:revision) { ENV['FLAGS_tag'] || source.head }
 
   _cset :default_shell, "/bin/bash"
   _cset(:deploy_to) { "/data/#{application}" }
