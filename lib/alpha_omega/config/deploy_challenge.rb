@@ -4,12 +4,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :deploy do
     task :challenge do
       if dna["app_env"] == "production"
-        who = Capistrano::CLI.ui.ask(" -- Who has reviewed this deploy to #{dna["app_env"]}? ")
-        if who.empty?
+
+        a, b = rand(10), rand(10)
+        if Capistrano::CLI.ui.ask(" -- WARNING: Accessing production, please think: #{a} + #{b} = ").downcase.strip.to_i != (a + b)
+          oops
           abort
         else
-          set :reviewed, who
-          sleep 3
+          sleep(3)
         end
 
         unless ENV['FLAGS_tag'] && !ENV['FLAGS_tag'].empty?
