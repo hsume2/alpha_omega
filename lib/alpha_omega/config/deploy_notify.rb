@@ -77,11 +77,11 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       def notify_message
-        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{repository}: #{current_revision}"
+        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{repository}: #{ENV['FLAGS_tag']} => #{current_revision}"
       end 
 
       def notify_message_abbr
-        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{current_revision}"
+        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{ENV['FLAGS_tag']}"
       end 
     end
   end
