@@ -13,8 +13,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
 
   on :after do 
     unless skip_performance
-      order << [:end, current_task]
-      end_times[current_task] = Time.now    
+      unless skip_performance_task == curren_task
+        order << [:end, current_task]
+        end_times[current_task] = Time.now    
+      end
     end
   end
 
@@ -50,6 +52,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     namespace :enable do
       task :performance do
         set :skip_performance, false
+        set :skip_performance_task, current_task
       end
     end
   end
