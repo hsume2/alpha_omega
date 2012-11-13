@@ -18,6 +18,7 @@ DEFINE_string "user" "" "app user override" "u"
 DEFINE_string "group" "" "app group override" "g"
 DEFINE_string "ssh_login" "" "ssh login override" "l"
 DEFINE_boolean "migrations" "$FLAGS_FALSE" "run development migrations" "M"
+DEFINE_string "reviewer" "" "who has reviewed the production version" "R"
 
 # entry point
 function main {
@@ -135,6 +136,10 @@ function main {
 
     if [[ -n "$FLAGS_tag" ]]; then
       export FLAGS_tag
+    fi
+
+    if [[ -n "$FLAGS_reviewer" ]]; then
+      export FLAGS_reviewer
     fi
 
     aomain "$nm_pod" "$@"
