@@ -63,6 +63,25 @@ app_ruby: ree
 branches: [ production staging master ]
 branch_regex: /
 EOF
+
+  mkdir -p "libexec"
+  cat > "libexec/aoh" <<EOF
+shome="${dollar}(cd -P -- "${dollar}(dirname -- "${dollar}BASH_SOURCE")/.." && pwd -P)"
+
+local app_ruby="${dollar}(ryaml ${dollar}shome/config/deploy.yml app_ruby)"
+local ruby_loader="${dollar}(ryaml ${dollar}shome/config/deploy.yml ruby_loader)"
+PATH="${dollar}PATH:/usr/local/rvm/bin:${dollar}HOME/.rvm/bin"
+
+if ! ${dollar}ruby_loader ${dollar}app_ruby bundle check 2>&- > /dev/null; then
+  ${dollar}ruby_loader ${dollar}app_ruby bundle install --local --quiet
+fi
+${dollar}ruby_loader ${dollar}app_ruby bundle exec ao "${dollar}{BASH_SOURCE##*/}" "${dollar}@"
+EOF
+  chmod 755 "libexec/aohelper"
+
+  for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock; do
+    ln -nfs "../libexec/aohelper" $shome/bin/$nm_cmd
+  done
 }
 
 require sub "$BASH_SOURCE" "$@"
