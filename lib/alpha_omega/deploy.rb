@@ -59,7 +59,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :success, false
 
   _cset (:figlet) { 
-    fig = %x(which figlet).strip].reject {|f| !(File.executable? f)}.first
+    fig = [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first
     fig ? "#{fig} -w 200" : "echo"
   }
 
@@ -626,7 +626,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
-    task :successful
+    task :successful do
       if success
         system "#{figlet} success"
       else
