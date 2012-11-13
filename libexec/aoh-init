@@ -39,7 +39,7 @@ EOF
     chmod 755 "libexec/aohelper"
 
     for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock; do
-      ln -nfs "../libexec/aohelper" $shome/bin/$nm_cmd
+      ln -nfs "../libexec/aohelper" "bin/$nm_cmd"
     done
   else
     if [[ "$#" < 1 ]]; then
