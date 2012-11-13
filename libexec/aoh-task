@@ -18,7 +18,7 @@ require 'ao'
 function aomain {
   local nm_task=$1; shift
   set -- $(for a in "$@"; do echo $a.app; done)
-  bundle exec cap "$@" deploy:began deploy:lock_migrate deploy:migrate "$nm_task" deploy:finished
+  cap "$@" deploy:began deploy:lock_migrate deploy:migrate "$nm_task" deploy:finished
 }
 
 require sub "$BASH_SOURCE" "$@"

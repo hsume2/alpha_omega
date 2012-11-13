@@ -34,10 +34,13 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   # =========================================================================
 
   _cset :skip_scm, false
+  _cset :skip_notifications, false
+  _cset :skip_performance, true
+  _cset :skip_performance_task, ""
   _cset :scm, :git
   _cset :deploy_via, :checkout
   _cset(:branch) { AlphaOmega.what_branch }
-  _cset(:revision) { source.head }
+  _cset(:revision) { ENV['FLAGS_tag'] || source.head }
 
   _cset :default_shell, "/bin/bash"
   _cset(:deploy_to) { "/data/#{application}" }
@@ -53,6 +56,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset(:run_method)        { fetch(:use_sudo, true) ? :sudo : :run }
 
   _cset :last_pod, nil
+  _cset :success, false
 
   _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
 
@@ -305,12 +309,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       task (if you want to perform the `restart' task separately).
     DESC
     task :update_code do
-      strategy.deploy! unless skip_scm
+      scm
       bundle
-      unless deploy_path_name == migrate_path_name 
-        build
-        dist
-      end
+      build
+      dist
     end
 
     task :symlink_next do
@@ -404,6 +406,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     task :dist do
     end
 
+    task :scm do
+      strategy.deploy! unless skip_scm
+    end
 
     desc <<-DESC
       Checkpoint for various language bundlers
@@ -615,9 +620,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
-    task :finished do
+    task :successful, :only => { :primary => true } do
+      set :success, true
+      run_locally"#{figlet} success | perl -pe 's{( +)}{chr(46) x length($1)}e'"
     end
 
+    task :finished do
+      successful
+    end
   end # :deploy
 end # Capistrano::Configuration
 

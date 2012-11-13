@@ -5,13 +5,19 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   order = []
 
   on :before do 
-    order << [:start, current_task]
-    start_times[current_task] = Time.now    
+    unless skip_performance
+      order << [:start, current_task]
+      start_times[current_task] = Time.now    
+    end
   end
 
   on :after do 
-    order << [:end, current_task]
-    end_times[current_task] = Time.now    
+    unless skip_performance
+      unless skip_performance_task == current_task
+        order << [:end, current_task]
+        end_times[current_task] = Time.now    
+      end
+    end
   end
 
   config.on :exit do
@@ -28,7 +34,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     l " Performance Report"
     l "=========================================================="
     
-    indent = 0 
+    indent = 1
     (order + [nil]).each_cons(2) do |payload1, payload2|
       action, task = payload1
       if action == :start
@@ -36,9 +42,22 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         indent += 1
       else
         indent -= 1
-        l "#{".." * indent}#{task.fully_qualified_name} #{(end_times[task] - start_times[task]).to_i}s"
+        if end_times[task] && start_times[task]
+          l "#{".." * indent}#{task.fully_qualified_name} #{(end_times[task] - start_times[task]).to_i}s"
+        end
       end
     end
     l "=========================================================="
   end
+
+  namespace :deploy do
+    namespace :enable do
+      task :performance do
+        set :skip_performance, false
+        set :skip_performance_task, current_task
+      end
+    end
+  end
+
+  before "deploy:began", "deploy:enable:performance"
 end
