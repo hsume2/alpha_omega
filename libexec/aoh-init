@@ -13,16 +13,39 @@ shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 # load a jason bourne library
 source "$shome/libexec/_treadstone"
 
-function main {
-  if [[ "$#" < 1 ]]; then
-    logger_fatal "missing application name"
-    exit 1
-  fi
+DEFINE_boolean "helpers" "$FLAGS_FALSE" "Generate the bin and libexec helpers" "H"
 
-  local nm_app="$1"; shift
+function main {
   local dollar='$'
 
-  cat > "Capfile" <<EOF
+  if [[ "$FLAGS_helpers" = "$FLAGS_TRUE" ]]; then
+    mkdir -p "libexec"
+    cat > "libexec/aohelper" <<EOF
+shome="${dollar}(cd -P -- "${dollar}(dirname -- "${dollar}BASH_SOURCE")/.." && pwd -P)"
+
+local app_ruby="${dollar}(ryaml ${dollar}shome/config/deploy.yml app_ruby)"
+local ruby_loader="${dollar}(ryaml ${dollar}shome/config/deploy.yml ruby_loader)"
+PATH="${dollar}PATH:/usr/local/rvm/bin:${dollar}HOME/.rvm/bin"
+
+if ! ${dollar}ruby_loader ${dollar}app_ruby bundle check 2>&- > /dev/null; then
+  ${dollar}ruby_loader ${dollar}app_ruby bundle install --local --quiet
+fi
+${dollar}ruby_loader ${dollar}app_ruby bundle exec ao "${dollar}{BASH_SOURCE##*/}" "${dollar}@"
+EOF
+    chmod 755 "libexec/aohelper"
+
+    for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock; do
+      ln -nfs "../libexec/aohelper" $shome/bin/$nm_cmd
+    done
+  else
+    if [[ "$#" < 1 ]]; then
+      logger_fatal "missing application name"
+      exit 1
+    fi
+
+    local nm_app="$1"; shift
+
+    cat > "Capfile" <<EOF
 #!/usr/bin/env ruby
 
 require 'alpha_omega/deploy'
@@ -51,8 +74,8 @@ Deploy self, __FILE__ do |admin, node|
 end
 EOF
 
-  mkdir -p "config"
-  cat > "config/deploy.yml" <<EOF
+    mkdir -p "config"
+    cat > "config/deploy.yml" <<EOF
 --- 
 repository: git@github.com:someone/something_something
 application: ${nm_app}
@@ -63,25 +86,7 @@ app_ruby: ree
 branches: [ production staging master ]
 branch_regex: /
 EOF
-
-  mkdir -p "libexec"
-  cat > "libexec/aoh" <<EOF
-shome="${dollar}(cd -P -- "${dollar}(dirname -- "${dollar}BASH_SOURCE")/.." && pwd -P)"
-
-local app_ruby="${dollar}(ryaml ${dollar}shome/config/deploy.yml app_ruby)"
-local ruby_loader="${dollar}(ryaml ${dollar}shome/config/deploy.yml ruby_loader)"
-PATH="${dollar}PATH:/usr/local/rvm/bin:${dollar}HOME/.rvm/bin"
-
-if ! ${dollar}ruby_loader ${dollar}app_ruby bundle check 2>&- > /dev/null; then
-  ${dollar}ruby_loader ${dollar}app_ruby bundle install --local --quiet
-fi
-${dollar}ruby_loader ${dollar}app_ruby bundle exec ao "${dollar}{BASH_SOURCE##*/}" "${dollar}@"
-EOF
-  chmod 755 "libexec/aohelper"
-
-  for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock; do
-    ln -nfs "../libexec/aohelper" $shome/bin/$nm_cmd
-  done
+  fi
 }
 
 require sub "$BASH_SOURCE" "$@"
