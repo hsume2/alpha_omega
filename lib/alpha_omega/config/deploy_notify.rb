@@ -46,9 +46,9 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         begin
           AirbrakeTasks.deploy({
             :rails_env      => dna['app_env'],
-            :scm_revision   => current_revision,
+            :scm_revision   => "#{real_revision} #{revision}",
             :scm_repository => repository,
-            :local_username => ENV['_AO_USER']
+            :local_username => ENV['_AO_DEPLOYER']
           })
         rescue EOFError
           $stderr.puts "An error occurred during the Airtoad deploy notification."
