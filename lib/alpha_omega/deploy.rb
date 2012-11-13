@@ -58,7 +58,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
   _cset :last_pod, nil
   _cset :success, false
 
-  _cset (:figlet) { [%x(which figlet).strip].reject {|f| !(File.executable? f)}.first || echo }
+  _cset (:figlet) { 
+    fig = %x(which figlet).strip].reject {|f| !(File.executable? f)}.first
+    fig ? "#{fig} -w 200" : "echo"
+  }
 
   # =========================================================================
   # services, logs
@@ -131,7 +134,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     unless releases.empty?
       w = current_workarea
       workarea = releases[((releases.index(w)?releases.index(w):-1)+1)%releases.length]
-      system "#{figlet} -w 200 on #{workarea}"
+      system "#{figlet} on #{workarea}"
       workarea
     else
       ""
@@ -358,7 +361,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
           run "mv -T #{previous_path}.new #{previous_path}"
         end
 
-        system "#{figlet} -w 200 #{current_release_name} activated"
+        system "#{figlet} #{current_release_name} activated"
       end
     end
 
@@ -435,12 +438,12 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       DESC
       task :revision do
         if previous_release
-          system "#{figlet} -w 200 on #{previous_release_name}"
+          system "#{figlet} on #{previous_release_name}"
           run "rm -f #{previous_path} #{next_path}"
           run "ln -nfs #{previous_release} #{current_path}.new"
           run "mv -T #{current_path}.new #{current_path}"
         else
-          system "#{figlet} -w 200 failed to rollback"
+          system "#{figlet} failed to rollback"
           abort "could not rollback the code because there is no prior release"
         end
       end
@@ -584,7 +587,10 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       if want_unlock
-        at_exit { self.unlock; }
+        at_exit { 
+          self.unlock; 
+          self.successful;
+        }
       end
 
       run "echo #{epoch} #{ENV['_AO_DEPLOYER']} > #{lock_path}"
@@ -620,13 +626,16 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
     end
 
-    task :successful, :only => { :primary => true } do
-      set :success, true
-      run_locally"#{figlet} success | perl -pe 's{( +)}{chr(46) x length($1)}e'"
+    task :successful
+      if success
+        system "#{figlet} success"
+      else
+        system "#{figlet} failed"
+      end
     end
 
     task :finished do
-      successful
+      set :success, true
     end
   end # :deploy
 end # Capistrano::Configuration
