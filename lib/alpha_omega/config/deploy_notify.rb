@@ -1,3 +1,5 @@
+require 'tempfile'
+
 Capistrano::Configuration.instance(:must_exist).load do |config|
   namespace :deploy do
     namespace :notify do
@@ -12,10 +14,6 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
             flowdock if $deploy["notify"].member? "flowdock"
           end
         end
-      end
-
-      task :email do
-        run_locally "echo '#{notify_message}' | mail -s '#{notify_message_abbr}' #{$deploy["notify"]["email"]["recipients"].join(" ")}"
       end
 
       task :campfire do
@@ -76,12 +74,32 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         require 'new_relic/recipes'
       end
 
+      task :email do
+        tmp_notify = Tempfile.new('email')
+        tmp_notify.write notify_message
+        tmp_notify.close
+        run_locally "cat '#{tmp_notify.path}' | mail -s '#{notify_message_abbr}' #{$deploy["notify"]["email"]["recipients"].join(" ")}"
+        tmp_notify.unlink
+      end
+
+      def map_sha_tag rev
+        %x(git show-ref | grep '^#{rev} refs/tags/' | cut -d/ -f3).chomp
+      end
+
       def notify_message
-        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{repository}: #{ENV['FLAGS_tag']} => #{current_revision}"
+        if dna["app_env"] == "production"
+          summary = "#{repository.sub("git@github.com:","https://github.com/")}/compare/#{map_sha_tag cmp_previous_revision}...#{map_sha_tag cmp_active_revision}"
+        else
+          summary = "#{repository.sub("git@github.com:","https://github.com/")}/commit/#{cmp_active_revision}"
+        end
+
+        "#{ENV['_AO_DEPLOYER']} deployed #{application} to #{ENV['_AO_ARGS']} (#{dna['app_env']}): #{ENV['FLAGS_tag']}" +
+        "\n\nSummary:\n\n" + summary + 
+        "\n\nLog:\n\n" + full_log
       end 
 
       def notify_message_abbr
-        "#{ENV['_AO_USER']} deployed #{application} to #{dna['app_env']}: #{ENV['FLAGS_tag']}"
+        "#{ENV['_AO_DEPLOYER']} deployed #{application} to #{ENV['_AO_ARGS']} (#{dna['app_env']}): #{ENV['FLAGS_tag']}"
       end 
     end
   end
