@@ -5,14 +5,14 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
     namespace :notify do
       task :default do
         if $deploy["notify"]
-          email if $deploy["notify"].member? "email"
-
           unless skip_notifications
             airbrake if $deploy["notify"].member? "airbrake"
             newrelic if $deploy["notify"].member? "newrelic"
             campfire if $deploy["notify"].member? "campfire"
             flowdock if $deploy["notify"].member? "flowdock"
           end
+
+          email if $deploy["notify"].member? "email"
         end
       end
 
@@ -86,11 +86,15 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         %x(git show-ref | grep '^#{rev} refs/tags/' | cut -d/ -f3).chomp
       end
 
+      def public_git_url url
+        url.sub("git@github.com:","https://github.com/").sub(/\.git$/,'')
+      end
+
       def notify_message
         if dna["app_env"] == "production"
-          summary = "#{repository.sub("git@github.com:","https://github.com/")}/compare/#{map_sha_tag cmp_previous_revision}...#{map_sha_tag cmp_active_revision}"
+          summary = "#{public_git_url repository}/compare/#{map_sha_tag cmp_previous_revision}...#{map_sha_tag cmp_current_revision}"
         else
-          summary = "#{repository.sub("git@github.com:","https://github.com/")}/commit/#{cmp_active_revision}"
+          summary = "#{public_git_url repository)}/commit/#{cmp_current_revision}"
         end
 
         "#{ENV['_AO_DEPLOYER']} deployed #{application} to #{ENV['_AO_ARGS']} (#{dna['app_env']}): #{ENV['FLAGS_tag']}" +
