@@ -37,8 +37,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         require 'airbrake'
         require 'airbrake_tasks'
 
-        Airbrake.configure do |config|
-          config.api_key = $deploy["notify"]["airbrake"]["api_key"]
+        Airbrake.configure do |abconfig|
+          abconfig.api_key = $deploy["notify"]["airbrake"]["api_key"]
         end
         
         begin
@@ -94,7 +94,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
         if dna["app_env"] == "production"
           summary = "#{public_git_url repository}/compare/#{map_sha_tag cmp_previous_revision}...#{map_sha_tag cmp_current_revision}"
         else
-          summary = "#{public_git_url repository)}/commit/#{cmp_current_revision}"
+          summary = "#{public_git_url repository}/commit/#{cmp_current_revision}"
         end
 
         "#{ENV['_AO_DEPLOYER']} deployed #{application} to #{ENV['_AO_ARGS']} (#{dna['app_env']}): #{ENV['FLAGS_tag']}" +
