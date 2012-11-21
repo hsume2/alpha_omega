@@ -83,7 +83,8 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       def map_sha_tag rev
-        %x(git show-ref | grep '^#{rev} refs/tags/' | cut -d/ -f3).chomp
+        tag = %x(git show-ref | grep '^#{rev} refs/tags/' | cut -d/ -f3).chomp
+        tag.empty? ? rev : tag
       end
 
       def public_git_url url
@@ -91,11 +92,7 @@ Capistrano::Configuration.instance(:must_exist).load do |config|
       end
 
       def notify_message
-        if dna["app_env"] == "production"
-          summary = "#{public_git_url repository}/compare/#{map_sha_tag cmp_previous_revision}...#{map_sha_tag cmp_current_revision}"
-        else
-          summary = "#{public_git_url repository}/commit/#{cmp_current_revision}"
-        end
+        summary = "#{public_git_url repository}/compare/#{map_sha_tag cmp_previous_revision}...#{map_sha_tag cmp_current_revision}"
 
         "#{ENV['_AO_DEPLOYER']} deployed #{application} to #{ENV['_AO_ARGS']} (#{dna['app_env']}): #{ENV['FLAGS_tag']}" +
         "\n\nSummary:\n\n" + summary + 
