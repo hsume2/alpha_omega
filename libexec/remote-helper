@@ -9,6 +9,7 @@
 #/
 
 set -e
+set -x
 if [[ "$#" > 0 ]]; then
   if [[ "$1" = "--debug" ]]; then
     shift
@@ -80,9 +81,6 @@ function main {
   $ruby_loader bundle exec ao $cmd_deploy "$@"
   crumb "end remote-helper"
 }
-
-# setup
-unset cd # disable rvm's cd function to prevent prompts
 
 # pass arguments to entry point
 main "$@"
