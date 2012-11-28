@@ -9,14 +9,15 @@
 #/
 
 set -e
+if [[ "${FLAGS_debug:-}" = 0 ]]; then
+  set -x
+fi
 
 # figure out the project root under which bin, lib live
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
-fl_debug=
-
 function crumb {
-  if [[ -n "$fl_debug" ]]; then
+  if [[ "${FLAGS_debug:-}" = 0 ]]; then
     echo "$(date) $@" 1>&2
   fi
 }
@@ -27,10 +28,6 @@ function main {
   git_url=$1; shift
   git_spec=$1; shift
   cmd_deploy=$1; shift
-
-  if [[ "$cmd_deploy" = "debug" ]]; then
-    fl_debug=1
-  fi
 
   crumb "start remote-helper with args: $nm_deployer, $git_url, $git_spec, $cmd_deploy"
   crumb "additional args: $@"

@@ -16,6 +16,7 @@ require 'ao'
 
 function aomain {
   export LOCAL_ONLY=true
+  export FLAGS_DEBUG=$FLAGS_TRUE
   set -- $(for a in "$@"; do echo $a.echo; done)
   cap "$@"
 }
