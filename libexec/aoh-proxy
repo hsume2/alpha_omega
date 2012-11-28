@@ -48,7 +48,7 @@ function main {
   local nm_ruby="$(ryaml $_AO_HOME/config/deploy.yml app_ruby)"
 
   local tmp_remote="$(ssh $hst_gateway mktemp -t XXXXXXXXX)"
-  scp -q $shome/sbin/remote-helper $hst_gateway:$tmp_remote
+  scp -q $shome/libexec/remote-helper $hst_gateway:$tmp_remote
   ssh -t $hst_gateway "$pth_rvmrun" "$nm_ruby" bash "$tmp_remote" "$USER" "$git_url" "$git_spec" "$@"
   ssh $hst_gateway rm -f $tmp_remote
 }
