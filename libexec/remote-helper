@@ -9,7 +9,6 @@
 #/
 
 set -e
-set -x
 if [[ "$#" > 0 ]]; then
   if [[ "$1" = "--debug" ]]; then
     shift
@@ -17,9 +16,6 @@ if [[ "$#" > 0 ]]; then
     set -x
   fi
 fi
-
-# figure out the project root under which bin, lib live
-shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
 function crumb {
   if [[ "${FLAGS_debug:-}" = 0 ]]; then
@@ -75,7 +71,8 @@ function main {
   export _AO_DEPLOYER="$nm_deployer"
   local ruby_loader=""
   if [[ "$pth_rvmrun" != "x" ]]; then
-    ruby_loader="PATH=/usr/local/rvm/bin:$HOME/.rvm/bin $pth_rvmrun $nm_ruby"
+    PATH="$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin"
+    ruby_loader="$pth_rvmrun $nm_ruby"
   fi
   $ruby_loader bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
   $ruby_loader bundle exec ao $cmd_deploy "$@"
