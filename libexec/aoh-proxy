@@ -56,6 +56,7 @@ function main {
     bash_runner="bash $tmp_remote"
   fi
   scp -q $shome/libexec/remote-helper $hst_gateway:$tmp_remote
+  env | sort
   ssh -t $hst_gateway $bash_runner "${pth_rvmrun:-x}" "${nm_ruby:-x}" "$USER" "$git_url" "$git_spec" "$@"
   if [[ "${FLAGS_debug:-}" = 1 ]]; then
     ssh $hst_gateway rm -f $tmp_remote

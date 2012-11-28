@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export _AO_OPT="$@"
-
 function deploy_basename {
   local cmd="$(basename "$1")"; shift
   echo "${cmd#aoh-}"

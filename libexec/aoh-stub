@@ -17,4 +17,5 @@ function main {
   exec "$shome/libexec/aoh" "$(basename "$0")" "$@"
 }
 
+export _AO_USER_ARGS="$@"
 require 'sub' "$BASH_SOURCE" "$@"
