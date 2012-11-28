@@ -173,11 +173,6 @@ function main {
       gateway="${FLAGS_ssh_login}@${gateway}"
     fi
 
-    local remote_chef=""
-    if [[ -n "$FLAGS_chef" ]]; then
-      remote_chef="-c $FLAGS_chef "
-    fi
-
-    $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${remote_chef}"$nm_pod" "$@"
+    $shome/sbin/proxy "$gateway" "$FLAGS_tag" $(deploy_basename $0) ${_AO_USER_ARGS}
   fi
 }

@@ -12,4 +12,10 @@ shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 # load a jason bourne library
 source "$shome/libexec/_treadstone"
 
+if [[ -z "${_AO_USER_ARGS:-}" ]]; then
+  save_command="$1"; shift
+  export _AO_USER_ARGS="$@"
+  set -- "$save_command" "$@"
+fi
+
 require 'sub' "$BASH_SOURCE" "$@"

@@ -17,7 +17,4 @@ function main {
   exec "$shome/libexec/aoh" "$(basename "$0")" "$@"
 }
 
-if [[ -z "${_AO_USER_ARGS:-}" ]]; then
-  export _AO_USER_ARGS="$@"
-fi
 require 'sub' "$BASH_SOURCE" "$@"
