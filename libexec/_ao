@@ -19,7 +19,7 @@ DEFINE_string "group" "" "app group override" "g"
 DEFINE_string "ssh_login" "" "ssh login override" "l"
 DEFINE_boolean "migrations" "$FLAGS_FALSE" "run development migrations" "M"
 DEFINE_string "reviewer" "" "who has reviewed the production version" "R"
-DEFINE_boolean "debug" "$FLAGS_FALSE" "turn on debugging" "D"
+DEFINE_boolean "debug" "${FLAGS_debug:$FLAGS_FALSE}" "turn on debugging" "D"
 
 # entry point
 function main {
