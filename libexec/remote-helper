@@ -56,7 +56,7 @@ function main {
     PATH="$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin"
     ruby_loader="$pth_rvmrun $nm_ruby"
   fi
-  $ruby_loader bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
+  $ruby_loader bundle check 2>&1 >/dev/null || { $ruby_loader bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
   $ruby_loader bundle exec ao $cmd_deploy "$@"
 }
 
