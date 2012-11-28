@@ -48,9 +48,16 @@ function main {
   local nm_ruby="$(ryaml $_AO_HOME/config/deploy.yml app_ruby)"
 
   local tmp_remote="$(ssh $hst_gateway mktemp -t XXXXXXXXX)"
+  local bash_runner="bash"
+  if [[ "${FLAGS_debug:-}" = 0 ]]; then
+    set -x
+    bash_runner="bash --debug"
+  fi
   scp -q $shome/libexec/remote-helper $hst_gateway:$tmp_remote
-  ssh -t $hst_gateway "$pth_rvmrun" "$nm_ruby" bash "$tmp_remote" "$USER" "$git_url" "$git_spec" "$@"
-  ssh $hst_gateway rm -f $tmp_remote
+  ssh -t $hst_gateway $bash_runner "${pth_rvmrun:-x}" "${nm_ruby:-x}" "$tmp_remote" "$USER" "$git_url" "$git_spec" "$@"
+  if [[ "${FLAGS_debug:-}" = 1 ]]; then
+    ssh $hst_gateway rm -f $tmp_remote
+  fi
 }
 
 require sub "$BASH_SOURCE" "$@"

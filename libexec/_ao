@@ -106,6 +106,10 @@ function main {
     export GATEWAY="$FLAGS_gateway"
   fi
 
+  if [[ -n "$FLAGS_debug" ]]; then
+    export FLAGS_debug
+  fi
+
   if [[ "$FLAGS_proxy" = "$FLAGS_FALSE" || "$FLAGS_direct" = "$FLAGS_TRUE" || -z "$FLAGS_gateway" ]]; then
     export _AO_DEPLOY=1
 
@@ -141,10 +145,6 @@ function main {
 
     if [[ -n "$FLAGS_reviewer" ]]; then
       export FLAGS_reviewer
-    fi
-
-    if [[ -n "$FLAGS_debug" ]]; then
-      export FLAGS_debug
     fi
     aomain "$nm_pod" "$@"
   else 
