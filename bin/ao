@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-
-ENV['_AO_HOME'] = File.dirname(ENV['BUNDLE_GEMFILE'])
-shome=File.expand_path('../..', __FILE__)
-system("#{shome}/sbin/aoh", *ARGV)
