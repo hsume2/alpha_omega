@@ -17,12 +17,6 @@ if [[ "$#" > 0 ]]; then
   fi
 fi
 
-function crumb {
-  if [[ "${FLAGS_debug:-}" = 0 ]]; then
-    echo "$(date) $@" 1>&2
-  fi
-}
-
 # entry point
 function main {
   pth_rvmrun=$1; shift
@@ -32,42 +26,30 @@ function main {
   git_spec=$1; shift
   cmd_deploy=$1; shift
 
-  crumb "start remote-helper with args: $nm_deployer, $git_url, $git_spec, $cmd_deploy"
-  crumb "additional args: $@"
-
   git_branch="${git_spec%%:*}"
   git_sha="${git_spec##*:}"
-
-  crumb "derive: git_branch = $git_branch"
-  crumb "derive: git_sha = $git_sha"
 
   mkdir -p "$HOME/.deploy/$nm_deployer"
   cd "$HOME/.deploy/$nm_deployer"
 
   nm_project=$(basename $git_url .git)
   if [[ ! -d $nm_project ]]; then
-    crumb "git clone $git_url"
     git clone -q $git_url
   fi
-  crumb "remote deploy on ${LOGNAME}@$(hostname) in $HOME/.deploy/$nm_deployer/$nm_project/"
 
   cd $nm_project
   git fetch -q
 
   if [[ -z $git_branch || $git_branch = $git_sha ]]; then
-    crumb "git reset, checkout of $git_sha"
     git reset -q --hard $git_sha
     git checkout -q $git_sha
   else
-    crumb "git checkout of $git_branch, reset of $git_sha"
     git checkout -q --force $git_branch
     git reset -q --hard $git_sha
   fi
 
-  crumb "git submodule"
   git submodule -q update --init --recursive
 
-  crumb "executing ao $cmd_deploy $@"
   export _AO_DEPLOYER="$nm_deployer"
   local ruby_loader=""
   if [[ "$pth_rvmrun" != "x" ]]; then
@@ -76,7 +58,6 @@ function main {
   fi
   $ruby_loader bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
   $ruby_loader bundle exec ao $cmd_deploy "$@"
-  crumb "end remote-helper"
 }
 
 # pass arguments to entry point
