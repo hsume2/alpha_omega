@@ -32,7 +32,7 @@ ruby_loader="${dollar}(ryaml ${dollar}shome/config/deploy.yml ruby_loader)"
 PATH="${dollar}PATH:/usr/local/rvm/bin:${dollar}HOME/.rvm/bin"
 
 if ! ${dollar}ruby_loader ${dollar}app_ruby bundle check 2>&- > /dev/null; then
-  ${dollar}ruby_loader ${dollar}app_ruby bundle install --local --quiet
+  ${dollar}ruby_loader ${dollar}app_ruby bundle install --local --quiet --path vendor/bundle
 fi
 ${dollar}ruby_loader ${dollar}app_ruby bundle exec ao "${dollar}{BASH_SOURCE##*/}" "${dollar}@"
 EOF
