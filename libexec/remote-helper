@@ -19,12 +19,12 @@ fi
 
 # entry point
 function main {
-  pth_rvmrun=$1; shift
-  nm_ruby=$1; shift
   nm_deployer=$1; shift
   git_url=$1; shift
   git_spec=$1; shift
   cmd_deploy=$1; shift
+
+  export _AO_DEPLOYER="$nm_deployer"
 
   git_branch="${git_spec%%:*}"
   git_sha="${git_spec##*:}"
@@ -50,14 +50,7 @@ function main {
 
   git submodule -q update --init --recursive
 
-  export _AO_DEPLOYER="$nm_deployer"
-  local ruby_loader=""
-  if [[ "$pth_rvmrun" != "x" ]]; then
-    PATH="$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin"
-    ruby_loader="$pth_rvmrun $nm_ruby"
-  fi
-  $ruby_loader bundle check 2>&1 >/dev/null || { $ruby_loader bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
-  $ruby_loader bundle exec ao $cmd_deploy "$@"
+  bin/$cmd_deploy "$@"
 }
 
 # pass arguments to entry point
