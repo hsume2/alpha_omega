@@ -121,7 +121,7 @@ function main {
       export _AO_THIS_POD
     fi
 
-    bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle || bundle check > /dev/null; }
+    bundle check 2>&1 >/dev/null || { bundle install --quiet --local --path vendor/bundle $_AO_EXTRA_BUNDLER_ARGS || bundle check > /dev/null; }
 
     if [[ "$nm_pod" = "pod1" ]]; then
       nm_pod="sys"

@@ -50,6 +50,7 @@ function main {
 
   git submodule -q update --init --recursive
 
+  export _AO_EXTRA_BUNDLER_ARGS="--without development:test"
   bin/$cmd_deploy "$@"
 }
 
