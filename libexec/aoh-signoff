@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#/ NAME
+#/     deploy --
+#/
+#/ SYNOPSIS
+#/     
+#/     deploy
+
+# figure out the project root under which bin, lib live
+shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
+
+# load a jason bourne library
+source "$shome/libexec/_treadstone"
+
+# define command line options:
+#   var name, default, description, short option
+
+# entry point
+function main {
+  if [[ "$#" = 0 ]]; then
+    logger_fatal "must specify a semver"
+    exit 1
+  fi
+
+  local ver_signoff="$1"; shift
+
+  git fetch -f origin refs/notes/commits:refs/notes/commits
+  git notes append -m "$ver_signoff signoff $LOGNAME $(date)"
+  git push origin refs/notes/commits
+}
+
+require sub "$BASH_SOURCE" "$@"

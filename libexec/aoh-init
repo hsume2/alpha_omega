@@ -38,7 +38,7 @@ ${dollar}ruby_loader ${dollar}app_ruby bundle exec ao "${dollar}{BASH_SOURCE##*/
 EOF
     chmod 755 "libexec/aohelper"
 
-    for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock; do
+    for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock signoff; do
       ln -nfs "../libexec/aohelper" bin/$nm_cmd
     done
   else
