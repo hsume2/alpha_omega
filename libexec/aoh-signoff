@@ -15,6 +15,7 @@ source "$shome/libexec/_treadstone"
 
 # define command line options:
 #   var name, default, description, short option
+DEFINE_boolean first "$FLAGS_FALSE" "first time signing off?"
 
 # entry point
 function main {
@@ -25,9 +26,11 @@ function main {
 
   local ver_signoff="$1"; shift
 
-  git fetch -f origin refs/notes/commits:refs/notes/commits
-  git notes append -m "$ver_signoff signoff $LOGNAME $(date)"
-  git push origin refs/notes/commits
+  if [[ "$FLAGS_first" = "$FLAGS_FALSE" ]]; then
+    git fetch -f origin refs/notes/deploys:refs/notes/deploys
+  fi
+  git notes --ref=deploys append -m "$ver_signoff signoff $LOGNAME $(date)"
+  git push origin refs/notes/deploys
 }
 
 require sub "$BASH_SOURCE" "$@"
