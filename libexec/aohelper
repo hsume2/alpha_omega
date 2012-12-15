@@ -13,14 +13,13 @@ function main {
   PATH="$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin"
 
   if [[ "$ruby_loader" = "rvm-exec" ]]; then
-    local pth_rvm="$(type -f $ruby_loader 2>&1)"
+    local pth_rvm="$(type -f $ruby_loader 2>&- | awk '{print $3}')"
     if [[ -x "$pth_rvm" ]]; then
       true
     else
       ruby_runner=""
     fi
   fi
-
 
   if ! $ruby_runner bundle check 2>&- > /dev/null; then
     $ruby_runner bundle install --local --quiet --path vendor/bundle
