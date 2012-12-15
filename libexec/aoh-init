@@ -20,7 +20,7 @@ function main {
 
   if [[ "$FLAGS_helpers" = "$FLAGS_TRUE" ]]; then
     mkdir -p "libexec"
-    cp -f "$shome/aohelper.templae" "libexec/aohelper"
+    cp -f "$shome/aohelper.template" "libexec/aohelper"
     chmod 755 "libexec/aohelper"
 
     for nm_cmd in activate check compare debug deploy dna hosts lock migrate proxy release restart rollback shell stage unlock signoff; do
