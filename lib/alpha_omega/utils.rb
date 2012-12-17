@@ -13,7 +13,6 @@ $node_filter = nil
 module AlphaOmega
   def self.node_defaults(node, env_pod, node_name)
     node_name = node_name.split(".").first
-
     node["node_name"] = node_name
 
     # defaults
@@ -29,6 +28,7 @@ module AlphaOmega
 
     # enrich with opsdb
     node.deep_merge!($opsdb[env_pod][node_name]) if $opsdb[env_pod].key? node_name
+    node.deep_merge!($opsdb[env_pod][:nodes][node_name]) if $opsdb[env_pod].key?(:nodes) && $opsdb[env_pod][:nodes].key?(node_name)
 
     node["run_list"] = node["run_list"].clone # TODO without a clone, node.run_list also updates pods_config.env_pod.run_list
 
@@ -164,8 +164,7 @@ module AlphaOmega
     config.set :current_pod, $this_pod
     
     this_host = ENV['_AO_THIS_HOST'] || Socket.gethostname.chomp.split(".")[0]
-    dna_base = "#{node_home}/pods/#{$this_pod}/#{this_host}"
-    dna = YAML.load(File.read("#{dna_base}.yaml"))
+    dna = YAML.load(File.read("#{node_home}/pods/#{$this_pod}/#{this_host}.yaml"))
     this_node = self.node_defaults(dna, $this_pod, this_host)
     $this_host = this_node
 
