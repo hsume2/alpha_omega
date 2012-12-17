@@ -1,30 +1,67 @@
 #!/bin/bash
 
+set -e
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
 function ryaml { 
-  ruby -ryaml -e 'def ps x; unless x.nil?; puts (x.class == String || x.class == Fixnum) ? x : x.to_yaml; end; end; ps ARGV[1..-1].inject(YAML.load(File.read(ARGV[0]))) {|acc, key| acc[acc.class == Array ? key.to_i : key] }' "$@" 2>&-
+  ruby -ryaml -e '
+    def ps x
+      unless x.nil?
+        puts (x.class == String || x.class == Fixnum) ? x : x.to_yaml
+      end
+    end
+    
+    ps ARGV[1..-1].inject(YAML.load(File.read(ARGV[0]))) {|acc, key| acc[acc.class == Array ? key.to_i : key] }
+
+  ' "$@" 2>&-
 }
 
 function main {
+  # load ruby configuration from deploy descriptor
   local app_ruby="$(ryaml $shome/config/deploy.yml app_ruby)"
+  local app_ruby_version="$(ryaml $shome/config/deploy.yml app_ruby_version)"
+  local app_ruby_platform="$(ryaml $shome/config/deploy.yml app_ruby_platform)"
   local ruby_loader="$(ryaml $shome/config/deploy.yml ruby_loader)"
   local ruby_runner="$ruby_loader $app_ruby"
-  PATH="$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin"
 
+  # if ruby loader is rvm-exec, try to find it
   if [[ "$ruby_loader" = "rvm-exec" ]]; then
+    PATH="$PATH:/usr/local/rvm/bin:$HOME/.rvm/bin"
     local pth_rvm="$(type -f $ruby_loader 2>&- | awk '{print $3}')"
-    if [[ -x "$pth_rvm" ]]; then
-      true
-    else
+    if [[ ! -x "$pth_rvm" ]]; then
+      # if rvm-exec not found, don't both with ruby version management
       ruby_runner=""
     fi
   fi
 
-  if ! $ruby_runner bundle check 2>&- > /dev/null; then
-    $ruby_runner bundle install --local --quiet --path vendor/bundle
+  # verify ruby version matches deploy descriptor
+  local ruby_version_platform="$($ruby_runner ruby -e 'puts "#{RUBY_VERSION} #{RUBY_PLATFORM}"' 2>&-)"
+  local version_ruby="${ruby_version_platform%% *}"
+  local platform_ruby="${ruby_version_platform##* }"
+
+  if [[ -n "$app_ruby_version" ]]; then
+    if [[ "$version_ruby" != "$app_ruby_version" ]]; then
+      echo "deploy expecting ruby version $app_ruby_version, got $version_ruby" 1>&2
+      exit 1
+    fi
   fi
-  $ruby_runner bundle exec ao "${BASH_SOURCE##*/}" "$@"
+
+  if [[ -n "$app_ruby_platform" ]]; then
+    if [[ "$platform_ruby" != "$app_ruby_platform" ]]; then
+      echo "deploy expecting ruby platform $app_ruby_platform, got $platform_ruby" 1>&2
+      exit 1
+    fi
+  fi
+
+  # if ruby loader not set, don't bother with bundling 
+  if [[ -n "$ruby_runner" ]]; then
+    if ! $ruby_runner bundle check 2>&- > /dev/null; then
+      $ruby_runner bundle install --local --quiet --path vendor/bundle
+    fi
+  fi
+
+  # pass deploy command and arguments to ao script in alpha_omega gem
+  echo $ruby_runner bundle exec ao "${BASH_SOURCE##*/}" "$@"
 }
 
 main "$@"
