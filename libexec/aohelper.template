@@ -84,29 +84,23 @@ function main {
     fi
   fi
 
-  if [[ ! -d "$chef_path" ]]; then
+  if [[ -d "$chef_path" ]]; then
+    # in operations environments, must use ruby loader
+    if !verify_ruby "$ruby_runner"; then
+      # ruby loader is not loading the right ruby
+      fatal_ruby $ruby_runner
+    fi
+  else
     # proxied deploy, so relax rvm rquirements, just check current ruby
     if verify_ruby; then
       # current ruby is OK
       ruby_runner=""
       true
+    elif [[ -n "$ruby_runner" ]] && verify_ruby "$ruby_runner"; then
+      # trying again with ruby_runner works
+      true
     else
-      if [[ -n "$ruby_runner" ]]; then
-        # check with configured ruby loader
-        if ! verify_ruby "$ruby_runner"; then
-          # ruby loader is not loading the right ruby
-          fatal_ruby $ruby_runner
-        fi
-      else
-        # no configured ruby loader, current ruby is not loading the right ruby
-        fatal_ruby
-      fi
-    fi
-  else
-    # in operations environments, must use ruby loader
-    if !verify_ruby "$ruby_runner"; then
-      # ruby loader is not loading the right ruby
-      fatal_ruby $ruby_runner
+      fatal_ruby # since rvm requirements are relaxed, report on current ruby errors
     fi
   fi
 
@@ -115,7 +109,7 @@ function main {
   fi
 
   # pass deploy command and arguments to ao script in alpha_omega gem
-  echo $ruby_runner bundle exec ao "${BASH_SOURCE##*/}" "$@"
+  $ruby_runner bundle exec ao "${BASH_SOURCE##*/}" "$@"
 }
 
 main "$@"
