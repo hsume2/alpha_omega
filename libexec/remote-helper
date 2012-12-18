@@ -9,6 +9,8 @@
 #/
 
 set -e
+unset cd
+
 if [[ "$#" > 0 ]]; then
   if [[ "$1" = "--debug" ]]; then
     shift
