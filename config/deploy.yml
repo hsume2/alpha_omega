@@ -5,7 +5,7 @@ application: alpha_omega
 ruby_loader: rvm-exec
 app_ruby: 1.9.3
 app_ruby_version: 1.9.3
-app_ruby_platform: java
+not_app_ruby_platform: java
 
 branches: [ master ]
 branch_regex: /

@@ -16,13 +16,63 @@ function ryaml {
   ' "$@" 2>&-
 }
 
+function verify_ruby {
+  local ruby_runner="$*";
+
+  # verify ruby version matches deploy descriptor
+  local ruby_version_platform="$($ruby_runner ruby -e 'puts "#{RUBY_VERSION} #{RUBY_PLATFORM}"' 2>&-)"
+  local version_ruby="${ruby_version_platform%% *}"
+  local platform_ruby="${ruby_version_platform##* }"
+
+  if [[ -n "$app_ruby_version" ]]; then
+    if [[ "$version_ruby" != "$app_ruby_version" ]]; then
+      return 1
+    fi
+  fi
+
+  if [[ -n "$app_ruby_platform" ]]; then
+    if [[ "$platform_ruby" != "$app_ruby_platform" ]]; then
+      return 1
+    fi
+  fi
+
+  if [[ -n "$not_app_ruby_platform" ]]; then
+    if [[ "$platform_ruby" = "$not_app_ruby_platform" ]]; then
+      return 1
+    fi
+  fi
+}
+
+function fatal_ruby {
+  local ruby_loader="$*"
+  : ${ruby_loader:=ruby}
+
+  echo "Expecting $ruby_loader to have:" 1>&2
+  if [[ -n "$app_ruby_version" ]]; then
+    echo "  version $app_ruby_version" 1>&2
+  fi
+
+  if [[ -n "$app_ruby_platform" ]]; then
+    echo "  platform $app_ruby_platform" 1>&2
+  fi
+
+  if [[ -n "$not_app_ruby_platform" ]]; then
+    echo "  not platform $not_app_ruby_platform" 1>&2
+
+  fi
+
+  exit 1
+}
+
 function main {
   # load ruby configuration from deploy descriptor
   local app_ruby="$(ryaml $shome/config/deploy.yml app_ruby)"
   local app_ruby_version="$(ryaml $shome/config/deploy.yml app_ruby_version)"
   local app_ruby_platform="$(ryaml $shome/config/deploy.yml app_ruby_platform)"
+  local not_app_ruby_platform="$(ryaml $shome/config/deploy.yml not_app_ruby_platform)"
   local ruby_loader="$(ryaml $shome/config/deploy.yml ruby_loader)"
   local ruby_runner="$ruby_loader $app_ruby"
+  local chef_path="$(ryaml $shome/config/deploy.yml chef_path)"
 
   # if ruby loader is rvm-exec, try to find it
   if [[ "$ruby_loader" = "rvm-exec" ]]; then
@@ -34,30 +84,34 @@ function main {
     fi
   fi
 
-  # verify ruby version matches deploy descriptor
-  local ruby_version_platform="$($ruby_runner ruby -e 'puts "#{RUBY_VERSION} #{RUBY_PLATFORM}"' 2>&-)"
-  local version_ruby="${ruby_version_platform%% *}"
-  local platform_ruby="${ruby_version_platform##* }"
-
-  if [[ -n "$app_ruby_version" ]]; then
-    if [[ "$version_ruby" != "$app_ruby_version" ]]; then
-      echo "deploy expecting ruby version $app_ruby_version, got $version_ruby" 1>&2
-      exit 1
+  if [[ ! -d "$chef_path" ]]; then
+    # proxied deploy, so relax rvm rquirements, just check current ruby
+    if verify_ruby; then
+      # current ruby is OK
+      ruby_runner=""
+      true
+    else
+      if [[ -n "$ruby_runner" ]]; then
+        # check with configured ruby loader
+        if ! verify_ruby "$ruby_runner"; then
+          # ruby loader is not loading the right ruby
+          fatal_ruby $ruby_runner
+        fi
+      else
+        # no configured ruby loader, current ruby is not loading the right ruby
+        fatal_ruby
+      fi
+    fi
+  else
+    # in operations environments, must use ruby loader
+    if !verify_ruby "$ruby_runner"; then
+      # ruby loader is not loading the right ruby
+      fatal_ruby $ruby_runner
     fi
   fi
 
-  if [[ -n "$app_ruby_platform" ]]; then
-    if [[ "$platform_ruby" != "$app_ruby_platform" ]]; then
-      echo "deploy expecting ruby platform $app_ruby_platform, got $platform_ruby" 1>&2
-      exit 1
-    fi
-  fi
-
-  # if ruby loader not set, don't bother with bundling 
-  if [[ -n "$ruby_runner" ]]; then
-    if ! $ruby_runner bundle check 2>&- > /dev/null; then
-      $ruby_runner bundle install --local --quiet --path vendor/bundle
-    fi
+  if ! $ruby_runner bundle check 2>&- > /dev/null; then
+    $ruby_runner bundle install --local --quiet --path vendor/bundle
   fi
 
   # pass deploy command and arguments to ao script in alpha_omega gem
