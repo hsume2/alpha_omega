@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+unset cd
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
 function ryaml { 

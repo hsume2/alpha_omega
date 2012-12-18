@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+unset cd
 shome="$(cd -P -- "$(dirname -- "$BASH_SOURCE")/.." && pwd -P)"
 
 function ryaml { 
@@ -86,7 +87,7 @@ function main {
 
   if [[ -d "$chef_path" ]]; then
     # in operations environments, must use ruby loader
-    if !verify_ruby "$ruby_runner"; then
+    if ! verify_ruby "$ruby_runner"; then
       # ruby loader is not loading the right ruby
       fatal_ruby $ruby_runner
     fi
