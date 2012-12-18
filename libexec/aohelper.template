@@ -86,7 +86,7 @@ function main {
 
   if [[ -d "$chef_path" ]]; then
     # in operations environments, must use ruby loader
-    if !verify_ruby "$ruby_runner"; then
+    if ! verify_ruby "$ruby_runner"; then
       # ruby loader is not loading the right ruby
       fatal_ruby $ruby_runner
     fi
