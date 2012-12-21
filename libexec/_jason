@@ -166,3 +166,4 @@ function _main {
 }
 
 _main "$@"
+set -fue

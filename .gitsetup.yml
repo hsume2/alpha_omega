@@ -1,0 +1,5 @@
+---
+remotes:
+  primary: git@github.com:destructuring/alpha_omega
+  sh: https://github.com/destructuring/jason
+  bump: https://github.com/destructuring/mixin-bump
