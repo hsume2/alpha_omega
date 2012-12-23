@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    alpha_omega (1.5.12)
+    alpha_omega (1.5.13)
       capistrano
       capistrano-log_with_awesome
       capistrano_colors
