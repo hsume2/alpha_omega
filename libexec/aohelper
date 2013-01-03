@@ -111,6 +111,7 @@ function main {
 
   # pass deploy command and arguments to ao script in alpha_omega gem
   $ruby_runner bundle exec ao "${BASH_SOURCE##*/}" "$@"
+
 }
 
 main "$@"
