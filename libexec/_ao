@@ -3,7 +3,7 @@
 function deploy_basename {
   local cmd="$(basename "$1")"; shift
   echo "${cmd#aoh-}"
-} 
+}
 
 # define command line options:
 #   var name, default, description, short option
@@ -129,7 +129,12 @@ function main {
 
     if [[ "$nm_pod" = "sys" && "$#" > 0 ]]; then
       if [[ "${1%.*}" = "production" ]]; then
-        set -- "admin" "$@"
+        # To prevent admin from being added, add the following line to config/deploy.yml
+        #
+        # production_admin: false
+        if [[ ! "$_AO_HOME/config/deploy.yml" || "$(ryaml "$_AO_HOME/config/deploy.yml" "production_admin")" != *false* ]]; then
+          set -- "admin" "$@"
+        fi
       fi
     fi
 
@@ -145,7 +150,7 @@ function main {
       export FLAGS_reviewer
     fi
     aomain "$nm_pod" "$@"
-  else 
+  else
     if [[ "$#" > 0 ]]; then
       case "$1" in
         all|world)
